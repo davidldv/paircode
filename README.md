@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PairCode Room
 
-## Getting Started
+Real-time AI pair-programming room built with Next.js, WebSockets, and streaming AI responses.
 
-First, run the development server:
+## Features
+
+- Live room presence (join/leave)
+- Typing indicators
+- Shared room chat stream
+- Shared room context (`selected files/snippets` + `pinned requirements`)
+- Room agent that can:
+	- answer room questions
+	- summarize room thread
+	- propose next steps
+	- stream tokens live to everyone in the room
+
+## Architecture
+
+- Next.js app UI: `app/page.tsx`
+- WebSocket room server: `server/ws-server.mjs`
+- Optional HTTP AI streaming endpoint (SSE): `app/api/agent/route.ts`
+
+Room state is in-memory on the WebSocket server.
+
+## Environment variables
+
+Copy the example file (optional):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then edit `.env.local` as needed:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_WS_URL=ws://localhost:3001
+WS_PORT=3001
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-4o-mini
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+If `OPENAI_API_KEY` is not set, the room agent uses a deterministic fallback stream so the app still works.
 
-## Learn More
+## Run locally
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun install
+bun run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This starts both:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Next.js on `http://localhost:3000`
+- WebSocket server on `ws://localhost:3001`
 
-## Deploy on Vercel
+Open multiple browser windows to simulate multiple users in the same room.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `bun run dev` → starts Next.js + WebSocket server
+- `bun run build` → production build
+- `bun run start` → starts Next.js + WebSocket server in production mode
+- `bun run lint` → ESLint
