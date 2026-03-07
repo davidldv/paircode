@@ -2,18 +2,22 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(function Input(
+  { className, type, ...props },
+  ref
+) {
   return (
     <input
+      ref={ref}
       type={type}
       data-slot="input"
       className={cn(
-        "flex h-9 w-full min-w-0 rounded-md border border-black/15 bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-colors placeholder:text-black/50 focus-visible:border-black/40 focus-visible:ring-2 focus-visible:ring-black/20 dark:border-white/20 dark:placeholder:text-white/50 dark:focus-visible:border-white/40 dark:focus-visible:ring-white/20",
+        "flex h-10 w-full min-w-0 rounded-lg border border-(--line) bg-(--surface) px-3 py-1 text-sm text-foreground shadow-[0_1px_0_rgba(255,255,255,0.35)_inset] outline-none transition-all placeholder:text-(--muted) focus-visible:border-(--accent) focus-visible:ring-2 focus-visible:ring-(--focus-ring)",
         className
       )}
       {...props}
     />
   );
-}
+});
 
 export { Input };

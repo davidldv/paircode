@@ -23,7 +23,10 @@ function AvatarFallback({ className, ...props }: React.ComponentProps<typeof Ava
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
-      className={cn("flex h-full w-full items-center justify-center rounded-full border border-black/15 bg-black/5 text-xs font-medium text-black/80 dark:border-white/20 dark:bg-white/10 dark:text-white/80", className)}
+      className={cn(
+        "flex h-full w-full items-center justify-center rounded-full border border-(--line) bg-(--surface-strong) text-xs font-semibold text-foreground",
+        className
+      )}
       {...props}
     />
   );

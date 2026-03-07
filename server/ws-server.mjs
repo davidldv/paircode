@@ -1,8 +1,8 @@
 import { WebSocketServer } from "ws";
 
 const PORT = Number(process.env.WS_PORT ?? 3001);
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3-flash-preview";
 
 const rooms = new Map();
 
@@ -124,15 +124,15 @@ function parseSseLine(line) {
   }
 }
 
-async function* streamOpenAIResponse(prompt) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+async function* streamGeminiResponse(prompt) {
+  const response = await fetch("https://api.gemini.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      Authorization: `Bearer ${GEMINI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: OPENAI_MODEL,
+      model: GEMINI_MODEL,
       stream: true,
       temperature: 0.4,
       messages: [
@@ -151,7 +151,7 @@ async function* streamOpenAIResponse(prompt) {
 
   if (!response.ok || !response.body) {
     const errorText = await response.text().catch(() => "Unknown AI error");
-    throw new Error(`OpenAI request failed: ${response.status} ${errorText}`);
+    throw new Error(`Gemini request failed: ${response.status} ${errorText}`);
   }
 
   const decoder = new TextDecoder();
@@ -234,8 +234,8 @@ async function runRoomAgent({ roomId, requesterId, mode, question }) {
   let fullText = "";
 
   try {
-    if (OPENAI_API_KEY) {
-      for await (const token of streamOpenAIResponse(prompt)) {
+    if (GEMINI_API_KEY) {
+      for await (const token of streamGeminResponse(prompt)) {
         if (room.activeAgentRun !== runId) {
           break;
         }

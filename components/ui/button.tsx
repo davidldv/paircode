@@ -5,19 +5,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-black/30 dark:focus-visible:ring-white/30",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
   {
     variants: {
       variant: {
-        default: "bg-foreground text-background hover:opacity-90",
-        secondary: "border border-black/15 bg-transparent hover:bg-black/5 dark:border-white/25 dark:hover:bg-white/10",
-        ghost: "hover:bg-black/5 dark:hover:bg-white/10",
+        default:
+          "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[#fff8ef] shadow-[0_8px_20px_-14px_rgba(216,93,45,0.9)] hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0",
+        secondary:
+          "border border-[color:var(--line)] bg-[color:var(--surface)] text-[color:var(--foreground)] hover:-translate-y-0.5 hover:border-[color:var(--accent-soft)] hover:bg-[#fff5e7]",
+        ghost: "text-[color:var(--muted)] hover:bg-[#f4e7cf] hover:text-[color:var(--foreground)]",
       },
       size: {
-        default: "h-9 px-4 py-2",
+        default: "h-10 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-6",
-        icon: "h-9 w-9",
+        lg: "h-11 rounded-md px-6",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {

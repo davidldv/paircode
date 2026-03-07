@@ -1,26 +1,158 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f0e6;
+  --foreground: #171714;
+  --surface: #fffaf0;
+  --surface-strong: #f7ecd8;
+  --line: #d7c8a8;
+  --muted: #6f6654;
+  --accent: #d85d2d;
+  --accent-soft: #f2ad80;
+  --focus-ring: rgba(216, 93, 45, 0.35);
+  --spot-a: rgba(216, 93, 45, 0.16);
+  --spot-b: rgba(61, 137, 130, 0.18);
+  --spot-c: rgba(247, 200, 142, 0.22);
+  --overlay-a: rgba(255, 250, 240, 0.82);
+  --overlay-b: rgba(244, 240, 230, 0.72);
+  --noise-stroke: #1a1a17;
+}
+
+html[data-theme="dark"] {
+  --background: #19150f;
+  --foreground: #f8f0df;
+  --surface: #231c13;
+  --surface-strong: #2d2418;
+  --line: #5d4c33;
+  --muted: #bcab8d;
+  --accent: #f39a4e;
+  --accent-soft: #d4b58d;
+  --focus-ring: rgba(243, 154, 78, 0.35);
+  --spot-a: rgba(243, 154, 78, 0.22);
+  --spot-b: rgba(94, 183, 175, 0.2);
+  --spot-c: rgba(133, 111, 74, 0.25);
+  --overlay-a: rgba(25, 21, 15, 0.82);
+  --overlay-b: rgba(20, 17, 12, 0.7);
+  --noise-stroke: #f3e3c8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-bricolage-grotesque);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-bricolage-grotesque), "Segoe UI", sans-serif;
+  min-height: 100vh;
+  position: relative;
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 8% 6%, var(--spot-a), transparent 26%),
+    radial-gradient(circle at 86% 12%, var(--spot-b), transparent 24%),
+    radial-gradient(circle at 54% 90%, var(--spot-c), transparent 34%),
+    linear-gradient(130deg, var(--overlay-a), var(--overlay-b));
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  z-index: -1;
+  background-image:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--noise-stroke) 24%, transparent) 0px, color-mix(in srgb, var(--noise-stroke) 24%, transparent) 1px, transparent 1px, transparent 70px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--noise-stroke) 24%, transparent) 0px, color-mix(in srgb, var(--noise-stroke) 24%, transparent) 1px, transparent 1px, transparent 70px);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
+}
+
+.surface-card {
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, rgba(255, 250, 240, 0.95), rgba(247, 236, 216, 0.7));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 24px 55px -32px rgba(123, 84, 45, 0.4);
+  backdrop-filter: blur(3px);
+  transition: border-color 220ms ease, background-color 220ms ease;
+}
+
+html[data-theme="dark"] .surface-card {
+  background: linear-gradient(160deg, rgba(35, 28, 19, 0.92), rgba(45, 36, 24, 0.72));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 24px 55px -32px rgba(0, 0, 0, 0.6);
+}
+
+.mono-label {
+  font-family: var(--font-ibm-plex-mono), "SFMono-Regular", monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fade-up {
+  animation: fade-up 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.fade-up-delay {
+  animation: fade-up 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.float-glow {
+  animation: float-glow 8s ease-in-out infinite alternate;
+}
+
+.toast-in {
+  animation: toast-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-glow {
+  from {
+    transform: translateY(0px) scale(1);
+  }
+
+  to {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
