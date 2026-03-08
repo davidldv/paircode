@@ -1,4 +1,9 @@
 import { WebSocketServer } from "ws";
+import {
+  buildAgentPrompt,
+  buildFallbackResponse,
+  streamTokensFromSseStream,
+} from "./agent-utils.mjs";
 
 const PORT = Number(process.env.WS_PORT ?? 3001);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -71,59 +76,6 @@ function addMessage(roomId, message) {
   }
 }
 
-function buildFallbackResponse(mode, roomSnapshot, question) {
-  const latestMessages = roomSnapshot.messages.slice(-6);
-  const contextLines = [
-    roomSnapshot.context.selectedFiles?.trim(),
-    roomSnapshot.context.pinnedRequirements?.trim(),
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  if (mode === "summarize") {
-    return [
-      "Room summary:",
-      latestMessages.length
-        ? latestMessages.map((m) => `- ${m.userName}: ${m.text}`).join("\n")
-        : "- No chat history yet.",
-      contextLines ? `\nPinned context:\n${contextLines}` : "",
-    ].join("\n");
-  }
-
-  if (mode === "next-steps") {
-    return [
-      "Proposed next steps:",
-      "1. Clarify the core requirement in one sentence.",
-      "2. Split work into frontend, backend, and tests.",
-      "3. Implement the smallest complete slice first.",
-      "4. Validate with lint/tests and tighten edge cases.",
-      contextLines ? `\nUse this room context while implementing:\n${contextLines}` : "",
-    ].join("\n");
-  }
-
-  return [
-    "Pair-agent suggestion:",
-    question ? `Question: ${question}` : "No explicit question was provided.",
-    "",
-    "Suggested approach:",
-    "- Start with an API contract and shared types.",
-    "- Implement real-time events first, then persistence.",
-    "- Add clear error states and loading indicators.",
-    contextLines ? `\nContext to keep in scope:\n${contextLines}` : "",
-  ].join("\n");
-}
-
-function parseSseLine(line) {
-  if (!line.startsWith("data:")) return null;
-  const jsonText = line.slice(5).trim();
-  if (!jsonText || jsonText === "[DONE]") return "[DONE]";
-  try {
-    return JSON.parse(jsonText);
-  } catch {
-    return null;
-  }
-}
-
 async function* streamGeminiResponse(prompt) {
   const response = await fetch("https://api.gemini.com/v1/chat/completions", {
     method: "POST",
@@ -154,50 +106,7 @@ async function* streamGeminiResponse(prompt) {
     throw new Error(`Gemini request failed: ${response.status} ${errorText}`);
   }
 
-  const decoder = new TextDecoder();
-  let buffer = "";
-
-  for await (const chunk of response.body) {
-    buffer += decoder.decode(chunk, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-
-    for (const line of lines) {
-      const parsed = parseSseLine(line.trim());
-      if (!parsed || parsed === "[DONE]") continue;
-      const token = parsed.choices?.[0]?.delta?.content;
-      if (token) {
-        yield token;
-      }
-    }
-  }
-}
-
-function buildAgentPrompt({ mode, question, roomSnapshot }) {
-  const shortMessages = roomSnapshot.messages.slice(-25).map((message) => ({
-    user: message.userName,
-    text: message.text,
-    at: message.timestamp,
-  }));
-
-  return [
-    `Mode: ${mode}`,
-    question ? `Question: ${question}` : "Question: (none)",
-    "",
-    "Shared context:",
-    roomSnapshot.context.selectedFiles || "(no selected files/snippets)",
-    "",
-    "Pinned requirements:",
-    roomSnapshot.context.pinnedRequirements || "(none)",
-    "",
-    "Recent room messages (JSON):",
-    JSON.stringify(shortMessages, null, 2),
-    "",
-    "Respond for a team in a real-time pair programming room.",
-    "If mode is summarize, provide a concise summary.",
-    "If mode is next-steps, provide an ordered implementation plan.",
-    "If mode is answer, directly answer the question and include practical coding guidance.",
-  ].join("\n");
+  yield* streamTokensFromSseStream(response.body);
 }
 
 async function runRoomAgent({ roomId, requesterId, mode, question }) {
@@ -235,7 +144,7 @@ async function runRoomAgent({ roomId, requesterId, mode, question }) {
 
   try {
     if (GEMINI_API_KEY) {
-      for await (const token of streamGeminResponse(prompt)) {
+      for await (const token of streamGeminiResponse(prompt)) {
         if (room.activeAgentRun !== runId) {
           break;
         }

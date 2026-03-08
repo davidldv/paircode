@@ -6,7 +6,8 @@
     "dev": "concurrently -k \"next dev\" \"node server/ws-server.mjs\"",
     "build": "next build",
     "start": "concurrently -k \"node server/ws-server.mjs\" \"next start\"",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "bun test"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

@@ -1,21 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f0e6;
-  --foreground: #171714;
-  --surface: #fffaf0;
-  --surface-strong: #f7ecd8;
-  --line: #d7c8a8;
-  --muted: #6f6654;
+  --background: #f6f0e6;
+  --foreground: #1d1710;
+  --surface: #fff9f0;
+  --surface-strong: #f5e9d8;
+  --panel: rgba(255, 250, 242, 0.76);
+  --panel-soft: rgba(255, 247, 236, 0.84);
+  --panel-strong: rgba(243, 230, 210, 0.92);
+  --panel-border: rgba(127, 90, 42, 0.16);
+  --panel-border-strong: rgba(174, 122, 60, 0.28);
+  --panel-shadow: 0 32px 70px -42px rgba(101, 74, 36, 0.2);
+  --line: #dac9ae;
+  --muted: #74624b;
   --accent: #d85d2d;
   --accent-soft: #f2ad80;
+  --accent-glow: rgba(231, 146, 70, 0.16);
+  --success: #8fd9bb;
   --focus-ring: rgba(216, 93, 45, 0.35);
-  --spot-a: rgba(216, 93, 45, 0.16);
-  --spot-b: rgba(61, 137, 130, 0.18);
-  --spot-c: rgba(247, 200, 142, 0.22);
-  --overlay-a: rgba(255, 250, 240, 0.82);
-  --overlay-b: rgba(244, 240, 230, 0.72);
-  --noise-stroke: #1a1a17;
+  --spot-a: rgba(216, 93, 45, 0.11);
+  --spot-b: rgba(61, 137, 130, 0.1);
+  --spot-c: rgba(247, 200, 142, 0.16);
+  --overlay-a: rgba(250, 246, 238, 0.9);
+  --overlay-b: rgba(239, 229, 213, 0.9);
+  --noise-stroke: #816d4f;
+  --agent-card-border: #99c8ad;
+  --agent-card-bg-a: #eef7f1;
+  --agent-card-bg-b: #edf4f5;
+  --agent-avatar-bg: #ecf9ef;
+  --agent-avatar-text: #256949;
+  --agent-badge-bg: #dff3e7;
+  --agent-badge-border: #8fbda0;
+  --agent-badge-text: #23593f;
 }
 
 html[data-theme="dark"] {
@@ -23,10 +39,18 @@ html[data-theme="dark"] {
   --foreground: #f8f0df;
   --surface: #231c13;
   --surface-strong: #2d2418;
+  --panel: rgba(30, 21, 11, 0.82);
+  --panel-soft: rgba(41, 30, 16, 0.68);
+  --panel-strong: rgba(21, 15, 8, 0.92);
+  --panel-border: rgba(193, 143, 77, 0.3);
+  --panel-border-strong: rgba(235, 183, 106, 0.42);
+  --panel-shadow: 0 36px 90px -42px rgba(0, 0, 0, 0.72);
   --line: #5d4c33;
   --muted: #bcab8d;
   --accent: #f39a4e;
   --accent-soft: #d4b58d;
+  --accent-glow: rgba(243, 154, 78, 0.2);
+  --success: #9de2c5;
   --focus-ring: rgba(243, 154, 78, 0.35);
   --spot-a: rgba(243, 154, 78, 0.22);
   --spot-b: rgba(94, 183, 175, 0.2);
@@ -34,6 +58,14 @@ html[data-theme="dark"] {
   --overlay-a: rgba(25, 21, 15, 0.82);
   --overlay-b: rgba(20, 17, 12, 0.7);
   --noise-stroke: #f3e3c8;
+  --agent-card-border: #4f7a67;
+  --agent-card-bg-a: #243128;
+  --agent-card-bg-b: #1c2927;
+  --agent-avatar-bg: #30463a;
+  --agent-avatar-text: #d7f0de;
+  --agent-badge-bg: #31483d;
+  --agent-badge-border: #5a866f;
+  --agent-badge-text: #dcf4e3;
 }
 
 @theme inline {
@@ -50,6 +82,15 @@ body {
   min-height: 100vh;
   position: relative;
   transition: background-color 220ms ease, color 220ms ease;
+  text-rendering: optimizeLegibility;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 body::before {
@@ -58,10 +99,10 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 8% 6%, var(--spot-a), transparent 26%),
-    radial-gradient(circle at 86% 12%, var(--spot-b), transparent 24%),
-    radial-gradient(circle at 54% 90%, var(--spot-c), transparent 34%),
-    linear-gradient(130deg, var(--overlay-a), var(--overlay-b));
+    radial-gradient(circle at 10% 8%, var(--spot-a), transparent 26%),
+    radial-gradient(circle at 82% 14%, var(--spot-b), transparent 26%),
+    radial-gradient(circle at 50% 88%, var(--spot-c), transparent 30%),
+    linear-gradient(135deg, var(--overlay-a), var(--overlay-b) 72%);
   z-index: -2;
 }
 
@@ -70,11 +111,14 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.05;
+  opacity: 0.07;
   z-index: -1;
   background-image:
-    repeating-linear-gradient(0deg, color-mix(in srgb, var(--noise-stroke) 24%, transparent) 0px, color-mix(in srgb, var(--noise-stroke) 24%, transparent) 1px, transparent 1px, transparent 70px),
-    repeating-linear-gradient(90deg, color-mix(in srgb, var(--noise-stroke) 24%, transparent) 0px, color-mix(in srgb, var(--noise-stroke) 24%, transparent) 1px, transparent 1px, transparent 70px);
+    linear-gradient(color-mix(in srgb, var(--noise-stroke) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--noise-stroke) 10%, transparent) 1px, transparent 1px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--noise-stroke) 18%, transparent) 0px, color-mix(in srgb, var(--noise-stroke) 18%, transparent) 1px, transparent 1px, transparent 84px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--noise-stroke) 18%, transparent) 0px, color-mix(in srgb, var(--noise-stroke) 18%, transparent) 1px, transparent 1px, transparent 84px);
+  background-size: 28px 28px, 28px 28px, auto, auto;
 }
 
 h1,
@@ -85,20 +129,41 @@ h4 {
 }
 
 .surface-card {
-  border: 1px solid var(--line);
-  background: linear-gradient(160deg, rgba(255, 250, 240, 0.95), rgba(247, 236, 216, 0.7));
+  border: 1px solid var(--panel-border);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 96%, transparent), color-mix(in srgb, var(--panel-strong) 100%, transparent)),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0));
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.8) inset,
-    0 24px 55px -32px rgba(123, 84, 45, 0.4);
-  backdrop-filter: blur(3px);
-  transition: border-color 220ms ease, background-color 220ms ease;
+    0 1px 0 rgba(255, 255, 255, 0.58) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    var(--panel-shadow);
+  backdrop-filter: blur(18px);
+  transition: border-color 220ms ease, background-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
 }
 
 html[data-theme="dark"] .surface-card {
-  background: linear-gradient(160deg, rgba(35, 28, 19, 0.92), rgba(45, 36, 24, 0.72));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 84%, transparent), color-mix(in srgb, var(--panel-strong) 96%, transparent)),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 24px 55px -32px rgba(0, 0, 0, 0.6);
+    0 0 0 1px rgba(255, 255, 255, 0.02),
+    var(--panel-shadow);
+}
+
+.surface-card:hover {
+  border-color: var(--panel-border-strong);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.46) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 38px 82px -48px rgba(80, 58, 24, 0.28);
+}
+
+html[data-theme="dark"] .surface-card:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.02),
+    0 40px 95px -48px rgba(0, 0, 0, 0.8);
 }
 
 .mono-label {
@@ -107,12 +172,144 @@ html[data-theme="dark"] .surface-card {
   text-transform: uppercase;
 }
 
+.app-shell {
+  position: relative;
+}
+
+.app-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 18%, var(--accent-glow), transparent 22%),
+    radial-gradient(circle at 84% 30%, rgba(61, 137, 130, 0.12), transparent 26%);
+  opacity: 0.55;
+}
+
+html[data-theme="dark"] .app-shell::before {
+  opacity: 0.9;
+}
+
+.hero-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04) 38%, transparent 62%),
+    radial-gradient(circle at top right, rgba(244, 164, 91, 0.12), transparent 28%);
+}
+
+html[data-theme="dark"] .hero-shell::after {
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04) 38%, transparent 62%),
+    radial-gradient(circle at top right, rgba(244, 164, 91, 0.12), transparent 28%);
+}
+
+html:not([data-theme="dark"]) .hero-shell::after {
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24) 38%, transparent 62%),
+    radial-gradient(circle at top right, rgba(244, 164, 91, 0.08), transparent 28%);
+}
+
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--panel-border-strong) 80%, transparent);
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.metric-tile {
+  border: 1px solid color-mix(in srgb, var(--panel-border) 88%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 92%, transparent), color-mix(in srgb, var(--panel-strong) 100%, transparent));
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.panel-rule {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--panel-border-strong) 90%, transparent), transparent);
+}
+
+.composer-shell {
+  border: 1px solid color-mix(in srgb, var(--panel-border) 90%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 96%, transparent), color-mix(in srgb, var(--panel-strong) 100%, transparent));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.subtle-grid {
+  position: relative;
+}
+
+.subtle-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(color-mix(in srgb, var(--panel-border) 35%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--panel-border) 35%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 72%);
+  opacity: 0.18;
+}
+
 .fade-up {
   animation: fade-up 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .fade-up-delay {
   animation: fade-up 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.section-panel {
+  animation: fade-up 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stage-1 {
+  animation-delay: 80ms;
+}
+
+.stage-2 {
+  animation-delay: 150ms;
+}
+
+.stage-3 {
+  animation-delay: 220ms;
+}
+
+.stage-4 {
+  animation-delay: 290ms;
+}
+
+.hero-shell .metric-tile {
+  animation: fade-up 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-shell .metric-tile:nth-of-type(1) {
+  animation-delay: 90ms;
+}
+
+.hero-shell .metric-tile:nth-of-type(2) {
+  animation-delay: 160ms;
+}
+
+.hero-shell .metric-tile:nth-of-type(3) {
+  animation-delay: 230ms;
 }
 
 .float-glow {
