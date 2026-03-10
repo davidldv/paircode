@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatTime, initialsFromName, isAgentMessage, type ChatMessage } from "@/lib/paircode";
+import { formatTime, initialsFromName, isAgentMessage, isSystemMessage, type ChatMessage } from "@/lib/paircode";
 
 type MessagePanelProps = {
   messages: ChatMessage[];
   typingIndicator: string;
+  activeRoom: string;
   messageInput: string;
   messageInputRef: RefObject<HTMLInputElement | null>;
   messageViewportRef: RefObject<HTMLDivElement | null>;
@@ -28,6 +29,7 @@ type MessagePanelProps = {
 export function MessagePanel({
   messages,
   typingIndicator,
+  activeRoom,
   messageInput,
   messageInputRef,
   messageViewportRef,
@@ -40,6 +42,8 @@ export function MessagePanel({
   onInsertStarter,
   onFocusInput,
 }: MessagePanelProps) {
+  const canSendMessages = Boolean(activeRoom);
+
   return (
     <Card className="subtle-grid section-panel stage-2 flex min-h-[66vh] flex-col overflow-hidden">
       <CardHeader className="border-b border-(--panel-border)">
@@ -62,6 +66,25 @@ export function MessagePanel({
           <div className="space-y-3">
             {messages.map((message) => {
               const agentMessage = isAgentMessage(message);
+              const systemMessage = isSystemMessage(message);
+
+              if (systemMessage) {
+                return (
+                  <article
+                    key={message.id}
+                    className="rounded-[1.2rem] border border-dashed border-(--panel-border-strong) bg-[color-mix(in_srgb,var(--panel-strong)_86%,transparent)] px-4 py-3 text-sm"
+                  >
+                    <div className="flex items-center justify-between gap-3 text-xs text-(--muted)">
+                      <div className="flex items-center gap-2">
+                        <Badge className="border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-soft)_92%,transparent)] text-foreground">audit</Badge>
+                        <span className="font-medium text-foreground">{message.userName}</span>
+                      </div>
+                      <span className="mono-label text-[10px]">{formatTime(message.timestamp)}</span>
+                    </div>
+                    <p className="mt-2 leading-6 text-foreground">{message.text}</p>
+                  </article>
+                );
+              }
 
               return (
                 <article
@@ -128,12 +151,15 @@ export function MessagePanel({
         <div className="panel-rule" />
 
         <div className="composer-shell rounded-[1.35rem] p-3">
-          <div className="mb-2 h-4 text-xs text-(--muted)">{typingIndicator || ""}</div>
+          <div className="mb-2 h-4 text-xs text-(--muted)">
+            {canSendMessages ? typingIndicator || "" : "Join a room to send messages to the shared stream."}
+          </div>
           <div className="flex gap-2">
             <Input
               ref={messageInputRef}
               className="flex-1"
               value={messageInput}
+              disabled={!canSendMessages}
               onChange={(event) => onMessageInputChange(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
@@ -141,9 +167,9 @@ export function MessagePanel({
                   onSendMessage();
                 }
               }}
-              placeholder="Share context, code decisions, or blockers"
+              placeholder={canSendMessages ? "Share context, code decisions, or blockers" : "Join a room to unlock the message stream"}
             />
-            <Button type="button" onClick={onSendMessage} disabled={!messageInput.trim()} className="min-w-29.5">
+            <Button type="button" onClick={onSendMessage} disabled={!canSendMessages || !messageInput.trim()} className="min-w-29.5">
               <SendHorizontal className="h-4 w-4" />
               Send
             </Button>

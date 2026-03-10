@@ -1,0 +1,23 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="paircode-bg" x1="32" y1="28" x2="222" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF3D6" />
+      <stop offset="0.48" stop-color="#FFD27A" />
+      <stop offset="1" stop-color="#D85D2D" />
+    </linearGradient>
+    <linearGradient id="paircode-wire" x1="59" y1="48" x2="198" y2="211" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#143A36" />
+      <stop offset="1" stop-color="#2E6D67" />
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="232" height="232" rx="56" fill="url(#paircode-bg)" />
+  <rect x="28" y="28" width="200" height="200" rx="44" stroke="#FFF7E7" stroke-opacity="0.55" stroke-width="2" />
+  <path d="M70 85L54 99L70 113" stroke="url(#paircode-wire)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M186 85L202 99L186 113" stroke="url(#paircode-wire)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M82 160C94 145.333 109.333 138 128 138C146.667 138 162 145.333 174 160" stroke="#143A36" stroke-width="14" stroke-linecap="round" />
+  <circle cx="96" cy="100" r="17" fill="#143A36" />
+  <circle cx="160" cy="100" r="17" fill="#143A36" />
+  <path d="M128 64V120" stroke="#FFF7E7" stroke-width="10" stroke-linecap="round" />
+  <circle cx="128" cy="137" r="11" fill="#FFF7E7" />
+  <path d="M96 100H128H160" stroke="#FFF7E7" stroke-opacity="0.72" stroke-width="4" stroke-linecap="round" />
+</svg>

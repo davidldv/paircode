@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { type AgentMode, type ChatMessage, type RoomContext, type RoomUser, type ToastNotice } from "@/lib/paircode";
+import { type AgentMode, type ChatMessage, type RoomContext, type RoomInvite, type RoomMember, type RoomOwner, type RoomUser, type ToastNotice } from "@/lib/paircode";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:3001";
 
@@ -24,7 +24,13 @@ function createStreamingAgentMessage(runId: string, mode: AgentMode): ChatMessag
   };
 }
 
-export function usePaircodeRoom() {
+type UsePaircodeRoomOptions = {
+  userId: string;
+  userName: string;
+  getToken: () => Promise<string | null>;
+};
+
+export function usePaircodeRoom({ userId, userName, getToken }: UsePaircodeRoomOptions) {
   const socketRef = useRef<WebSocket | null>(null);
   const intentionalDisconnectRef = useRef(false);
   const typingTimeoutRef = useRef<number | null>(null);
@@ -33,8 +39,12 @@ export function usePaircodeRoom() {
   const [status, setStatus] = useState<"idle" | "connecting" | "connected" | "disconnected">("idle");
   const [mySocketId, setMySocketId] = useState("");
   const [roomId, setRoomId] = useState("main-room");
-  const [name, setName] = useState("Dev");
+  const [inviteToken, setInviteToken] = useState("");
   const [activeRoom, setActiveRoom] = useState("");
+  const [activeInvite, setActiveInvite] = useState<RoomInvite | null>(null);
+  const [roomMembers, setRoomMembers] = useState<RoomMember[]>([]);
+  const [roomOwner, setRoomOwner] = useState<RoomOwner | null>(null);
+  const [canManageRoom, setCanManageRoom] = useState(false);
   const [users, setUsers] = useState<RoomUser[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState("");
@@ -71,6 +81,18 @@ export function usePaircodeRoom() {
     return "Answer";
   }, [agentMode]);
 
+  const activeInviteLink = useMemo(() => {
+    if (!activeRoom || !activeInvite?.token || typeof window === "undefined") {
+      return "";
+    }
+
+    const url = new URL(window.location.origin);
+    url.pathname = "/";
+    url.searchParams.set("room", activeRoom);
+    url.searchParams.set("invite", activeInvite.token);
+    return url.toString();
+  }, [activeInvite, activeRoom]);
+
   const send = useCallback((payload: Record<string, unknown>) => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
@@ -90,6 +112,11 @@ export function usePaircodeRoom() {
     setStatus("idle");
     setMySocketId("");
     setActiveRoom("");
+    setInviteToken("");
+    setActiveInvite(null);
+    setRoomMembers([]);
+    setRoomOwner(null);
+    setCanManageRoom(false);
     setUsers([]);
     setMessages([]);
     setMessageInput("");
@@ -108,14 +135,33 @@ export function usePaircodeRoom() {
 
   const handleRoomSnapshotPayload = useCallback((payload: Record<string, unknown>) => {
     setActiveRoom(String(payload.roomId || ""));
+    setInviteToken("");
     setUsers((payload.users as RoomUser[]) || []);
     setMessages((payload.messages as ChatMessage[]) || []);
     setContext((payload.context as RoomContext) || EMPTY_CONTEXT);
+    setActiveInvite((payload.activeInvite as RoomInvite | null) || null);
+    setRoomMembers((payload.members as RoomMember[]) || []);
+    setRoomOwner((payload.owner as RoomOwner | null) || null);
+    setCanManageRoom(Boolean((payload.permissions as { canManageRoom?: boolean } | undefined)?.canManageRoom));
     setTypingUsers({});
   }, []);
 
+  const handleInviteCreatedPayload = useCallback((payload: Record<string, unknown>) => {
+    const invite = (payload.invite as RoomInvite | undefined) ?? null;
+    setActiveInvite(invite);
+    pushToast({
+      title: "Invite link generated",
+      detail: invite ? "Share the signed invite link with the next collaborator." : undefined,
+      variant: "success",
+    });
+  }, [pushToast]);
+
   const handlePresencePayload = useCallback((payload: Record<string, unknown>) => {
     setUsers((payload.users as RoomUser[]) || []);
+  }, []);
+
+  const handleRoomMembersPayload = useCallback((payload: Record<string, unknown>) => {
+    setRoomMembers((payload.members as RoomMember[]) || []);
   }, []);
 
   const handleTypingPayload = useCallback((payload: Record<string, unknown>) => {
@@ -175,8 +221,14 @@ export function usePaircodeRoom() {
 
   const handleAiErrorPayload = useCallback((payload: Record<string, unknown>) => {
     setAgentStreaming(false);
-    setLastError(String(payload.error || "AI failed"));
-  }, []);
+    const detail = String(payload.error || "AI failed");
+    setLastError(detail);
+    pushToast({
+      title: detail.includes("revoked") ? "Room access revoked" : "Room action blocked",
+      detail,
+      variant: "danger",
+    });
+  }, [pushToast]);
 
   const handleSocketPayload = useCallback((payload: Record<string, unknown>) => {
     switch (payload.type) {
@@ -188,6 +240,9 @@ export function usePaircodeRoom() {
         break;
       case "presence":
         handlePresencePayload(payload);
+        break;
+      case "room:members":
+        handleRoomMembersPayload(payload);
         break;
       case "typing":
         handleTypingPayload(payload);
@@ -211,6 +266,9 @@ export function usePaircodeRoom() {
       case "error":
         handleAiErrorPayload(payload);
         break;
+      case "invite:created":
+        handleInviteCreatedPayload(payload);
+        break;
       default:
         break;
     }
@@ -223,13 +281,25 @@ export function usePaircodeRoom() {
     handleConnectedPayload,
     handleContextPayload,
     handlePresencePayload,
+    handleRoomMembersPayload,
     handleRoomSnapshotPayload,
     handleTypingPayload,
+    handleInviteCreatedPayload,
   ]);
 
-  const handleJoin = useCallback(() => {
-    if (!roomId.trim() || !name.trim()) {
-      pushToast({ title: "Room ID and display name are required", variant: "danger" });
+  const handleJoin = useCallback(async (overrides?: { roomId?: string; inviteToken?: string }) => {
+    const nextRoomId = (overrides?.roomId ?? roomId).trim();
+    const nextUserName = userName.trim();
+    const nextInviteToken = (overrides?.inviteToken ?? inviteToken).trim();
+
+    if (!nextRoomId || !nextUserName || !userId.trim()) {
+      pushToast({ title: "Authentication is required before joining a room", variant: "danger" });
+      return;
+    }
+
+    const sessionToken = await getToken();
+    if (!sessionToken) {
+      pushToast({ title: "Unable to fetch your authenticated session", variant: "danger" });
       return;
     }
 
@@ -250,12 +320,14 @@ export function usePaircodeRoom() {
       if (socketRef.current !== socket) return;
 
       setStatus("connected");
-      pushToast({ title: `Connected to ${roomId.trim()}`, variant: "success" });
+      pushToast({ title: `Connected to ${nextRoomId}`, variant: "success" });
       socket.send(
         JSON.stringify({
           type: "join",
-          roomId: roomId.trim(),
-          userName: name.trim(),
+          roomId: nextRoomId,
+          userName: nextUserName,
+          sessionToken,
+          inviteToken: nextInviteToken || undefined,
         })
       );
     });
@@ -291,7 +363,7 @@ export function usePaircodeRoom() {
       setLastError("Failed to connect to real-time server.");
       pushToast({ title: "Connection error", detail: "Failed to reach real-time server.", variant: "danger" });
     });
-  }, [handleSocketPayload, name, pushToast, resetRoomState, roomId]);
+  }, [getToken, handleSocketPayload, inviteToken, pushToast, resetRoomState, roomId, userId, userName]);
 
   const handleLeave = useCallback(() => {
     const socket = socketRef.current;
@@ -318,6 +390,11 @@ export function usePaircodeRoom() {
   }, [activeRoom, pushToast, resetRoomState]);
 
   const handleSendMessage = useCallback(() => {
+    if (!activeRoom) {
+      pushToast({ title: "Join a room before sending messages", variant: "danger" });
+      return;
+    }
+
     const text = messageInput.trim();
     if (!text) {
       pushToast({ title: "Write a message first", variant: "danger" });
@@ -331,10 +408,14 @@ export function usePaircodeRoom() {
       window.clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = null;
     }
-  }, [messageInput, pushToast, send]);
+  }, [activeRoom, messageInput, pushToast, send]);
 
   const handleTyping = useCallback((text: string) => {
     setMessageInput(text);
+    if (!activeRoom) {
+      return;
+    }
+
     send({ type: "typing", isTyping: true });
 
     if (typingTimeoutRef.current) {
@@ -345,7 +426,7 @@ export function usePaircodeRoom() {
       send({ type: "typing", isTyping: false });
       typingTimeoutRef.current = null;
     }, 1200);
-  }, [send]);
+  }, [activeRoom, send]);
 
   const updateContext = useCallback((nextContext: RoomContext) => {
     setContext(nextContext);
@@ -373,6 +454,36 @@ export function usePaircodeRoom() {
     pushToast({ title: `Agent run started (${mode})`, variant: "success" });
   }, [agentInput, agentStreaming, pushToast, send]);
 
+  const createInvite = useCallback(() => {
+    send({ type: "invite:create" });
+  }, [send]);
+
+  const copyInviteLink = useCallback(async () => {
+    if (!activeInviteLink) {
+      pushToast({ title: "Generate an invite link first", variant: "danger" });
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(activeInviteLink);
+      pushToast({ title: "Invite link copied", variant: "success" });
+    } catch {
+      pushToast({ title: "Unable to copy invite link", detail: activeInviteLink, variant: "danger" });
+    }
+  }, [activeInviteLink, pushToast]);
+
+  const removeMember = useCallback((memberAuthUserId: string, memberName: string) => {
+    send({
+      type: "membership:remove",
+      memberAuthUserId,
+    });
+    pushToast({
+      title: `Removed ${memberName}`,
+      detail: "Their room membership has been revoked.",
+      variant: "default",
+    });
+  }, [pushToast, send]);
+
   const insertStarterMessage = useCallback(() => {
     setMessageInput("Can someone summarize the current implementation approach?");
     pushToast({ title: "Starter message inserted", variant: "default" });
@@ -398,9 +509,15 @@ export function usePaircodeRoom() {
     mySocketId,
     roomId,
     setRoomId,
-    name,
-    setName,
+    name: userName,
+    inviteToken,
+    setInviteToken,
     activeRoom,
+    activeInvite,
+    activeInviteLink,
+    roomMembers,
+    roomOwner,
+    canManageRoom,
     users,
     sortedMessages,
     messageInput,
@@ -423,6 +540,9 @@ export function usePaircodeRoom() {
     handleTyping,
     updateContext,
     askAgent,
+    createInvite,
+    copyInviteLink,
+    removeMember,
     insertStarterMessage,
     pushToast,
   };

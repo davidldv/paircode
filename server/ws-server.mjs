@@ -1,83 +1,49 @@
+import { verifyToken } from "@clerk/backend";
 import { WebSocketServer } from "ws";
+
 import {
   buildAgentPrompt,
   buildFallbackResponse,
   streamTokensFromSseStream,
 } from "./agent-utils.mjs";
+import { createSignedInviteToken, verifySignedInviteToken } from "./invite-link.mjs";
+import {
+  authorizeRoomJoin,
+  canManageRoom,
+  createRoomInvite,
+  createRoomMessage,
+  getRoomSnapshot,
+  removeRoomMember,
+  updateRoomContext,
+  updateRoomMessage,
+} from "./room-store.mjs";
+import { createRoomConnectionHandler } from "./ws-room-server.mjs";
 
 const PORT = Number(process.env.WS_PORT ?? 3001);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3-flash-preview";
+const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
+const CLERK_JWT_KEY = process.env.CLERK_JWT_KEY;
+const INVITE_SIGNING_SECRET = process.env.INVITE_SIGNING_SECRET ?? CLERK_SECRET_KEY;
+const CLERK_AUTHORIZED_PARTIES = (process.env.CLERK_AUTHORIZED_PARTIES ?? "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean);
 
-const rooms = new Map();
-
-function ensureRoom(roomId) {
-  if (!rooms.has(roomId)) {
-    rooms.set(roomId, {
-      clients: new Map(),
-      messages: [],
-      context: {
-        selectedFiles: "",
-        pinnedRequirements: "",
-      },
-      activeAgentRun: null,
-    });
+async function verifySessionToken(sessionToken) {
+  if (!CLERK_SECRET_KEY && !CLERK_JWT_KEY) {
+    throw new Error("Clerk backend verification is not configured on the websocket server.");
   }
 
-  return rooms.get(roomId);
-}
-
-function toJson(payload) {
-  return JSON.stringify(payload);
-}
-
-function safeSend(client, payload) {
-  if (client.readyState === client.OPEN) {
-    client.send(toJson(payload));
-  }
-}
-
-function broadcast(roomId, payload, options = {}) {
-  const room = rooms.get(roomId);
-  if (!room) return;
-
-  const { exclude } = options;
-  for (const [socketId, client] of room.clients.entries()) {
-    if (exclude && socketId === exclude) continue;
-    safeSend(client, payload);
-  }
-}
-
-function serializeUser(socketId, client) {
-  return {
-    id: socketId,
-    name: client.meta?.name ?? "Anonymous",
-  };
-}
-
-function serializeRoom(roomId) {
-  const room = rooms.get(roomId);
-  if (!room) {
-    return { users: [], messages: [], context: { selectedFiles: "", pinnedRequirements: "" } };
-  }
-
-  return {
-    users: [...room.clients.entries()].map(([id, client]) => serializeUser(id, client)),
-    messages: room.messages,
-    context: room.context,
-  };
-}
-
-function addMessage(roomId, message) {
-  const room = ensureRoom(roomId);
-  room.messages.push(message);
-  if (room.messages.length > 150) {
-    room.messages = room.messages.slice(-150);
-  }
+  return verifyToken(sessionToken, {
+    ...(CLERK_SECRET_KEY ? { secretKey: CLERK_SECRET_KEY } : {}),
+    ...(CLERK_JWT_KEY ? { jwtKey: CLERK_JWT_KEY } : {}),
+    ...(CLERK_AUTHORIZED_PARTIES.length > 0 ? { authorizedParties: CLERK_AUTHORIZED_PARTIES } : {}),
+  });
 }
 
 async function* streamGeminiResponse(prompt) {
-  const response = await fetch("https://api.gemini.com/v1/chat/completions", {
+  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -109,265 +75,31 @@ async function* streamGeminiResponse(prompt) {
   yield* streamTokensFromSseStream(response.body);
 }
 
-async function runRoomAgent({ roomId, requesterId, mode, question }) {
-  const room = ensureRoom(roomId);
-  const runId = crypto.randomUUID();
-  room.activeAgentRun = runId;
-
-  const roomSnapshot = serializeRoom(roomId);
-  const prompt = buildAgentPrompt({ mode, question, roomSnapshot });
-  const startedAt = new Date().toISOString();
-
-  const aiStart = {
-    type: "ai:start",
-    roomId,
-    runId,
-    mode,
-    by: requesterId,
-    startedAt,
-  };
-
-  addMessage(roomId, {
-    id: runId,
-    type: "ai",
-    userId: "room-agent",
-    userName: "Room Agent",
-    text: "",
-    timestamp: startedAt,
-    mode,
-    isStreaming: true,
-  });
-
-  broadcast(roomId, aiStart);
-
-  let fullText = "";
-
-  try {
-    if (GEMINI_API_KEY) {
-      for await (const token of streamGeminiResponse(prompt)) {
-        if (room.activeAgentRun !== runId) {
-          break;
-        }
-        fullText += token;
-        broadcast(roomId, {
-          type: "ai:chunk",
-          roomId,
-          runId,
-          token,
-        });
-      }
-    } else {
-      const fallback = buildFallbackResponse(mode, roomSnapshot, question);
-      const parts = fallback.split(/(\s+)/).filter(Boolean);
-      for (const token of parts) {
-        if (room.activeAgentRun !== runId) {
-          break;
-        }
-        fullText += token;
-        broadcast(roomId, {
-          type: "ai:chunk",
-          roomId,
-          runId,
-          token,
-        });
-        await new Promise((resolve) => setTimeout(resolve, 30));
-      }
-    }
-
-    const message = {
-      id: runId,
-      type: "ai",
-      userId: "room-agent",
-      userName: "Room Agent",
-      text: fullText,
-      timestamp: new Date().toISOString(),
-      mode,
-      isStreaming: false,
-    };
-
-    const roomState = ensureRoom(roomId);
-    roomState.messages = roomState.messages.map((item) =>
-      item.id === runId
-        ? message
-        : item
-    );
-
-    room.activeAgentRun = null;
-
-    broadcast(roomId, {
-      type: "ai:done",
-      roomId,
-      runId,
-      message,
-    });
-  } catch (error) {
-    room.activeAgentRun = null;
-    const detail = error instanceof Error ? error.message : "Unknown AI error";
-    broadcast(roomId, {
-      type: "ai:error",
-      roomId,
-      runId,
-      error: detail,
-    });
-  }
-}
-
-function leaveRoom(socketId, ws) {
-  const roomId = ws.meta?.roomId;
-  if (!roomId) return;
-
-  const room = rooms.get(roomId);
-  if (!room) return;
-
-  const user = serializeUser(socketId, ws);
-  room.clients.delete(socketId);
-
-  broadcast(roomId, {
-    type: "presence",
-    roomId,
-    event: "leave",
-    user,
-    users: [...room.clients.entries()].map(([id, client]) => serializeUser(id, client)),
-  });
-
-  if (room.clients.size === 0) {
-    rooms.delete(roomId);
-  }
-}
+const handleConnection = createRoomConnectionHandler({
+  verifySessionToken,
+  store: {
+    authorizeRoomJoin,
+    canManageRoom,
+    createRoomInvite,
+    createRoomMessage,
+    getRoomSnapshot,
+    removeRoomMember,
+    updateRoomContext,
+    updateRoomMessage,
+  },
+  ai: {
+    buildAgentPrompt,
+    buildFallbackResponse,
+    streamResponse: GEMINI_API_KEY ? streamGeminiResponse : undefined,
+  },
+  inviteLinks: {
+    createInviteToken: ({ roomId, inviteCode, expiresAt }) =>
+      createSignedInviteToken({ roomId, inviteCode, expiresAt }, INVITE_SIGNING_SECRET),
+    verifyInviteToken: (token) => verifySignedInviteToken(token, INVITE_SIGNING_SECRET),
+  },
+});
 
 const wss = new WebSocketServer({ port: PORT });
-
-wss.on("connection", (ws) => {
-  const socketId = crypto.randomUUID();
-  ws.meta = {
-    id: socketId,
-    roomId: null,
-    name: "Anonymous",
-  };
-
-  safeSend(ws, {
-    type: "connected",
-    socketId,
-    now: new Date().toISOString(),
-  });
-
-  ws.on("message", (raw) => {
-    let payload;
-    try {
-      payload = JSON.parse(raw.toString());
-    } catch {
-      safeSend(ws, { type: "error", error: "Invalid JSON payload" });
-      return;
-    }
-
-    if (payload.type === "join") {
-      const roomId = String(payload.roomId || "main").trim() || "main";
-      const name = String(payload.userName || "Anonymous").trim() || "Anonymous";
-      const room = ensureRoom(roomId);
-
-      ws.meta.roomId = roomId;
-      ws.meta.name = name;
-      room.clients.set(socketId, ws);
-
-      const snapshot = serializeRoom(roomId);
-      safeSend(ws, {
-        type: "room:snapshot",
-        roomId,
-        ...snapshot,
-      });
-
-      broadcast(roomId, {
-        type: "presence",
-        roomId,
-        event: "join",
-        user: serializeUser(socketId, ws),
-        users: snapshot.users,
-      }, { exclude: socketId });
-
-      return;
-    }
-
-    const roomId = ws.meta.roomId;
-    if (!roomId) {
-      safeSend(ws, { type: "error", error: "Join a room before sending events" });
-      return;
-    }
-
-    if (payload.type === "chat") {
-      const text = String(payload.text || "").trim();
-      if (!text) return;
-
-      const message = {
-        id: crypto.randomUUID(),
-        type: "chat",
-        userId: socketId,
-        userName: ws.meta.name,
-        text,
-        timestamp: new Date().toISOString(),
-      };
-
-      addMessage(roomId, message);
-      broadcast(roomId, {
-        type: "chat",
-        roomId,
-        message,
-      });
-      return;
-    }
-
-    if (payload.type === "typing") {
-      broadcast(roomId, {
-        type: "typing",
-        roomId,
-        user: serializeUser(socketId, ws),
-        isTyping: Boolean(payload.isTyping),
-      }, { exclude: socketId });
-      return;
-    }
-
-    if (payload.type === "context:update") {
-      const room = ensureRoom(roomId);
-      room.context = {
-        selectedFiles: String(payload.context?.selectedFiles ?? room.context.selectedFiles),
-        pinnedRequirements: String(payload.context?.pinnedRequirements ?? room.context.pinnedRequirements),
-      };
-
-      broadcast(roomId, {
-        type: "context",
-        roomId,
-        context: room.context,
-        updatedBy: serializeUser(socketId, ws),
-      });
-      return;
-    }
-
-    if (payload.type === "ai:ask") {
-      const mode = payload.mode === "summarize" || payload.mode === "next-steps" ? payload.mode : "answer";
-      const question = String(payload.question ?? "");
-      runRoomAgent({
-        roomId,
-        requesterId: socketId,
-        mode,
-        question,
-      });
-      return;
-    }
-
-    if (payload.type === "ping") {
-      safeSend(ws, { type: "pong", ts: Date.now() });
-      return;
-    }
-
-    safeSend(ws, { type: "error", error: `Unknown event type: ${String(payload.type)}` });
-  });
-
-  ws.on("close", () => {
-    leaveRoom(socketId, ws);
-  });
-
-  ws.on("error", () => {
-    leaveRoom(socketId, ws);
-  });
-});
+wss.on("connection", handleConnection);
 
 console.log(`WebSocket room server running on ws://localhost:${PORT}`);

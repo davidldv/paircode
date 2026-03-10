@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Room {
+  id                 String        @id @default(cuid())
+  slug               String        @unique
+  ownerAuthUserId    String?
+  ownerName          String?
+  selectedFiles      String        @default("")
+  pinnedRequirements String        @default("")
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  messages           RoomMessage[]
+  memberships        RoomMembership[]
+  invites            RoomInvite[]
+
+  @@index([ownerAuthUserId])
+}
+
+model RoomMembership {
+  id         String   @id @default(cuid())
+  roomId      String
+  authUserId  String
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, authUserId])
+  @@index([authUserId])
+}
+
+model RoomInvite {
+  id                  String   @id @default(cuid())
+  roomId               String
+  code                 String   @unique
+  createdByAuthUserId  String
+  expiresAt            DateTime
+  revokedAt            DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  room                 Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, revokedAt, expiresAt])
+}
+
+model RoomMessage {
+  id          String   @id
+  roomId      String
+  type        String
+  userId      String
+  userName    String
+  text        String
+  timestamp   DateTime
+  mode        String?
+  auditMetadata Json?
+  isStreaming Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, timestamp])
+}

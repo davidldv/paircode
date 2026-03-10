@@ -1,6 +1,30 @@
 export type RoomUser = {
   id: string;
   name: string;
+  authUserId?: string;
+};
+
+export type RoomOwner = {
+  authUserId: string;
+  name: string;
+};
+
+export type RoomMember = {
+  authUserId: string;
+  name: string;
+};
+
+export type RoomInvite = {
+  token: string;
+  expiresAt: string;
+};
+
+export type AuditMetadata = {
+  kind: "room-created" | "invite-rotated" | "member-added" | "member-removed";
+  actorName?: string;
+  actorAuthUserId?: string;
+  targetName?: string;
+  targetAuthUserId?: string;
 };
 
 export type RoomContext = {
@@ -10,13 +34,14 @@ export type RoomContext = {
 
 export type ChatMessage = {
   id: string;
-  type: "chat" | "ai";
+  type: "chat" | "ai" | "system";
   userId: string;
   userName: string;
   text: string;
   timestamp: string;
   mode?: "answer" | "summarize" | "next-steps";
   isStreaming?: boolean;
+  auditMetadata?: AuditMetadata;
 };
 
 export type AgentMode = "answer" | "summarize" | "next-steps";
@@ -49,4 +74,8 @@ export function initialsFromName(name: string) {
 
 export function isAgentMessage(message: ChatMessage) {
   return message.userId === "room-agent" || message.type === "ai";
+}
+
+export function isSystemMessage(message: ChatMessage) {
+  return message.type === "system" || message.userId === "room-audit";
 }

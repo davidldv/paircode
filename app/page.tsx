@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { UserButton, useAuth, useUser } from "@clerk/nextjs";
 
 import { ContextSidebar } from "@/components/paircode/context-sidebar";
 import { HeaderCard } from "@/components/paircode/header-card";
@@ -12,22 +13,36 @@ import { usePaircodePageUi } from "@/lib/use-paircode-page-ui";
 import { usePaircodePreferences } from "@/lib/use-paircode-preferences";
 import { usePaircodeRoom } from "@/lib/use-paircode-room";
 
+function getDisplayName(user: ReturnType<typeof useUser>["user"]) {
+  return user?.fullName ?? user?.username ?? user?.primaryEmailAddress?.emailAddress?.split("@")[0] ?? "Operator";
+}
+
 export default function Home() {
+  const { getToken } = useAuth();
+  const { isLoaded, user } = useUser();
   const messageEndRef = useRef<HTMLDivElement | null>(null);
   const messageViewportRef = useRef<HTMLDivElement | null>(null);
   const shouldAutoScrollRef = useRef(true);
+  const consumedInviteRef = useRef<string>("");
   const [showJumpToLatest, setShowJumpToLatest] = useState(false);
   const messageInputRef = useRef<HTMLInputElement | null>(null);
   const agentInputRef = useRef<HTMLTextAreaElement | null>(null);
   const { theme, showHints, toggleTheme, dismissHints } = usePaircodePreferences();
+  const operatorName = getDisplayName(user);
+  const operatorEmail = user?.primaryEmailAddress?.emailAddress ?? "Authenticated workspace operator";
   const {
     status,
     mySocketId,
     roomId,
     setRoomId,
     name,
-    setName,
+    setInviteToken,
     activeRoom,
+    activeInvite,
+    activeInviteLink,
+    roomMembers,
+    roomOwner,
+    canManageRoom,
     users,
     sortedMessages,
     messageInput,
@@ -49,9 +64,16 @@ export default function Home() {
     handleTyping,
     updateContext,
     askAgent,
+    createInvite,
+    copyInviteLink,
+    removeMember,
     insertStarterMessage,
     pushToast,
-  } = usePaircodeRoom();
+  } = usePaircodeRoom({
+    userId: user?.id ?? "",
+    userName: operatorName,
+    getToken,
+  });
   const {
     mobilePaletteOpen,
     focusMessageInput,
@@ -107,6 +129,50 @@ export default function Home() {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+
+    const url = new URL(window.location.href);
+    const invitedRoomId = url.searchParams.get("room")?.trim() ?? "";
+    const signedInviteToken = url.searchParams.get("invite")?.trim() ?? "";
+    const inviteKey = `${invitedRoomId}:${signedInviteToken}`;
+
+    if (!invitedRoomId || !signedInviteToken || consumedInviteRef.current === inviteKey) {
+      return;
+    }
+
+    consumedInviteRef.current = inviteKey;
+    setRoomId(invitedRoomId);
+    setInviteToken(signedInviteToken);
+    pushToast({
+      title: "Invite link detected",
+      detail: `Preparing access for ${invitedRoomId}.`,
+      variant: "success",
+    });
+
+    void handleJoin({ roomId: invitedRoomId, inviteToken: signedInviteToken });
+
+    url.searchParams.delete("room");
+    url.searchParams.delete("invite");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [handleJoin, isLoaded, pushToast, setInviteToken, setRoomId, user]);
+
+  if (!isLoaded || !user) {
+    return (
+      <main className="app-shell relative min-h-screen overflow-hidden bg-background text-foreground">
+        <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4">
+          <div className="hero-shell w-full max-w-xl rounded-[1.75rem] border border-(--panel-border) p-8 text-center">
+            <div className="section-kicker">Workspace Access</div>
+            <h1 className="mt-3 text-3xl">Loading your authenticated workspace</h1>
+            <p className="mt-3 text-sm leading-6 text-(--muted)">
+              PairCode is checking your session before connecting you to persisted collaboration rooms.
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="app-shell relative min-h-screen overflow-hidden bg-background pb-10 text-foreground">
       <div className="float-glow pointer-events-none absolute -left-12 top-10 h-44 w-44 rounded-full bg-[rgba(216,93,45,0.15)] blur-3xl" />
@@ -115,10 +181,10 @@ export default function Home() {
       <div className="mx-auto flex w-full max-w-360 flex-col gap-6 px-4 pt-5 lg:px-8 lg:pt-8">
         <div className="fade-up flex flex-wrap items-center justify-between gap-3 px-1">
           <div className="section-kicker">
-            Pair Programming Control Surface
+            Collaborative Engineering Workspace
           </div>
           <div className="mono-label text-[11px] text-(--muted)">
-            Enterprise Realtime Workspace
+            Persistent Context and Live Execution
           </div>
         </div>
 
@@ -128,7 +194,9 @@ export default function Home() {
           theme={theme}
           mySocketId={mySocketId}
           roomId={roomId}
-          name={name}
+          operatorName={name}
+          operatorEmail={operatorEmail}
+          authControl={<UserButton />}
           activeRoom={activeRoom}
           usersCount={users.length}
           messagesCount={sortedMessages.length}
@@ -136,7 +204,6 @@ export default function Home() {
           showHints={showHints}
           canLeave={Boolean(activeRoom) || status === "connected" || status === "connecting"}
           onRoomIdChange={setRoomId}
-          onNameChange={setName}
           onJoin={handleJoin}
           onLeave={handleLeave}
           onToggleTheme={handleToggleTheme}
@@ -144,11 +211,20 @@ export default function Home() {
         />
 
         <section className="fade-up-delay grid gap-5 lg:grid-cols-[290px_minmax(0,1fr)_370px]">
-          <PresenceSidebar users={users} mySocketId={mySocketId} />
+          <PresenceSidebar
+            users={users}
+            roomMembers={roomMembers}
+            mySocketId={mySocketId}
+            currentAuthUserId={user.id}
+            roomOwner={roomOwner}
+            canManageRoom={canManageRoom}
+            onRemoveMember={removeMember}
+          />
 
           <MessagePanel
             messages={sortedMessages}
             typingIndicator={typingIndicator}
+            activeRoom={activeRoom}
             messageInput={messageInput}
             messageInputRef={messageInputRef}
             messageViewportRef={messageViewportRef}
@@ -164,6 +240,11 @@ export default function Home() {
 
           <ContextSidebar
             context={context}
+            activeRoom={activeRoom}
+            activeInvite={activeInvite}
+            activeInviteLink={activeInviteLink}
+            roomOwner={roomOwner}
+            canManageRoom={canManageRoom}
             lastContextUpdateBy={lastContextUpdateBy}
             agentInput={agentInput}
             agentMode={agentMode}
@@ -171,6 +252,8 @@ export default function Home() {
             lastError={lastError}
             agentInputRef={agentInputRef}
             onContextChange={updateContext}
+            onCreateInvite={createInvite}
+            onCopyInviteLink={copyInviteLink}
             onAgentInputChange={setAgentInput}
             onSelectMode={setAgentMode}
             onRunAgent={askAgent}

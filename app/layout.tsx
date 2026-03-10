@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Bricolage_Grotesque, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,8 +15,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PairCode Room",
-  description: "Real-time AI pair-programming room with shared context and live suggestions",
+  title: "PairCode",
+  description: "Collaborative engineering room with persistent threaded context, live presence, AI facilitation, and room-level implementation history",
 };
 
 export default function RootLayout({
@@ -29,7 +30,15 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${bricolageGrotesque.variable} ${ibmPlexMono.variable} antialiased`}
       >
-        {children}
+        <ClerkProvider
+          signInUrl="/sign-in"
+          signUpUrl="/sign-up"
+          signInFallbackRedirectUrl="/"
+          signUpFallbackRedirectUrl="/"
+          afterSignOutUrl="/sign-in"
+        >
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );
