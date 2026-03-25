@@ -179,15 +179,6 @@ export default function Home() {
       <div className="float-glow pointer-events-none absolute right-4 top-24 h-52 w-52 rounded-full bg-[rgba(61,137,130,0.14)] blur-3xl" />
 
       <div className="mx-auto flex w-full max-w-360 flex-col gap-6 px-4 pt-5 lg:px-8 lg:pt-8">
-        <div className="fade-up flex flex-wrap items-center justify-between gap-3 px-1">
-          <div className="section-kicker">
-            Collaborative Engineering Workspace
-          </div>
-          <div className="mono-label text-[11px] text-(--muted)">
-            Persistent Context and Live Execution
-          </div>
-        </div>
-
         <HeaderCard
           status={status}
           statusBadgeVariant={statusBadgeVariant}

@@ -31,7 +31,6 @@ export function PresenceSidebar({
     <aside className="space-y-4">
       <Card className="section-panel stage-1">
         <CardHeader>
-          <div className="section-kicker">Workspace Roster</div>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Users className="h-4 w-4 text-(--accent)" /> Team Presence
           </CardTitle>
@@ -61,7 +60,6 @@ export function PresenceSidebar({
 
       <Card className="section-panel stage-2">
         <CardHeader>
-          <div className="section-kicker">Access List</div>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Users className="h-4 w-4 text-(--accent)" /> Room Members
           </CardTitle>
@@ -112,7 +110,6 @@ export function PresenceSidebar({
 
       <Card className="section-panel stage-3">
         <CardHeader>
-          <div className="section-kicker">Operational Guidance</div>
           <CardTitle className="text-lg">Workflow Tips</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-(--muted)">

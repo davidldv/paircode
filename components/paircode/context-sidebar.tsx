@@ -51,7 +51,6 @@ export function ContextSidebar({
     <aside className="space-y-4">
       <Card className="section-panel stage-2">
         <CardHeader>
-          <div className="section-kicker">Room Access</div>
           <CardTitle className="flex items-center gap-2 text-lg">
             <LockKeyhole className="h-4 w-4 text-(--accent)" /> Membership Control
           </CardTitle>
@@ -87,7 +86,6 @@ export function ContextSidebar({
 
       <Card className="section-panel stage-3">
         <CardHeader>
-          <div className="section-kicker">Source Of Truth</div>
           <CardTitle className="flex items-center gap-2 text-lg">
             <FolderTree className="h-4 w-4 text-(--accent)" /> Shared Context
           </CardTitle>
@@ -130,7 +128,6 @@ export function ContextSidebar({
 
       <Card className="section-panel stage-4">
         <CardHeader>
-          <div className="section-kicker">Copilot Workspace Operator</div>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Sparkles className="h-4 w-4 text-(--accent)" /> Room Agent
           </CardTitle>

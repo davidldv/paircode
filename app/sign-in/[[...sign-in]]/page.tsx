@@ -13,7 +13,6 @@ export default async function SignInPage() {
 
   return (
     <AuthShell
-      eyebrow="Authentication"
       title="Sign in to the engineering workspace"
       description="Access collaborative rooms with a verified operator identity, persistent threaded context, and room-level implementation history."
     >

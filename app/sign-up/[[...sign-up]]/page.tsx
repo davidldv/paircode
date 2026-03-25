@@ -13,7 +13,6 @@ export default async function SignUpPage() {
 
   return (
     <AuthShell
-      eyebrow="New workspace access"
       title="Create your PairCode account"
       description="Create an authenticated operator account before entering collaborative rooms backed by persistent context and implementation history."
     >

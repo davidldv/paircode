@@ -4,13 +4,12 @@ import { BrandConstellation } from "@/components/paircode/brand-constellation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 type AuthShellProps = {
-  eyebrow: string;
   title: string;
   description: string;
   children: ReactNode;
 };
 
-export function AuthShell({ eyebrow, title, description, children }: AuthShellProps) {
+export function AuthShell({ title, description, children }: AuthShellProps) {
   return (
     <main className="app-shell relative min-h-screen overflow-hidden bg-background text-foreground">
       <div className="float-glow pointer-events-none absolute -left-24 top-10 h-56 w-56 rounded-full bg-[rgba(216,93,45,0.14)] blur-3xl" />
@@ -18,7 +17,6 @@ export function AuthShell({ eyebrow, title, description, children }: AuthShellPr
 
       <div className="mx-auto grid min-h-screen w-full max-w-7xl items-center gap-8 px-4 py-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,540px)] lg:px-8">
         <section className="fade-up space-y-6">
-          <div className="section-kicker">{eyebrow}</div>
           <div className="space-y-4">
             <h1 className="text-4xl leading-none sm:text-5xl">{title}</h1>
             <p className="max-w-2xl text-base leading-7 text-(--muted)">{description}</p>
@@ -44,7 +42,6 @@ export function AuthShell({ eyebrow, title, description, children }: AuthShellPr
 
         <Card className="hero-shell fade-up-delay mx-auto w-full max-w-xl">
           <CardHeader className="space-y-3">
-            <div className="section-kicker">Workspace Access</div>
             <div className="space-y-2">
               <CardTitle className="text-3xl">Enter PairCode</CardTitle>
               <CardDescription className="text-sm leading-6">

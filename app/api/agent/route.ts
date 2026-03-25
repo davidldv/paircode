@@ -16,6 +16,8 @@ type AgentRequest = {
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3-flash-preview";
 
 function buildPrompt(body: AgentRequest) {
   const mode = body.mode ?? "answer";
@@ -104,6 +106,59 @@ async function* streamOpenAI(prompt: string) {
   }
 }
 
+async function* streamGemini(prompt: string) {
+  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${GEMINI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GEMINI_MODEL,
+      stream: true,
+      temperature: 0.4,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a collaborative room AI pair programmer. Provide concise and practical guidance with concrete steps.",
+        },
+        { role: "user", content: prompt },
+      ],
+    }),
+  });
+
+  if (!response.ok || !response.body) {
+    const text = await response.text().catch(() => "Unknown AI error");
+    throw new Error(`Gemini error: ${response.status} ${text}`);
+  }
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+  const reader = response.body.getReader();
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    if (!value) continue;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      if (!line.startsWith("data:")) continue;
+      const raw = line.slice(5).trim();
+      if (!raw || raw === "[DONE]") continue;
+      const parsed = JSON.parse(raw) as { choices?: Array<{ delta?: { content?: string } }> };
+      const token = parsed.choices?.[0]?.delta?.content;
+      if (token) {
+        yield token;
+      }
+    }
+  }
+}
+
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as AgentRequest;
   const prompt = buildPrompt(body);
@@ -116,9 +171,30 @@ export async function POST(request: NextRequest) {
       };
 
       try {
-        emit("start", { ok: true, mode: body.mode ?? "answer" });
+        const provider = GEMINI_API_KEY ? "gemini" : OPENAI_API_KEY ? "openai" : "fallback";
+        emit("start", { ok: true, mode: body.mode ?? "answer", provider });
 
-        if (!OPENAI_API_KEY) {
+        if (GEMINI_API_KEY) {
+          for await (const token of streamGemini(prompt)) {
+            emit("token", { token });
+          }
+
+          emit("done", { ok: true });
+          controller.close();
+          return;
+        }
+
+        if (OPENAI_API_KEY) {
+          for await (const token of streamOpenAI(prompt)) {
+            emit("token", { token });
+          }
+
+          emit("done", { ok: true });
+          controller.close();
+          return;
+        }
+
+        {
           const text = fallback(body);
           for (const token of text.split(/(\s+)/).filter(Boolean)) {
             emit("token", { token });
@@ -126,15 +202,7 @@ export async function POST(request: NextRequest) {
           }
           emit("done", { ok: true });
           controller.close();
-          return;
         }
-
-        for await (const token of streamOpenAI(prompt)) {
-          emit("token", { token });
-        }
-
-        emit("done", { ok: true });
-        controller.close();
       } catch (error) {
         emit("error", {
           message: error instanceof Error ? error.message : "Unknown AI error",

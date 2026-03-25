@@ -49,7 +49,6 @@ export function MessagePanel({
       <CardHeader className="border-b border-(--panel-border)">
         <div className="flex items-center justify-between gap-3">
           <div className="space-y-2">
-            <div className="section-kicker">Conversation</div>
             <CardTitle className="flex items-center gap-2 text-lg">
               <MessageSquareText className="h-4 w-4 text-(--accent)" /> Message Stream
             </CardTitle>

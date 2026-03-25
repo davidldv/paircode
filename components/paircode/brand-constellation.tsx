@@ -55,7 +55,6 @@ export function BrandConstellation({ compact = false, className }: BrandConstell
         </div>
 
         <div className="min-w-0 space-y-1.5">
-          <div className="section-kicker">Brand System</div>
           <h3 className={cn("font-semibold tracking-tight text-foreground", compact ? "text-xl" : "text-2xl")}>PairCode Capability Constellation</h3>
           <p className="max-w-3xl text-sm leading-6 text-(--muted)">
             The mark and capability icons now map the product story directly into the interface: shared context, live presence, AI facilitation, and durable implementation history.
