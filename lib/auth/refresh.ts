@@ -1,8 +1,12 @@
+import type { PrismaClient } from "@prisma/client";
+
 import { prisma } from "@/lib/db";
 import { logSecurityEvent } from "@/lib/logging/logger";
 
 import { REFRESH_TTL_SECONDS } from "./env";
 import { hashOpaqueToken, issueOpaqueToken, signAccessToken } from "./jwt";
+
+type TransactionClient = Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">;
 
 export class RefreshError extends Error {
   constructor(
@@ -13,7 +17,7 @@ export class RefreshError extends Error {
 }
 
 export async function issueSessionTokens(userId: string, meta: { ipHash: string; userAgent: string }) {
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: TransactionClient) => {
     const user = await tx.user.findUnique({
       where: { id: userId },
       select: { credentialVersion: true },
@@ -56,7 +60,7 @@ export async function issueSessionTokens(userId: string, meta: { ipHash: string;
 export async function rotateRefreshToken(rawInbound: string) {
   const inboundHash = hashOpaqueToken(rawInbound);
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: TransactionClient) => {
     const current = await tx.refreshToken.findUnique({
       where: { tokenHash: inboundHash },
       include: {

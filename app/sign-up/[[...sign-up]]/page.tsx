@@ -53,7 +53,7 @@ export default function SignUpPage() {
       description="Create an authenticated operator account before entering collaborative rooms backed by persistent context and implementation history."
     >
       <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
           Display name
           <Input
             type="text"
@@ -66,7 +66,7 @@ export default function SignUpPage() {
             placeholder="Ada Lovelace"
           />
         </label>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
           Email
           <Input
             type="email"
@@ -77,7 +77,7 @@ export default function SignUpPage() {
             placeholder="you@example.com"
           />
         </label>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
           Password
           <Input
             type="password"
@@ -87,19 +87,19 @@ export default function SignUpPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
-          <span className="text-[10px] font-mono text-[var(--muted)]">
+          <span className="text-[10px] font-mono text-(--muted)">
             12+ characters, mix of upper / lower / numbers / symbols.
           </span>
         </label>
         {error ? (
-          <p className="border-2 border-[var(--panel-border)] bg-[var(--surface)] px-3 py-2 text-xs font-mono text-[var(--danger,#b00020)]">
+          <p className="border-2 border-(--panel-border) bg-(--surface) px-3 py-2 text-xs font-mono text-(--danger,#b00020)">
             {error}
           </p>
         ) : null}
         <Button type="submit" disabled={submitting} className="mt-2">
           {submitting ? "Creating account…" : "Create account"}
         </Button>
-        <p className="text-xs font-mono text-[var(--muted)]">
+        <p className="text-xs font-mono text-(--muted)">
           Already have an account?{" "}
           <Link href="/sign-in" className="underline underline-offset-4">
             Sign in
