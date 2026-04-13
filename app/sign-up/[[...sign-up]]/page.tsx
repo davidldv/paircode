@@ -18,8 +18,7 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function submit() {
     setError("");
     setSubmitting(true);
     try {
@@ -52,7 +51,13 @@ export default function SignUpPage() {
       title="Create your PairCode account"
       description="Create an authenticated operator account before entering collaborative rooms backed by persistent context and implementation history."
     >
-      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit();
+        }}
+        className="flex w-full flex-col gap-4"
+      >
         <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
           Display name
           <Input

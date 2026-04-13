@@ -1,8 +1,12 @@
+import type { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/db";
 import { logSecurityEvent } from "@/lib/logging/logger";
 
 import { REFRESH_TTL_SECONDS } from "./env";
 import { hashOpaqueToken, issueOpaqueToken, signAccessToken } from "./jwt";
+
+type PrismaTx = Prisma.TransactionClient;
 
 export class RefreshError extends Error {
   constructor(
