@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
 import { prisma } from "@/lib/db";
 import { mintCsrfToken } from "@/lib/auth/csrf";
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     });
     userId = user.id;
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
       await logSecurityEvent({
         kind: "auth.signup.duplicate_email",
         severity: "warn",
