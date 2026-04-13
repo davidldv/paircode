@@ -6,63 +6,150 @@ datasource db {
   provider = "postgresql"
 }
 
-model Room {
-  id                 String        @id @default(cuid())
-  slug               String        @unique
-  ownerAuthUserId    String?
-  ownerName          String?
-  selectedFiles      String        @default("")
-  pinnedRequirements String        @default("")
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  messages           RoomMessage[]
-  memberships        RoomMembership[]
-  invites            RoomInvite[]
+enum RoomRole {
+  owner
+  collaborator
+  viewer
+}
 
-  @@index([ownerAuthUserId])
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailNormalized   String    @unique
+  passwordHash      String
+  displayName       String
+  credentialVersion Int       @default(1)
+  failedLoginCount  Int       @default(0)
+  lockedUntil       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  sessions       Session[]
+  memberships    RoomMembership[]
+  ownedRooms     Room[]           @relation("RoomOwner")
+  createdInvites RoomInvite[]     @relation("InviteCreator")
+
+  @@index([emailNormalized])
+}
+
+model Session {
+  id         String    @id @default(cuid())
+  userId     String
+  ipHash     String
+  userAgent  String    @default("")
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  revokedAt  DateTime?
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+
+  @@index([userId, revokedAt])
+}
+
+model RefreshToken {
+  id           String    @id @default(cuid())
+  sessionId    String
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  usedAt       DateTime?
+  replacedById String?
+  createdAt    DateTime  @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, usedAt])
+}
+
+model WsTicket {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  sessionId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model SecurityEvent {
+  id        BigInt   @id @default(autoincrement())
+  at        DateTime @default(now())
+  kind      String
+  severity  String   @default("info")
+  userId    String?
+  sessionId String?
+  roomId    String?
+  ipHash    String?
+  metadata  Json     @default("{}")
+
+  @@index([kind, at])
+  @@index([userId, at])
+}
+
+model Room {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  ownerId            String?
+  selectedFiles      String   @default("")
+  pinnedRequirements String   @default("")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  owner       User?            @relation("RoomOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  messages    RoomMessage[]
+  memberships RoomMembership[]
+  invites     RoomInvite[]
+
+  @@index([ownerId])
 }
 
 model RoomMembership {
-  id         String   @id @default(cuid())
-  roomId      String
-  authUserId  String
-  name        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  role      RoomRole @default(collaborator)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([roomId, authUserId])
-  @@index([authUserId])
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([userId])
 }
 
 model RoomInvite {
-  id                  String   @id @default(cuid())
-  roomId               String
-  code                 String   @unique
-  createdByAuthUserId  String
-  expiresAt            DateTime
-  revokedAt            DateTime?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  room                 Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  roomId      String
+  code        String    @unique
+  createdById String?
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  room      Room  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdBy User? @relation("InviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([roomId, revokedAt, expiresAt])
 }
 
 model RoomMessage {
-  id          String   @id
-  roomId      String
-  type        String
-  userId      String
-  userName    String
-  text        String
-  timestamp   DateTime
-  mode        String?
+  id            String   @id
+  roomId        String
+  type          String
+  userId        String
+  userName      String
+  text          String
+  timestamp     DateTime
+  mode          String?
   auditMetadata Json?
-  isStreaming Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  isStreaming   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@index([roomId, timestamp])
 }

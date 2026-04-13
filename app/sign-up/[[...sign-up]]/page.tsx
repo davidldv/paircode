@@ -1,14 +1,50 @@
-import { SignUp } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { AuthShell } from "@/components/paircode/auth-shell";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { authFetch, readJsonError } from "@/lib/auth-client";
 
-export default async function SignUpPage() {
-  const { isAuthenticated } = await auth();
+export default function SignUpPage() {
+  const router = useRouter();
 
-  if (isAuthenticated) {
-    redirect("/");
+  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      const res = await authFetch("/api/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ email, password, displayName }),
+      });
+      if (!res.ok) {
+        const message = await readJsonError(res);
+        setError(
+          message === "email_in_use"
+            ? "An account with this email already exists."
+            : message === "weak_password"
+              ? "Password must be at least 12 characters and mix upper, lower, numbers, or symbols."
+              : message === "rate_limited"
+                ? "Too many sign-ups from this network. Please wait and try again."
+                : "Sign-up failed. Please verify your details and try again.",
+        );
+        return;
+      }
+      router.replace("/");
+      router.refresh();
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -16,13 +52,61 @@ export default async function SignUpPage() {
       title="Create your PairCode account"
       description="Create an authenticated operator account before entering collaborative rooms backed by persistent context and implementation history."
     >
-      <SignUp
-        path="/sign-up"
-        routing="path"
-        signInUrl="/sign-in"
-        fallbackRedirectUrl="/"
-        forceRedirectUrl="/"
-      />
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+          Display name
+          <Input
+            type="text"
+            autoComplete="name"
+            required
+            minLength={1}
+            maxLength={64}
+            value={displayName}
+            onChange={(event) => setDisplayName(event.target.value)}
+            placeholder="Ada Lovelace"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+          Email
+          <Input
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="you@example.com"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+          Password
+          <Input
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={12}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <span className="text-[10px] font-mono text-[var(--muted)]">
+            12+ characters, mix of upper / lower / numbers / symbols.
+          </span>
+        </label>
+        {error ? (
+          <p className="border-2 border-[var(--panel-border)] bg-[var(--surface)] px-3 py-2 text-xs font-mono text-[var(--danger,#b00020)]">
+            {error}
+          </p>
+        ) : null}
+        <Button type="submit" disabled={submitting} className="mt-2">
+          {submitting ? "Creating account…" : "Create account"}
+        </Button>
+        <p className="text-xs font-mono text-[var(--muted)]">
+          Already have an account?{" "}
+          <Link href="/sign-in" className="underline underline-offset-4">
+            Sign in
+          </Link>
+          .
+        </p>
+      </form>
     </AuthShell>
   );
 }

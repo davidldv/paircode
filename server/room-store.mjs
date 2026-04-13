@@ -3,22 +3,16 @@ import { prisma } from "./db.mjs";
 const MAX_ROOM_MESSAGES = 150;
 const ROOM_INVITE_TTL_DAYS = 7;
 
-function serializeOwner(room) {
-  if (!room.ownerAuthUserId || !room.ownerName) {
-    return null;
-  }
-
+function serializeOwner(owner) {
+  if (!owner) return null;
   return {
-    authUserId: room.ownerAuthUserId,
-    name: room.ownerName,
+    userId: owner.id,
+    name: owner.displayName,
   };
 }
 
 function serializeInvite(invite) {
-  if (!invite) {
-    return null;
-  }
-
+  if (!invite) return null;
   return {
     code: invite.code,
     expiresAt: invite.expiresAt.toISOString(),
@@ -27,8 +21,9 @@ function serializeInvite(invite) {
 
 function serializeMember(member) {
   return {
-    authUserId: member.authUserId,
-    name: member.name,
+    userId: member.userId,
+    name: member.user?.displayName ?? "Unknown",
+    role: member.role,
   };
 }
 
@@ -50,98 +45,73 @@ function generateInviteCode() {
   return crypto.randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
 }
 
-export async function ensureRoomRecord(roomId) {
-  return prisma.room.upsert({
-    where: { slug: roomId },
-    update: {},
-    create: { slug: roomId },
-  });
+export async function ensureRoomRecord(slug) {
+  return prisma.room.findUnique({ where: { slug } });
 }
 
-export async function getRoomRecord(roomId) {
-  return prisma.room.findUnique({
-    where: { slug: roomId },
-  });
-}
+export async function authorizeRoomJoin(slug, user, inviteCode) {
+  const trimmedInviteCode = String(inviteCode ?? "").trim().toUpperCase();
 
-export async function authorizeRoomJoin(roomId, user, inviteCode) {
-  const existingRoom = await getRoomRecord(roomId);
+  const existingRoom = await prisma.room.findUnique({
+    where: { slug },
+    select: { id: true, ownerId: true },
+  });
 
   if (!existingRoom) {
-    const room = await prisma.room.create({
+    const created = await prisma.room.create({
       data: {
-        slug: roomId,
-        ownerAuthUserId: user.authUserId,
-        ownerName: user.name,
+        slug,
+        ownerId: user.userId,
         memberships: {
           create: {
-            authUserId: user.authUserId,
-            name: user.name,
+            userId: user.userId,
+            role: "owner",
           },
         },
       },
+      select: { id: true, slug: true },
     });
-
     return {
       ok: true,
-      room,
+      roomId: created.id,
+      roomSlug: created.slug,
+      role: "owner",
       createdRoom: true,
       joinedViaInvite: false,
     };
   }
 
-  if (existingRoom.ownerAuthUserId === user.authUserId) {
+  if (existingRoom.ownerId === user.userId) {
     await prisma.roomMembership.upsert({
-      where: {
-        roomId_authUserId: {
-          roomId: existingRoom.id,
-          authUserId: user.authUserId,
-        },
-      },
-      update: {
-        name: user.name,
-      },
-      create: {
-        roomId: existingRoom.id,
-        authUserId: user.authUserId,
-        name: user.name,
-      },
+      where: { roomId_userId: { roomId: existingRoom.id, userId: user.userId } },
+      update: { role: "owner" },
+      create: { roomId: existingRoom.id, userId: user.userId, role: "owner" },
     });
-
     return {
       ok: true,
-      room: existingRoom,
+      roomId: existingRoom.id,
+      roomSlug: slug,
+      role: "owner",
       createdRoom: false,
       joinedViaInvite: false,
     };
   }
 
   const membership = await prisma.roomMembership.findUnique({
-    where: {
-      roomId_authUserId: {
-        roomId: existingRoom.id,
-        authUserId: user.authUserId,
-      },
-    },
+    where: { roomId_userId: { roomId: existingRoom.id, userId: user.userId } },
+    select: { role: true },
   });
-
   if (membership) {
-    if (membership.name !== user.name) {
-      await prisma.roomMembership.update({
-        where: { id: membership.id },
-        data: { name: user.name },
-      });
-    }
-
     return {
       ok: true,
-      room: existingRoom,
+      roomId: existingRoom.id,
+      roomSlug: slug,
+      role: membership.role,
       createdRoom: false,
       joinedViaInvite: false,
     };
   }
 
-  const trimmedInviteCode = String(inviteCode ?? "").trim().toUpperCase();
   if (!trimmedInviteCode) {
     return {
       ok: false,
@@ -149,69 +119,85 @@ export async function authorizeRoomJoin(roomId, user, inviteCode) {
     };
   }
 
-  const invite = await prisma.roomInvite.findFirst({
-    where: {
-      roomId: existingRoom.id,
-      code: trimmedInviteCode,
-      revokedAt: null,
-      expiresAt: {
-        gt: new Date(),
+  const redeemedRole = await prisma.$transaction(async (tx) => {
+    const invite = await tx.roomInvite.findFirst({
+      where: {
+        roomId: existingRoom.id,
+        code: trimmedInviteCode,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
       },
-    },
+      select: { id: true },
+    });
+    if (!invite) return null;
+
+    await tx.roomMembership.create({
+      data: {
+        roomId: existingRoom.id,
+        userId: user.userId,
+        role: "collaborator",
+      },
+    });
+    return "collaborator";
   });
 
-  if (!invite) {
-    return {
-      ok: false,
-      error: "Invite link is invalid or expired for this room.",
-    };
+  if (!redeemedRole) {
+    return { ok: false, error: "Invite link is invalid or expired for this room." };
   }
-
-  await prisma.roomMembership.create({
-    data: {
-      roomId: existingRoom.id,
-      authUserId: user.authUserId,
-      name: user.name,
-    },
-  });
 
   return {
     ok: true,
-    room: existingRoom,
+    roomId: existingRoom.id,
+    roomSlug: slug,
+    role: redeemedRole,
     createdRoom: false,
     joinedViaInvite: true,
   };
 }
 
 export async function getRoomSnapshot(roomId) {
-  const room = await ensureRoomRecord(roomId);
-  const messages = await prisma.roomMessage.findMany({
-    where: { roomId: room.id },
-    orderBy: { timestamp: "asc" },
-    take: MAX_ROOM_MESSAGES,
-  });
-  const activeInvite = await prisma.roomInvite.findFirst({
-    where: {
-      roomId: room.id,
-      revokedAt: null,
-      expiresAt: {
-        gt: new Date(),
-      },
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+    select: {
+      id: true,
+      slug: true,
+      selectedFiles: true,
+      pinnedRequirements: true,
+      owner: { select: { id: true, displayName: true } },
     },
-    orderBy: { createdAt: "desc" },
   });
-  const memberships = await prisma.roomMembership.findMany({
-    where: { roomId: room.id },
-    orderBy: [
-      { name: "asc" },
-      { createdAt: "asc" },
-    ],
-  });
+  if (!room) return null;
+
+  const [messages, activeInvite, memberships] = await Promise.all([
+    prisma.roomMessage.findMany({
+      where: { roomId: room.id },
+      orderBy: { timestamp: "asc" },
+      take: MAX_ROOM_MESSAGES,
+    }),
+    prisma.roomInvite.findFirst({
+      where: {
+        roomId: room.id,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.roomMembership.findMany({
+      where: { roomId: room.id },
+      select: {
+        userId: true,
+        role: true,
+        user: { select: { displayName: true } },
+      },
+      orderBy: [{ role: "asc" }, { createdAt: "asc" }],
+    }),
+  ]);
 
   return {
     roomId: room.slug,
+    roomRecordId: room.id,
     messages: messages.map(serializeMessage),
-    owner: serializeOwner(room),
+    owner: serializeOwner(room.owner),
     members: memberships.map(serializeMember),
     activeInvite: serializeInvite(activeInvite),
     context: {
@@ -221,33 +207,26 @@ export async function getRoomSnapshot(roomId) {
   };
 }
 
-export async function canManageRoom(roomId, authUserId) {
-  const room = await ensureRoomRecord(roomId);
-  return room.ownerAuthUserId === authUserId;
-}
-
-export async function createRoomInvite(roomId, authUserId) {
-  const room = await ensureRoomRecord(roomId);
-
-  if (room.ownerAuthUserId !== authUserId) {
+export async function createRoomInvite(roomId, actorUserId) {
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+    select: { ownerId: true },
+  });
+  if (!room) throw new Error("Room not found.");
+  if (room.ownerId !== actorUserId) {
     throw new Error("Only the room owner can manage invite links.");
   }
 
   await prisma.roomInvite.updateMany({
-    where: {
-      roomId: room.id,
-      revokedAt: null,
-    },
-    data: {
-      revokedAt: new Date(),
-    },
+    where: { roomId, revokedAt: null },
+    data: { revokedAt: new Date() },
   });
 
   const invite = await prisma.roomInvite.create({
     data: {
-      roomId: room.id,
+      roomId,
       code: generateInviteCode(),
-      createdByAuthUserId: authUserId,
+      createdById: actorUserId,
       expiresAt: new Date(Date.now() + ROOM_INVITE_TTL_DAYS * 24 * 60 * 60 * 1000),
     },
   });
@@ -255,42 +234,62 @@ export async function createRoomInvite(roomId, authUserId) {
   return serializeInvite(invite);
 }
 
-export async function removeRoomMember(roomId, ownerAuthUserId, memberAuthUserId) {
-  const room = await ensureRoomRecord(roomId);
-
-  if (room.ownerAuthUserId !== ownerAuthUserId) {
+export async function removeRoomMember(roomId, actorUserId, memberUserId) {
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+    select: { ownerId: true },
+  });
+  if (!room) throw new Error("Room not found.");
+  if (room.ownerId !== actorUserId) {
     throw new Error("Only the room owner can remove members.");
   }
-
-  if (!memberAuthUserId || memberAuthUserId === room.ownerAuthUserId) {
+  if (!memberUserId || memberUserId === room.ownerId) {
     throw new Error("The room owner cannot be removed.");
   }
 
   await prisma.roomMembership.deleteMany({
-    where: {
-      roomId: room.id,
-      authUserId: memberAuthUserId,
-    },
+    where: { roomId, userId: memberUserId },
   });
 
   const memberships = await prisma.roomMembership.findMany({
-    where: { roomId: room.id },
-    orderBy: [
-      { name: "asc" },
-      { createdAt: "asc" },
-    ],
+    where: { roomId },
+    select: {
+      userId: true,
+      role: true,
+      user: { select: { displayName: true } },
+    },
+    orderBy: [{ role: "asc" }, { createdAt: "asc" }],
   });
-
   return memberships.map(serializeMember);
 }
 
-export async function createRoomMessage(roomId, message) {
-  const room = await ensureRoomRecord(roomId);
+export async function updateRoomMemberRole(roomId, actorUserId, memberUserId, role) {
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+    select: { ownerId: true },
+  });
+  if (!room) throw new Error("Room not found.");
+  if (room.ownerId !== actorUserId) {
+    throw new Error("Only the room owner can update member roles.");
+  }
+  if (!["collaborator", "viewer"].includes(role)) {
+    throw new Error("Invalid role.");
+  }
+  if (memberUserId === room.ownerId) {
+    throw new Error("The room owner role cannot be changed here.");
+  }
 
+  await prisma.roomMembership.update({
+    where: { roomId_userId: { roomId, userId: memberUserId } },
+    data: { role },
+  });
+}
+
+export async function createRoomMessage(roomId, message) {
   await prisma.roomMessage.create({
     data: {
       id: message.id,
-      roomId: room.id,
+      roomId,
       type: message.type,
       userId: message.userId,
       userName: message.userName,
@@ -301,13 +300,10 @@ export async function createRoomMessage(roomId, message) {
       isStreaming: message.isStreaming ?? false,
     },
   });
-
-  await trimRoomMessages(room.id);
+  await trimRoomMessages(roomId);
 }
 
 export async function updateRoomMessage(roomId, messageId, patch) {
-  const room = await ensureRoomRecord(roomId);
-
   await prisma.roomMessage.update({
     where: { id: messageId },
     data: {
@@ -316,41 +312,35 @@ export async function updateRoomMessage(roomId, messageId, patch) {
       ...(patch.mode !== undefined ? { mode: patch.mode ?? null } : {}),
       ...(patch.auditMetadata !== undefined ? { auditMetadata: patch.auditMetadata ?? undefined } : {}),
       ...(patch.isStreaming !== undefined ? { isStreaming: patch.isStreaming } : {}),
-      roomId: room.id,
+      roomId,
     },
   });
 }
 
 export async function updateRoomContext(roomId, context) {
   const room = await prisma.room.update({
-    where: { slug: roomId },
+    where: { id: roomId },
     data: {
-      selectedFiles: context.selectedFiles,
-      pinnedRequirements: context.pinnedRequirements,
+      selectedFiles: String(context.selectedFiles ?? ""),
+      pinnedRequirements: String(context.pinnedRequirements ?? ""),
     },
+    select: { selectedFiles: true, pinnedRequirements: true },
   });
-
   return {
     selectedFiles: room.selectedFiles,
     pinnedRequirements: room.pinnedRequirements,
   };
 }
 
-async function trimRoomMessages(roomRecordId) {
-  const messages = await prisma.roomMessage.findMany({
-    where: { roomId: roomRecordId },
+async function trimRoomMessages(roomId) {
+  const overflow = await prisma.roomMessage.findMany({
+    where: { roomId },
     orderBy: { timestamp: "desc" },
     skip: MAX_ROOM_MESSAGES,
     select: { id: true },
   });
-
-  if (messages.length === 0) return;
-
+  if (overflow.length === 0) return;
   await prisma.roomMessage.deleteMany({
-    where: {
-      id: {
-        in: messages.map((message) => message.id),
-      },
-    },
+    where: { id: { in: overflow.map((m) => m.id) } },
   });
 }

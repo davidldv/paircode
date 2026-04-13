@@ -83,9 +83,9 @@ export function HeaderCard({
             <BrandConstellation compact className="pt-1" />
           </div>
 
-          <div className="min-w-65 space-y-3 rounded-[1.35rem] border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-soft)_76%,transparent)] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+          <div className="min-w-65 space-y-3 border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-3.5 shadow-[4px_4px_0px_0px_var(--panel-border)]">
             <div className="flex items-center justify-end gap-2">
-              <div className="rounded-full border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-strong)_88%,transparent)] p-1">
+              <div className="border-2 border-[var(--panel-border)] bg-[var(--surface)] p-1 shadow-[2px_2px_0px_0px_var(--panel-border)] hover:-translate-y-0.5 hover:-translate-x-0.5 transition-transform hover:shadow-[3px_3px_0px_0px_var(--accent)]">
                 {authControl}
               </div>
               <Badge variant={statusBadgeVariant}>
@@ -104,36 +104,36 @@ export function HeaderCard({
               </Button>
             </div>
 
-            <div className="rounded-2xl border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-strong)_92%,transparent)] p-3">
-              <p className="mono-label text-[10px] text-(--muted)">Socket Identity</p>
-              <p className="mt-2 text-sm font-semibold uppercase tracking-[0.16em] text-foreground">
+            <div className="border-2 border-[var(--panel-border)] bg-[var(--surface)] p-3 shadow-[2px_2px_0px_0px_var(--panel-border)]">
+              <p className="mono-label text-[10px] text-[var(--muted)]">Socket Identity</p>
+              <p className="mt-2 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--foreground)]">
                 {mySocketId ? mySocketId.slice(0, 8) : "not connected"}
               </p>
-              <p className="mt-1 text-xs text-(--muted)">Realtime session identity for active operators in the shared room.</p>
+              <p className="mt-1 text-xs text-[var(--muted)]">Realtime session identity for active operators in the shared room.</p>
             </div>
           </div>
         </div>
       </CardHeader>
 
       <CardContent>
-        <div className="rounded-[1.4rem] border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-soft)_74%,transparent)] p-3">
+        <div className="border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-3 shadow-[4px_4px_0px_0px_var(--panel-border)]">
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_180px_180px_220px]">
-            <Input value={roomId} onChange={(event) => onRoomIdChange(event.target.value)} placeholder="Room ID" />
-            <div className="rounded-2xl border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-strong)_94%,transparent)] px-3 py-2.5">
-              <p className="mono-label text-[10px] text-(--muted)">Authenticated operator</p>
-              <p className="mt-1 truncate text-sm font-semibold text-foreground">{operatorName}</p>
-              <p className="truncate text-xs text-(--muted)">{operatorEmail}</p>
+            <Input value={roomId} onChange={(event) => onRoomIdChange(event.target.value)} placeholder="Room ID" className="border-2 border-[var(--panel-border)] shadow-[2px_2px_0px_0px_var(--panel-border)] focus-visible:shadow-[4px_4px_0px_0px_var(--accent)] focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all" />
+            <div className="border-2 border-[var(--panel-border)] bg-[var(--surface)] px-3 py-2.5 shadow-[2px_2px_0px_0px_var(--panel-border)]">
+              <p className="mono-label text-[10px] text-[var(--muted)]">Authenticated operator</p>
+              <p className="mt-1 truncate text-sm font-extrabold text-[var(--foreground)]">{operatorName}</p>
+              <p className="truncate text-xs font-mono text-[var(--muted)]">{operatorEmail}</p>
             </div>
-            <Button onClick={onJoin} type="button" className="w-full">
+            <Button onClick={onJoin} type="button" className="w-full border-2 border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] shadow-[2px_2px_0px_0px_var(--panel-border)] hover:shadow-[4px_4px_0px_0px_var(--panel-border)] hover:-translate-y-1 hover:-translate-x-1 transition-all rounded-none font-bold uppercase tracking-wider">
               {status === "connecting" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
               {status === "connecting" ? "Connecting..." : "Join Room"}
             </Button>
-            <Button onClick={onLeave} type="button" variant="secondary" disabled={!canLeave} className="w-full">
+            <Button onClick={onLeave} type="button" variant="secondary" disabled={!canLeave} className="w-full border-2 border-[var(--panel-border)] bg-[var(--surface)] text-[var(--foreground)] shadow-[2px_2px_0px_0px_var(--panel-border)] hover:shadow-[4px_4px_0px_0px_var(--accent)] hover:-translate-y-1 hover:-translate-x-1 transition-all rounded-none font-bold uppercase tracking-wider">
               <LogOut className="h-4 w-4" />
               Leave Room
             </Button>
-            <div className="mono-label flex items-center rounded-xl border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-strong)_95%,transparent)] px-3 py-2 text-xs text-(--muted)">
-              {activeRoom ? `active room: ${activeRoom}` : "active room: none"}
+            <div className="mono-label flex items-center border-2 border-[var(--panel-border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--foreground)] font-bold shadow-[2px_2px_0px_0px_var(--panel-border)]">
+              {activeRoom ? `ACTIVE ROOM // ${activeRoom}` : "NO ACTIVE ROOM"}
             </div>
           </div>
         </div>
@@ -141,8 +141,8 @@ export function HeaderCard({
         <div className="panel-rule my-5" />
 
         {showHints ? (
-          <div className="flex flex-wrap items-center gap-2 rounded-[1.25rem] border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-soft)_74%,transparent)] p-3">
-            <span className="mono-label text-[10px] text-(--muted)">Shortcuts</span>
+          <div className="flex flex-wrap items-center gap-2 border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-3 shadow-[4px_4px_0px_0px_var(--panel-border)]">
+            <span className="mono-label text-[10px] text-[var(--muted)] mr-2 bg-[var(--background)] px-2 py-1 border border-[var(--panel-border)]">SHORTCUTS</span>
             <Badge>Shift+M focus message</Badge>
             <Badge>Shift+J join room</Badge>
             <Badge>Ctrl/Cmd+Enter send/run</Badge>

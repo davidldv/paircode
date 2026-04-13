@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { UserButton, useAuth, useUser } from "@clerk/nextjs";
 
 import { ContextSidebar } from "@/components/paircode/context-sidebar";
 import { HeaderCard } from "@/components/paircode/header-card";
@@ -9,17 +8,15 @@ import { MessagePanel } from "@/components/paircode/message-panel";
 import { MobileCommandPalette } from "@/components/paircode/mobile-command-palette";
 import { PresenceSidebar } from "@/components/paircode/presence-sidebar";
 import { ToastStack } from "@/components/paircode/toast-stack";
+import { Button } from "@/components/ui/button";
 import { usePaircodePageUi } from "@/lib/use-paircode-page-ui";
 import { usePaircodePreferences } from "@/lib/use-paircode-preferences";
 import { usePaircodeRoom } from "@/lib/use-paircode-room";
-
-function getDisplayName(user: ReturnType<typeof useUser>["user"]) {
-  return user?.fullName ?? user?.username ?? user?.primaryEmailAddress?.emailAddress?.split("@")[0] ?? "Operator";
-}
+import { usePaircodeSession } from "@/lib/use-paircode-session";
 
 export default function Home() {
-  const { getToken } = useAuth();
-  const { isLoaded, user } = useUser();
+  const { status: sessionStatus, user, signOut } = usePaircodeSession();
+  const isLoaded = sessionStatus !== "loading";
   const messageEndRef = useRef<HTMLDivElement | null>(null);
   const messageViewportRef = useRef<HTMLDivElement | null>(null);
   const shouldAutoScrollRef = useRef(true);
@@ -28,8 +25,8 @@ export default function Home() {
   const messageInputRef = useRef<HTMLInputElement | null>(null);
   const agentInputRef = useRef<HTMLTextAreaElement | null>(null);
   const { theme, showHints, toggleTheme, dismissHints } = usePaircodePreferences();
-  const operatorName = getDisplayName(user);
-  const operatorEmail = user?.primaryEmailAddress?.emailAddress ?? "Authenticated workspace operator";
+  const operatorName = user?.displayName ?? "Operator";
+  const operatorEmail = user?.email ?? "Authenticated workspace operator";
   const {
     status,
     mySocketId,
@@ -72,7 +69,6 @@ export default function Home() {
   } = usePaircodeRoom({
     userId: user?.id ?? "",
     userName: operatorName,
-    getToken,
   });
   const {
     mobilePaletteOpen,
@@ -161,7 +157,7 @@ export default function Home() {
     return (
       <main className="app-shell relative min-h-screen overflow-hidden bg-background text-foreground">
         <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4">
-          <div className="hero-shell w-full max-w-xl rounded-[1.75rem] border border-(--panel-border) p-8 text-center">
+          <div className="hero-shell w-full max-w-xl border-2 border-(--panel-border) shadow-[8px_8px_0px_0px_var(--accent)] p-12 text-center bg-(--surface)">
             <div className="section-kicker">Workspace Access</div>
             <h1 className="mt-3 text-3xl">Loading your authenticated workspace</h1>
             <p className="mt-3 text-sm leading-6 text-(--muted)">
@@ -174,9 +170,7 @@ export default function Home() {
   }
 
   return (
-    <main className="app-shell relative min-h-screen overflow-hidden bg-background pb-10 text-foreground">
-      <div className="float-glow pointer-events-none absolute -left-12 top-10 h-44 w-44 rounded-full bg-[rgba(216,93,45,0.15)] blur-3xl" />
-      <div className="float-glow pointer-events-none absolute right-4 top-24 h-52 w-52 rounded-full bg-[rgba(61,137,130,0.14)] blur-3xl" />
+    <main className="app-shell relative min-h-screen bg-background pb-10 text-foreground selection:bg-(--accent) selection:text-background">
 
       <div className="mx-auto flex w-full max-w-360 flex-col gap-6 px-4 pt-5 lg:px-8 lg:pt-8">
         <HeaderCard
@@ -187,7 +181,17 @@ export default function Home() {
           roomId={roomId}
           operatorName={name}
           operatorEmail={operatorEmail}
-          authControl={<UserButton />}
+          authControl={
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => void signOut()}
+              className="border-2 border-[var(--panel-border)] rounded-none font-bold uppercase tracking-wider text-[10px]"
+            >
+              Sign out
+            </Button>
+          }
           activeRoom={activeRoom}
           usersCount={users.length}
           messagesCount={sortedMessages.length}
@@ -206,7 +210,7 @@ export default function Home() {
             users={users}
             roomMembers={roomMembers}
             mySocketId={mySocketId}
-            currentAuthUserId={user.id}
+            currentUserId={user.id}
             roomOwner={roomOwner}
             canManageRoom={canManageRoom}
             onRemoveMember={removeMember}

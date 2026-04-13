@@ -6,7 +6,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
-      className={cn("surface-card rounded-[1.6rem]", className)}
+      className={cn("surface-card rounded-none", className)}
       {...props}
     />
   );
@@ -17,11 +17,11 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
-  return <h3 data-slot="card-title" className={cn("font-semibold tracking-tight", className)} {...props} />;
+  return <h3 data-slot="card-title" className={cn("font-black uppercase tracking-widest", className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
-  return <p data-slot="card-description" className={cn("text-sm text-(--muted)", className)} {...props} />;
+  return <p data-slot="card-description" className={cn("text-sm font-mono text-[var(--muted)]", className)} {...props} />;
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {

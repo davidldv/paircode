@@ -12,14 +12,14 @@ export function ToastStack({ toasts }: ToastStackProps) {
           key={toast.id}
           className={
             toast.variant === "success"
-              ? "toast-in pointer-events-auto rounded-xl border border-[#96c8a8] bg-[#e9f8ee] p-3 text-[#225b40]"
+              ? "toast-in pointer-events-auto border-2 border-[var(--panel-border)] bg-[var(--success)] p-3 text-[var(--background)] shadow-[4px_4px_0px_0px_var(--panel-border)] rounded-none"
               : toast.variant === "danger"
-                ? "toast-in pointer-events-auto rounded-xl border border-[#e7a49b] bg-[#fdeceb] p-3 text-[#8d2d2a]"
-                : "toast-in pointer-events-auto rounded-xl border border-(--line) bg-(--surface-strong) p-3 text-foreground"
+                ? "toast-in pointer-events-auto border-2 border-[var(--panel-border)] bg-[#ff0000] p-3 text-white shadow-[4px_4px_0px_0px_var(--panel-border)] rounded-none"
+                : "toast-in pointer-events-auto border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-3 text-[var(--foreground)] shadow-[4px_4px_0px_0px_var(--panel-border)] rounded-none"
           }
         >
-          <p className="text-sm font-semibold">{toast.title}</p>
-          {toast.detail ? <p className="mt-1 text-xs opacity-80">{toast.detail}</p> : null}
+          <p className="text-sm font-black uppercase tracking-wider">{toast.title}</p>
+          {toast.detail ? <p className="mt-1 text-xs font-mono">{toast.detail}</p> : null}
         </div>
       ))}
     </div>

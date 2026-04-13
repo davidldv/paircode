@@ -27,9 +27,7 @@ export class FakeSocket {
     this.closed = true;
     this.readyState = 3;
     const handler = this.handlers.get("close");
-    if (handler) {
-      handler();
-    }
+    if (handler) handler();
   }
 
   async emitMessage(payload) {
@@ -40,114 +38,165 @@ export class FakeSocket {
 
 export function createAccessTestStore() {
   const room = {
-    roomId: "alpha-room",
-    owner: { authUserId: "owner-1", name: "Owner" },
-    members: [{ authUserId: "owner-1", name: "Owner" }],
+    recordId: "room-alpha",
+    slug: "alpha-room",
+    owner: { userId: "user-owner", name: "Owner" },
+    members: [{ userId: "user-owner", name: "Owner", role: "owner" }],
     messages: [],
     activeInvite: { code: "INVITE123456", expiresAt: "2030-01-01T00:00:00.000Z" },
-    context: {
-      selectedFiles: "",
-      pinnedRequirements: "",
-    },
+    context: { selectedFiles: "", pinnedRequirements: "" },
   };
 
   return {
     room,
-    async authorizeRoomJoin(roomId, user, inviteCode) {
-      if (roomId !== room.roomId) {
-        room.roomId = roomId;
-        room.owner = { authUserId: user.authUserId, name: user.name };
-        room.members = [{ authUserId: user.authUserId, name: user.name }];
-        return { ok: true, room, createdRoom: true, joinedViaInvite: false };
+    async authorizeRoomJoin(slug, user, inviteCode) {
+      if (slug !== room.slug) {
+        room.slug = slug;
+        room.owner = { userId: user.userId, name: user.displayName };
+        room.members = [{ userId: user.userId, name: user.displayName, role: "owner" }];
+        return {
+          ok: true,
+          roomId: room.recordId,
+          roomSlug: room.slug,
+          role: "owner",
+          createdRoom: true,
+          joinedViaInvite: false,
+        };
       }
 
-      if (user.authUserId === room.owner.authUserId || room.members.some((member) => member.authUserId === user.authUserId)) {
-        if (!room.members.some((member) => member.authUserId === user.authUserId)) {
-          room.members.push({ authUserId: user.authUserId, name: user.name });
-        }
-        return { ok: true, room, createdRoom: false, joinedViaInvite: false };
+      const existing = room.members.find((m) => m.userId === user.userId);
+      if (existing) {
+        return {
+          ok: true,
+          roomId: room.recordId,
+          roomSlug: room.slug,
+          role: existing.role,
+          createdRoom: false,
+          joinedViaInvite: false,
+        };
       }
 
       if (String(inviteCode).trim().toUpperCase() === room.activeInvite.code) {
-        room.members.push({ authUserId: user.authUserId, name: user.name });
-        return { ok: true, room, createdRoom: false, joinedViaInvite: true };
+        room.members.push({ userId: user.userId, name: user.displayName, role: "collaborator" });
+        return {
+          ok: true,
+          roomId: room.recordId,
+          roomSlug: room.slug,
+          role: "collaborator",
+          createdRoom: false,
+          joinedViaInvite: true,
+        };
       }
 
-      return { ok: false, error: "This room is restricted. Ask the room owner for an invite link before joining." };
+      return {
+        ok: false,
+        error: "This room is restricted. Ask the room owner for an invite link before joining.",
+      };
     },
-    async canManageRoom(roomId, authUserId) {
-      return roomId === room.roomId && authUserId === room.owner.authUserId;
-    },
-    async createRoomInvite() {
+    async createRoomInvite(roomId, actorUserId) {
+      if (roomId !== room.recordId) throw new Error("Room not found.");
+      if (actorUserId !== room.owner.userId) throw new Error("Only the room owner can rotate invite links.");
       room.activeInvite = {
         code: room.activeInvite.code === "INVITE123456" ? "ROTATED654321" : "INVITE123456",
         expiresAt: "2030-01-08T00:00:00.000Z",
       };
       return room.activeInvite;
     },
-    async createRoomMessage(roomId, message) {
+    async createRoomMessage(_roomId, message) {
       room.messages.push(message);
     },
     async getRoomSnapshot(roomId) {
-      if (roomId !== room.roomId) {
-        return {
-          roomId,
-          owner: null,
-          members: [],
-          messages: [],
-          activeInvite: null,
-          context: room.context,
-        };
-      }
-
+      if (roomId !== room.recordId) return null;
       return {
-        roomId: room.roomId,
-        owner: room.owner,
-        members: [...room.members],
+        roomId: room.slug,
+        roomRecordId: room.recordId,
+        owner: { ...room.owner },
+        members: room.members.map((m) => ({ ...m })),
         messages: [...room.messages],
         activeInvite: room.activeInvite,
         context: { ...room.context },
       };
     },
-    async removeRoomMember(roomId, ownerAuthUserId, memberAuthUserId) {
-      if (roomId !== room.roomId || ownerAuthUserId !== room.owner.authUserId) {
+    async removeRoomMember(roomId, actorUserId, memberUserId) {
+      if (roomId !== room.recordId || actorUserId !== room.owner.userId) {
         throw new Error("Only the room owner can remove members.");
       }
-
-      if (memberAuthUserId === room.owner.authUserId) {
-        throw new Error("The room owner cannot be removed.");
-      }
-
-      room.members = room.members.filter((member) => member.authUserId !== memberAuthUserId);
-      return [...room.members];
+      if (memberUserId === room.owner.userId) throw new Error("The room owner cannot be removed.");
+      room.members = room.members.filter((m) => m.userId !== memberUserId);
+      return room.members.map((m) => ({ ...m }));
     },
-    async updateRoomContext(roomId, context) {
+    async updateRoomMemberRole(roomId, actorUserId, memberUserId, role) {
+      if (roomId !== room.recordId || actorUserId !== room.owner.userId) {
+        throw new Error("Only the room owner can update member roles.");
+      }
+      if (!["collaborator", "viewer"].includes(role)) throw new Error("Invalid role.");
+      const target = room.members.find((m) => m.userId === memberUserId);
+      if (!target) throw new Error("Member not found.");
+      target.role = role;
+    },
+    async updateRoomContext(_roomId, context) {
       room.context = { ...context };
       return { ...room.context };
     },
-    async updateRoomMessage(roomId, messageId, patch) {
-      room.messages = room.messages.map((message) => (message.id === messageId ? { ...message, ...patch } : message));
+    async updateRoomMessage(_roomId, messageId, patch) {
+      room.messages = room.messages.map((m) => (m.id === messageId ? { ...m, ...patch } : m));
     },
   };
 }
 
 export function createInviteTokenForStore(store, secret = TEST_INVITE_SECRET) {
-  return createSignedInviteToken({
-    roomId: store.room.roomId,
-    inviteCode: store.room.activeInvite.code,
-    expiresAt: store.room.activeInvite.expiresAt,
-  }, secret);
+  return createSignedInviteToken(
+    {
+      roomId: store.room.slug,
+      inviteCode: store.room.activeInvite.code,
+      expiresAt: store.room.activeInvite.expiresAt,
+    },
+    secret,
+  );
+}
+
+function createFakeSecurity(store) {
+  const fakeSessions = new Map();
+  return {
+    fakeSessions,
+    resolveRoomRole: async (userId, roomId) => {
+      if (roomId !== store.room.recordId) return null;
+      if (store.room.owner.userId === userId) return "owner";
+      const member = store.room.members.find((m) => m.userId === userId);
+      return member?.role ?? null;
+    },
+    invalidateRoomRole: () => undefined,
+    invalidateAllRolesForRoom: () => undefined,
+    loadActiveSession: async (sessionId) =>
+      fakeSessions.get(sessionId) ?? null,
+    markSessionActivity: async () => undefined,
+    logSecurityEvent: async () => undefined,
+  };
 }
 
 export function createTestHandler(store, secret = TEST_INVITE_SECRET) {
-  return createRoomConnectionHandler({
-    verifySessionToken: async (token) => ({ sub: token }),
+  const security = createFakeSecurity(store);
+  const handler = createRoomConnectionHandler({
     store,
     inviteLinks: {
-      createInviteToken: ({ roomId, inviteCode, expiresAt }) => createSignedInviteToken({ roomId, inviteCode, expiresAt }, secret),
+      createInviteToken: ({ roomId, inviteCode, expiresAt }) =>
+        createSignedInviteToken({ roomId, inviteCode, expiresAt }, secret),
       verifyInviteToken: (token) => verifySignedInviteToken(token, secret),
     },
+    security,
   });
+
+  async function connect(socket, principal) {
+    security.fakeSessions.set(principal.sessionId, {
+      sessionId: principal.sessionId,
+      userId: principal.userId,
+      displayName: principal.displayName,
+      credentialVersion: 1,
+    });
+    await handler(socket, principal);
+  }
+
+  return { handler, connect, security };
 }
 
 export function getSentMessages(socket, type) {

@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
-import { Bricolage_Grotesque, IBM_Plex_Mono } from "next/font/google";
+import { Syne, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const bricolageGrotesque = Bricolage_Grotesque({
-  variable: "--font-bricolage-grotesque",
+const syne = Syne({
+  variable: "--font-syne",
   subsets: ["latin"],
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-plex-mono",
-  weight: ["400", "500"],
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  weight: ["400", "500", "700"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "PairCode",
-  description: "Collaborative engineering room with persistent threaded context, live presence, AI facilitation, and room-level implementation history",
+  description:
+    "Collaborative engineering room with persistent threaded context, live presence, AI facilitation, and room-level implementation history",
 };
 
 export default function RootLayout({
@@ -28,17 +28,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${bricolageGrotesque.variable} ${ibmPlexMono.variable} antialiased`}
+        className={`${syne.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <ClerkProvider
-          signInUrl="/sign-in"
-          signUpUrl="/sign-up"
-          signInFallbackRedirectUrl="/"
-          signUpFallbackRedirectUrl="/"
-          afterSignOutUrl="/sign-in"
-        >
-          {children}
-        </ClerkProvider>
+        {children}
       </body>
     </html>
   );

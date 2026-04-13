@@ -34,14 +34,14 @@ export function BrandConstellation({ compact = false, className }: BrandConstell
   return (
     <section
       className={cn(
-        "rounded-[1.6rem] border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-soft)_72%,transparent)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]",
+        "border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-4 shadow-[4px_4px_0px_0px_var(--panel-border)] rounded-none",
         className,
       )}
     >
       <div className={cn("flex gap-4", compact ? "items-center" : "items-start")}>
         <div
           className={cn(
-            "shrink-0 rounded-[1.3rem] border border-(--panel-border) bg-[linear-gradient(180deg,rgba(255,248,233,0.96),rgba(244,229,205,0.92))]",
+            "shrink-0 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[2px_2px_0px_0px_var(--panel-border)] rounded-none",
             compact ? "p-2.5" : "p-3",
           )}
         >
@@ -55,26 +55,26 @@ export function BrandConstellation({ compact = false, className }: BrandConstell
         </div>
 
         <div className="min-w-0 space-y-1.5">
-          <h3 className={cn("font-semibold tracking-tight text-foreground", compact ? "text-xl" : "text-2xl")}>PairCode Capability Constellation</h3>
-          <p className="max-w-3xl text-sm leading-6 text-(--muted)">
+          <h3 className={cn("font-black uppercase tracking-widest text-[var(--foreground)]", compact ? "text-xl" : "text-2xl")}>PairCode Capability Constellation</h3>
+          <p className="max-w-3xl text-xs font-mono uppercase tracking-wide leading-6 text-[var(--muted)]">
             The mark and capability icons now map the product story directly into the interface: shared context, live presence, AI facilitation, and durable implementation history.
           </p>
         </div>
       </div>
 
-      <div className={cn("mt-4 grid gap-3", compact ? "md:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2")}>
+      <div className={cn("mt-6 grid gap-3", compact ? "md:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2")}>
         {capabilityCards.map((card) => (
           <article
             key={card.title}
-            className="rounded-[1.25rem] border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-strong)_92%,transparent)] p-3"
+            className="border-2 border-[var(--panel-border)] bg-[var(--surface)] p-3 shadow-[2px_2px_0px_0px_var(--panel-border)] transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0px_0px_var(--accent)] rounded-none"
           >
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl border border-(--panel-border) bg-[rgba(255,255,255,0.66)] p-2">
+              <div className="border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-2 rounded-none">
                 <Image src={card.icon} alt="" width={40} height={40} aria-hidden />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">{card.title}</p>
-                <p className="mt-1 text-xs leading-5 text-(--muted)">{card.description}</p>
+                <p className="text-sm font-black uppercase text-[var(--foreground)]">{card.title}</p>
+                <p className="mt-1 text-xs leading-5 font-mono text-[var(--muted)]">{card.description}</p>
               </div>
             </div>
           </article>

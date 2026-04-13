@@ -2,12 +2,39 @@ import {
   buildAgentPrompt as defaultBuildAgentPrompt,
   buildFallbackResponse as defaultBuildFallbackResponse,
 } from "./agent-utils.mjs";
+import { canPerform } from "./security/rbac.mjs";
+import { eventSchemas, joinSchema } from "./security/schemas.mjs";
+import { consumeToken, RATE_LIMITS } from "./security/rate-limit.mjs";
+import { logSecurityEvent as defaultLogSecurityEvent } from "./security/logger.mjs";
+import {
+  resolveRoomRole as defaultResolveRoomRole,
+  invalidateRoomRole as defaultInvalidateRoomRole,
+  invalidateAllRolesForRoom as defaultInvalidateAllRolesForRoom,
+} from "./security/room-access.mjs";
+import {
+  loadActiveSession as defaultLoadActiveSession,
+  markSessionActivity as defaultMarkSessionActivity,
+} from "./security/session.mjs";
+
+const SESSION_REVALIDATE_MS = 60_000;
+const SESSION_ACTIVITY_MS = 60_000;
+const MAX_FRAME_BYTES = 64 * 1024;
+
+const RATE_KEY_BY_EVENT = {
+  chat: { limit: RATE_LIMITS.wsChatPerUser, scope: "user" },
+  typing: { limit: RATE_LIMITS.wsTypingPerUser, scope: "user" },
+  "context:update": { limit: RATE_LIMITS.wsContextPerUser, scope: "user" },
+  "ai:ask": { limit: RATE_LIMITS.wsAiAskPerUser, scope: "user" },
+  "invite:create": { limit: RATE_LIMITS.wsInvitePerUser, scope: "user" },
+  "membership:remove": { limit: RATE_LIMITS.wsMembershipPerUser, scope: "user" },
+  "membership:update": { limit: RATE_LIMITS.wsMembershipPerUser, scope: "user" },
+};
 
 export function createRoomConnectionHandler({
-  verifySessionToken,
   store,
   ai = {},
   inviteLinks = {},
+  security = {},
 }) {
   const rooms = new Map();
   const buildAgentPrompt = ai.buildAgentPrompt ?? defaultBuildAgentPrompt;
@@ -16,31 +43,32 @@ export function createRoomConnectionHandler({
   const createInviteToken = inviteLinks.createInviteToken ?? (() => null);
   const verifyInviteToken = inviteLinks.verifyInviteToken ?? (() => null);
 
-  function ensureRoomState(roomId) {
-    if (!rooms.has(roomId)) {
-      rooms.set(roomId, {
+  const resolveRoomRole = security.resolveRoomRole ?? defaultResolveRoomRole;
+  const invalidateRoomRole = security.invalidateRoomRole ?? defaultInvalidateRoomRole;
+  const invalidateAllRolesForRoom = security.invalidateAllRolesForRoom ?? defaultInvalidateAllRolesForRoom;
+  const loadActiveSession = security.loadActiveSession ?? defaultLoadActiveSession;
+  const markSessionActivity = security.markSessionActivity ?? defaultMarkSessionActivity;
+  const logSecurityEvent = security.logSecurityEvent ?? defaultLogSecurityEvent;
+
+  function ensureRoomState(roomRecordId) {
+    if (!rooms.has(roomRecordId)) {
+      rooms.set(roomRecordId, {
         clients: new Map(),
         activeAgentRun: null,
       });
     }
-
-    return rooms.get(roomId);
-  }
-
-  function toJson(payload) {
-    return JSON.stringify(payload);
+    return rooms.get(roomRecordId);
   }
 
   function safeSend(client, payload) {
     if (client.readyState === client.OPEN) {
-      client.send(toJson(payload));
+      client.send(JSON.stringify(payload));
     }
   }
 
-  function broadcast(roomId, payload, options = {}) {
-    const roomState = rooms.get(roomId);
+  function broadcast(roomRecordId, payload, options = {}) {
+    const roomState = rooms.get(roomRecordId);
     if (!roomState) return;
-
     const { exclude } = options;
     for (const [socketId, client] of roomState.clients.entries()) {
       if (exclude && socketId === exclude) continue;
@@ -52,37 +80,37 @@ export function createRoomConnectionHandler({
     return {
       id: socketId,
       name: client.meta?.name ?? "Anonymous",
-      authUserId: client.meta?.userId ?? undefined,
+      userId: client.meta?.userId ?? undefined,
     };
   }
 
-  async function serializeRoom(roomId) {
-    const roomSnapshot = await store.getRoomSnapshot(roomId);
-    const roomState = rooms.get(roomId);
+  async function serializeRoom(roomRecordId, roomSlug) {
+    const roomSnapshot = await store.getRoomSnapshot(roomRecordId);
+    if (!roomSnapshot) return null;
+    const roomState = rooms.get(roomRecordId);
     const inviteToken = roomSnapshot.activeInvite
       ? createInviteToken({
-          roomId,
+          roomId: roomSlug,
           inviteCode: roomSnapshot.activeInvite.code,
           expiresAt: roomSnapshot.activeInvite.expiresAt,
         })
       : null;
 
     return {
-      users: roomState ? [...roomState.clients.entries()].map(([id, client]) => serializeUser(id, client)) : [],
+      users: roomState
+        ? [...roomState.clients.entries()].map(([id, client]) => serializeUser(id, client))
+        : [],
       messages: roomSnapshot.messages,
       owner: roomSnapshot.owner,
       members: roomSnapshot.members,
       activeInvite: roomSnapshot.activeInvite && inviteToken
-        ? {
-            token: inviteToken,
-            expiresAt: roomSnapshot.activeInvite.expiresAt,
-          }
+        ? { token: inviteToken, expiresAt: roomSnapshot.activeInvite.expiresAt }
         : null,
       context: roomSnapshot.context,
     };
   }
 
-  async function publishAuditMessage(roomId, auditMetadata, text) {
+  async function publishAuditMessage(roomRecordId, roomSlug, auditMetadata, text) {
     const message = {
       id: crypto.randomUUID(),
       type: "system",
@@ -92,36 +120,34 @@ export function createRoomConnectionHandler({
       timestamp: new Date().toISOString(),
       auditMetadata,
     };
-
-    await store.createRoomMessage(roomId, message);
-    broadcast(roomId, {
-      type: "chat",
-      roomId,
-      message,
-    });
+    await store.createRoomMessage(roomRecordId, message);
+    broadcast(roomRecordId, { type: "chat", roomId: roomSlug, message });
   }
 
-  function disconnectMemberSockets(roomId, memberAuthUserId, reason) {
-    const roomState = rooms.get(roomId);
+  function disconnectMemberSockets(roomRecordId, memberUserId, reason) {
+    const roomState = rooms.get(roomRecordId);
     if (!roomState) return;
-
     for (const client of roomState.clients.values()) {
-      if (client.meta?.userId !== memberAuthUserId) continue;
+      if (client.meta?.userId !== memberUserId) continue;
       safeSend(client, { type: "error", error: reason });
-      client.close();
+      try {
+        client.close(4003, "access_revoked");
+      } catch {
+        /* ignore */
+      }
     }
   }
 
-  async function runRoomAgent({ roomId, requesterId, mode, question }) {
-    const roomState = ensureRoomState(roomId);
+  async function runRoomAgent({ roomRecordId, roomSlug, requesterSocketId, requesterUserId, mode, question }) {
+    const roomState = ensureRoomState(roomRecordId);
     const runId = crypto.randomUUID();
     roomState.activeAgentRun = runId;
 
-    const roomSnapshot = await serializeRoom(roomId);
+    const roomSnapshot = await serializeRoom(roomRecordId, roomSlug);
     const prompt = buildAgentPrompt({ mode, question, roomSnapshot });
     const startedAt = new Date().toISOString();
 
-    await store.createRoomMessage(roomId, {
+    await store.createRoomMessage(roomRecordId, {
       id: runId,
       type: "ai",
       userId: "room-agent",
@@ -132,12 +158,12 @@ export function createRoomConnectionHandler({
       isStreaming: true,
     });
 
-    broadcast(roomId, {
+    broadcast(roomRecordId, {
       type: "ai:start",
-      roomId,
+      roomId: roomSlug,
       runId,
       mode,
-      by: requesterId,
+      by: requesterSocketId,
       startedAt,
     });
 
@@ -146,31 +172,16 @@ export function createRoomConnectionHandler({
     try {
       if (streamResponse) {
         for await (const token of streamResponse(prompt)) {
-          if (roomState.activeAgentRun !== runId) {
-            break;
-          }
+          if (roomState.activeAgentRun !== runId) break;
           fullText += token;
-          broadcast(roomId, {
-            type: "ai:chunk",
-            roomId,
-            runId,
-            token,
-          });
+          broadcast(roomRecordId, { type: "ai:chunk", roomId: roomSlug, runId, token });
         }
       } else {
         const fallback = buildFallbackResponse(mode, roomSnapshot, question);
-        const parts = fallback.split(/(\s+)/).filter(Boolean);
-        for (const token of parts) {
-          if (roomState.activeAgentRun !== runId) {
-            break;
-          }
+        for (const token of fallback.split(/(\s+)/).filter(Boolean)) {
+          if (roomState.activeAgentRun !== runId) break;
           fullText += token;
-          broadcast(roomId, {
-            type: "ai:chunk",
-            roomId,
-            runId,
-            token,
-          });
+          broadcast(roomRecordId, { type: "ai:chunk", roomId: roomSlug, runId, token });
         }
       }
 
@@ -185,7 +196,7 @@ export function createRoomConnectionHandler({
         isStreaming: false,
       };
 
-      await store.updateRoomMessage(roomId, runId, {
+      await store.updateRoomMessage(roomRecordId, runId, {
         text: message.text,
         timestamp: message.timestamp,
         mode,
@@ -193,303 +204,359 @@ export function createRoomConnectionHandler({
       });
 
       roomState.activeAgentRun = null;
-
-      broadcast(roomId, {
-        type: "ai:done",
-        roomId,
-        runId,
-        message,
-      });
+      broadcast(roomRecordId, { type: "ai:done", roomId: roomSlug, runId, message });
     } catch (error) {
       roomState.activeAgentRun = null;
       const detail = error instanceof Error ? error.message : "Unknown AI error";
-      await store.updateRoomMessage(roomId, runId, {
+      await store.updateRoomMessage(roomRecordId, runId, {
         text: fullText || "Agent run failed.",
         mode,
         isStreaming: false,
       }).catch(() => undefined);
-      broadcast(roomId, {
-        type: "ai:error",
-        roomId,
-        runId,
-        error: detail,
+      broadcast(roomRecordId, { type: "ai:error", roomId: roomSlug, runId, error: detail });
+      await logSecurityEvent({
+        kind: "ws.ai.failed",
+        severity: "warn",
+        userId: requesterUserId,
+        roomId: roomRecordId,
+        metadata: { reason: detail },
       });
     }
   }
 
   function leaveRoom(socketId, ws) {
-    const roomId = ws.meta?.roomId;
-    if (!roomId) return;
+    const roomRecordId = ws.meta?.roomRecordId;
+    const roomSlug = ws.meta?.roomSlug;
+    if (!roomRecordId) return;
 
-    const roomState = rooms.get(roomId);
+    const roomState = rooms.get(roomRecordId);
     if (!roomState) return;
 
     const user = serializeUser(socketId, ws);
     roomState.clients.delete(socketId);
-    ws.meta.roomId = null;
+    ws.meta.roomRecordId = null;
+    ws.meta.roomSlug = null;
 
-    broadcast(roomId, {
+    broadcast(roomRecordId, {
       type: "presence",
-      roomId,
+      roomId: roomSlug,
       event: "leave",
       user,
       users: [...roomState.clients.entries()].map(([id, client]) => serializeUser(id, client)),
     });
 
     if (roomState.clients.size === 0) {
-      rooms.delete(roomId);
+      rooms.delete(roomRecordId);
     }
   }
 
-  return function handleConnection(ws) {
+  async function authorizeEvent(ws, eventType) {
+    const action = RATE_KEY_BY_EVENT[eventType];
+    if (action) {
+      const rl = consumeToken(`ws:${eventType}:${ws.meta.userId}`, action.limit);
+      if (!rl.allowed) {
+        safeSend(ws, { type: "error", error: "Rate limit exceeded for this action." });
+        await logSecurityEvent({
+          kind: "ws.rate_limited",
+          severity: "warn",
+          userId: ws.meta.userId,
+          sessionId: ws.meta.sessionId,
+          roomId: ws.meta.roomRecordId,
+          metadata: { event: eventType, retryAfterMs: rl.retryAfterMs },
+        });
+        return false;
+      }
+    }
+
+    const role = await resolveRoomRole(ws.meta.userId, ws.meta.roomRecordId);
+    if (!role) {
+      safeSend(ws, { type: "error", error: "You no longer have access to this room." });
+      try {
+        ws.close(4003, "access_revoked");
+      } catch {
+        /* ignore */
+      }
+      return false;
+    }
+    ws.meta.role = role;
+
+    if (!canPerform(role, eventType)) {
+      safeSend(ws, { type: "error", error: "You do not have permission to perform this action." });
+      await logSecurityEvent({
+        kind: "ws.authz.denied",
+        severity: "warn",
+        userId: ws.meta.userId,
+        sessionId: ws.meta.sessionId,
+        roomId: ws.meta.roomRecordId,
+        metadata: { event: eventType, role },
+      });
+      return false;
+    }
+    return true;
+  }
+
+  async function revalidateSessionIfNeeded(ws) {
+    const now = Date.now();
+    if (now - ws.meta.lastSessionCheckAt < SESSION_REVALIDATE_MS) return true;
+    const session = await loadActiveSession(ws.meta.sessionId);
+    if (!session || session.userId !== ws.meta.userId) {
+      safeSend(ws, { type: "error", error: "Your session has ended. Please sign in again." });
+      try {
+        ws.close(4001, "session_revoked");
+      } catch {
+        /* ignore */
+      }
+      return false;
+    }
+    ws.meta.lastSessionCheckAt = now;
+    if (now - ws.meta.lastActivityMarkAt > SESSION_ACTIVITY_MS) {
+      ws.meta.lastActivityMarkAt = now;
+      markSessionActivity(ws.meta.sessionId).catch(() => undefined);
+    }
+    return true;
+  }
+
+  return async function handleConnection(ws, principal) {
     const socketId = crypto.randomUUID();
+    const now = Date.now();
     ws.meta = {
       id: socketId,
-      roomId: null,
-      userId: null,
-      name: "Anonymous",
+      userId: principal.userId,
+      sessionId: principal.sessionId,
+      name: principal.displayName,
+      roomRecordId: null,
+      roomSlug: null,
+      role: null,
+      lastSessionCheckAt: now,
+      lastActivityMarkAt: now,
     };
 
-    safeSend(ws, {
-      type: "connected",
-      socketId,
-      now: new Date().toISOString(),
-    });
+    safeSend(ws, { type: "connected", socketId, now: new Date().toISOString() });
 
     ws.on("message", async (raw) => {
+      if (raw.length > MAX_FRAME_BYTES) {
+        safeSend(ws, { type: "error", error: "Payload too large." });
+        try { ws.close(1009, "message_too_large"); } catch { /* ignore */ }
+        return;
+      }
+
       let payload;
       try {
         payload = JSON.parse(raw.toString());
       } catch {
-        safeSend(ws, { type: "error", error: "Invalid JSON payload" });
+        safeSend(ws, { type: "error", error: "Invalid JSON payload." });
         return;
       }
 
+      if (typeof payload?.type !== "string") {
+        safeSend(ws, { type: "error", error: "Event type is required." });
+        return;
+      }
+
+      if (!(await revalidateSessionIfNeeded(ws))) return;
+
       if (payload.type === "join") {
-        let roomId = String(payload.roomId || "").trim();
-        const name = String(payload.userName || "Anonymous").trim() || "Anonymous";
-        const sessionToken = String(payload.sessionToken || "").trim();
-        const inviteToken = String(payload.inviteToken || "").trim();
+        const parsed = joinSchema.safeParse(payload);
+        if (!parsed.success) {
+          safeSend(ws, { type: "error", error: "Invalid join payload." });
+          return;
+        }
+
+        let slug = parsed.data.roomId;
+        const inviteToken = parsed.data.inviteToken ?? "";
+        const displayName = parsed.data.userName ?? principal.displayName;
         let inviteCode = "";
-
-        if (!sessionToken) {
-          safeSend(ws, { type: "error", error: "Authentication is required before joining a room." });
-          ws.close();
-          return;
-        }
-
-        let verifiedToken;
-        try {
-          verifiedToken = await verifySessionToken(sessionToken);
-        } catch {
-          safeSend(ws, { type: "error", error: "Failed to verify the authenticated session for this room." });
-          ws.close();
-          return;
-        }
-
-        const userId = String(verifiedToken.sub || "").trim() || null;
-        if (!userId) {
-          safeSend(ws, { type: "error", error: "Verified session is missing a user identity." });
-          ws.close();
-          return;
-        }
 
         if (inviteToken) {
           const verifiedInvite = verifyInviteToken(inviteToken);
           if (!verifiedInvite) {
             safeSend(ws, { type: "error", error: "Invite link is invalid or expired for this room." });
-            ws.close();
             return;
           }
-
-          if (roomId && roomId !== verifiedInvite.roomId) {
+          if (slug && slug !== verifiedInvite.roomId) {
             safeSend(ws, { type: "error", error: "Invite link does not match the selected room." });
-            ws.close();
             return;
           }
-
-          roomId = verifiedInvite.roomId;
+          slug = verifiedInvite.roomId;
           inviteCode = verifiedInvite.inviteCode;
         }
 
-        roomId = roomId || "main";
+        if (ws.meta.roomRecordId) leaveRoom(socketId, ws);
 
-        if (ws.meta.roomId && ws.meta.roomId !== roomId) {
-          leaveRoom(socketId, ws);
-        }
-
-        const joinResult = await store.authorizeRoomJoin(roomId, {
-          authUserId: userId,
-          name,
-        }, inviteCode);
+        const joinResult = await store.authorizeRoomJoin(
+          slug,
+          { userId: ws.meta.userId, displayName },
+          inviteCode,
+        );
 
         if (!joinResult.ok) {
           safeSend(ws, { type: "error", error: joinResult.error });
-          ws.close();
+          await logSecurityEvent({
+            kind: "ws.room.join.denied",
+            severity: "warn",
+            userId: ws.meta.userId,
+            sessionId: ws.meta.sessionId,
+            metadata: { roomSlug: slug, reason: joinResult.error },
+          });
           return;
         }
 
-        const roomState = ensureRoomState(roomId);
+        invalidateRoomRole(ws.meta.userId, joinResult.roomId);
 
-        ws.meta.roomId = roomId;
-        ws.meta.name = name;
-        ws.meta.userId = userId;
+        const roomState = ensureRoomState(joinResult.roomId);
+        ws.meta.roomRecordId = joinResult.roomId;
+        ws.meta.roomSlug = joinResult.roomSlug;
+        ws.meta.name = displayName;
+        ws.meta.role = joinResult.role;
         roomState.clients.set(socketId, ws);
 
-        const snapshot = await serializeRoom(roomId);
-        const canManageRoom = snapshot.owner?.authUserId === userId;
+        const snapshot = await serializeRoom(joinResult.roomId, joinResult.roomSlug);
+        const canManageRoom = joinResult.role === "owner";
         safeSend(ws, {
           type: "room:snapshot",
-          roomId,
+          roomId: joinResult.roomSlug,
           ...snapshot,
-          permissions: {
-            canManageRoom,
-          },
+          permissions: { canManageRoom, role: joinResult.role },
           activeInvite: canManageRoom ? snapshot.activeInvite : null,
         });
 
-        broadcast(roomId, {
+        broadcast(joinResult.roomId, {
           type: "presence",
-          roomId,
+          roomId: joinResult.roomSlug,
           event: "join",
           user: serializeUser(socketId, ws),
           users: snapshot.users,
         }, { exclude: socketId });
 
+        await logSecurityEvent({
+          kind: "ws.room.joined",
+          userId: ws.meta.userId,
+          sessionId: ws.meta.sessionId,
+          roomId: joinResult.roomId,
+          metadata: { role: joinResult.role, createdRoom: joinResult.createdRoom, joinedViaInvite: joinResult.joinedViaInvite },
+        });
+
         if (joinResult.createdRoom) {
-          await publishAuditMessage(roomId, {
+          await publishAuditMessage(joinResult.roomId, joinResult.roomSlug, {
             kind: "room-created",
-            actorName: name,
-            actorAuthUserId: userId,
-          }, `${name} created this room and became its owner.`);
+            actorName: displayName,
+            actorUserId: ws.meta.userId,
+          }, `${displayName} created this room and became its owner.`);
         } else if (joinResult.joinedViaInvite) {
-          await publishAuditMessage(roomId, {
+          await publishAuditMessage(joinResult.roomId, joinResult.roomSlug, {
             kind: "member-added",
-            actorName: name,
-            actorAuthUserId: userId,
-            targetName: name,
-            targetAuthUserId: userId,
-          }, `${name} joined through an invite link and was added to the room access list.`);
+            actorName: displayName,
+            actorUserId: ws.meta.userId,
+            targetName: displayName,
+            targetUserId: ws.meta.userId,
+          }, `${displayName} joined through an invite link and was added to the room access list.`);
         }
-
         return;
       }
 
-      const roomId = ws.meta.roomId;
-      if (!roomId) {
-        safeSend(ws, { type: "error", error: "Join a room before sending events" });
+      if (!ws.meta.roomRecordId) {
+        safeSend(ws, { type: "error", error: "Join a room before sending events." });
         return;
       }
 
-      if (payload.type === "chat") {
-        const text = String(payload.text || "").trim();
-        if (!text) return;
+      const schema = eventSchemas[payload.type];
+      if (!schema) {
+        safeSend(ws, { type: "error", error: `Unknown event type: ${String(payload.type)}` });
+        return;
+      }
 
-        const message = {
-          id: crypto.randomUUID(),
-          type: "chat",
-          userId: ws.meta.userId ?? socketId,
-          userName: ws.meta.name,
-          text,
-          timestamp: new Date().toISOString(),
-        };
-
-        await store.createRoomMessage(roomId, message);
-        broadcast(roomId, {
-          type: "chat",
-          roomId,
-          message,
+      const parsed = schema.safeParse(payload);
+      if (!parsed.success) {
+        safeSend(ws, { type: "error", error: "Invalid event payload." });
+        await logSecurityEvent({
+          kind: "ws.validation.failed",
+          severity: "warn",
+          userId: ws.meta.userId,
+          sessionId: ws.meta.sessionId,
+          roomId: ws.meta.roomRecordId,
+          metadata: { event: payload.type },
         });
         return;
       }
+      const event = parsed.data;
 
-      if (payload.type === "typing") {
-        broadcast(roomId, {
+      if (!(await authorizeEvent(ws, event.type))) return;
+
+      const roomRecordId = ws.meta.roomRecordId;
+      const roomSlug = ws.meta.roomSlug;
+
+      if (event.type === "chat") {
+        const message = {
+          id: crypto.randomUUID(),
+          type: "chat",
+          userId: ws.meta.userId,
+          userName: ws.meta.name,
+          text: event.text,
+          timestamp: new Date().toISOString(),
+        };
+        await store.createRoomMessage(roomRecordId, message);
+        broadcast(roomRecordId, { type: "chat", roomId: roomSlug, message });
+        return;
+      }
+
+      if (event.type === "typing") {
+        broadcast(roomRecordId, {
           type: "typing",
-          roomId,
+          roomId: roomSlug,
           user: serializeUser(socketId, ws),
-          isTyping: Boolean(payload.isTyping),
+          isTyping: event.isTyping,
         }, { exclude: socketId });
         return;
       }
 
-      if (payload.type === "context:update") {
-        const canManage = await store.canManageRoom(roomId, ws.meta.userId);
-        if (!canManage) {
-          safeSend(ws, { type: "error", error: "Only the room owner can update the shared context." });
-          return;
-        }
-
-        const currentSnapshot = await store.getRoomSnapshot(roomId);
-        const context = await store.updateRoomContext(roomId, {
-          selectedFiles: String(payload.context?.selectedFiles ?? currentSnapshot.context.selectedFiles),
-          pinnedRequirements: String(payload.context?.pinnedRequirements ?? currentSnapshot.context.pinnedRequirements),
-        });
-
-        broadcast(roomId, {
+      if (event.type === "context:update") {
+        const context = await store.updateRoomContext(roomRecordId, event.context);
+        broadcast(roomRecordId, {
           type: "context",
-          roomId,
+          roomId: roomSlug,
           context,
           updatedBy: serializeUser(socketId, ws),
         });
         return;
       }
 
-      if (payload.type === "ai:ask") {
-        const canManage = await store.canManageRoom(roomId, ws.meta.userId);
-        if (!canManage) {
-          safeSend(ws, { type: "error", error: "Only the room owner can run the room agent." });
-          return;
-        }
-
-        const mode = payload.mode === "summarize" || payload.mode === "next-steps" ? payload.mode : "answer";
-        const question = String(payload.question ?? "");
+      if (event.type === "ai:ask") {
         runRoomAgent({
-          roomId,
-          requesterId: socketId,
-          mode,
-          question,
+          roomRecordId,
+          roomSlug,
+          requesterSocketId: socketId,
+          requesterUserId: ws.meta.userId,
+          mode: event.mode,
+          question: event.question,
         });
         return;
       }
 
-      if (payload.type === "invite:create") {
-        const canManage = await store.canManageRoom(roomId, ws.meta.userId);
-        if (!canManage) {
-          safeSend(ws, { type: "error", error: "Only the room owner can create room invite links." });
-          return;
-        }
-
+      if (event.type === "invite:create") {
         try {
-          const invite = await store.createRoomInvite(roomId, ws.meta.userId);
+          const invite = await store.createRoomInvite(roomRecordId, ws.meta.userId);
           const inviteToken = invite
-            ? createInviteToken({
-                roomId,
-                inviteCode: invite.code,
-                expiresAt: invite.expiresAt,
-              })
+            ? createInviteToken({ roomId: roomSlug, inviteCode: invite.code, expiresAt: invite.expiresAt })
             : null;
-          const signedInvite = invite && inviteToken
-            ? {
-                token: inviteToken,
-                expiresAt: invite.expiresAt,
-              }
-            : null;
-
-          if (!signedInvite) {
+          if (!invite || !inviteToken) {
             throw new Error("Invite link signing is not configured on the realtime server.");
           }
-
           safeSend(ws, {
             type: "invite:created",
-            roomId,
-            invite: signedInvite,
+            roomId: roomSlug,
+            invite: { token: inviteToken, expiresAt: invite.expiresAt },
           });
-          await publishAuditMessage(roomId, {
+          await publishAuditMessage(roomRecordId, roomSlug, {
             kind: "invite-rotated",
             actorName: ws.meta.name,
-            actorAuthUserId: ws.meta.userId,
+            actorUserId: ws.meta.userId,
           }, `${ws.meta.name} rotated the room invite link.`);
+          await logSecurityEvent({
+            kind: "ws.invite.created",
+            userId: ws.meta.userId,
+            sessionId: ws.meta.sessionId,
+            roomId: roomRecordId,
+          });
         } catch (error) {
           safeSend(ws, {
             type: "error",
@@ -499,36 +566,29 @@ export function createRoomConnectionHandler({
         return;
       }
 
-      if (payload.type === "membership:remove") {
-        const canManage = await store.canManageRoom(roomId, ws.meta.userId);
-        if (!canManage) {
-          safeSend(ws, { type: "error", error: "Only the room owner can remove members." });
-          return;
-        }
-
-        const memberAuthUserId = String(payload.memberAuthUserId || "").trim();
-        if (!memberAuthUserId) {
-          safeSend(ws, { type: "error", error: "Choose a valid member before removing access." });
-          return;
-        }
-
+      if (event.type === "membership:remove") {
+        const memberUserId = event.memberUserId;
         try {
-          const currentSnapshot = await store.getRoomSnapshot(roomId);
-          const targetMember = currentSnapshot.members.find((member) => member.authUserId === memberAuthUserId);
-          const members = await store.removeRoomMember(roomId, ws.meta.userId, memberAuthUserId);
-          disconnectMemberSockets(roomId, memberAuthUserId, "Your access to this room was revoked by the room owner.");
-          broadcast(roomId, {
-            type: "room:members",
-            roomId,
-            members,
-          });
-          await publishAuditMessage(roomId, {
+          const currentSnapshot = await store.getRoomSnapshot(roomRecordId);
+          const targetMember = currentSnapshot?.members.find((m) => m.userId === memberUserId);
+          const members = await store.removeRoomMember(roomRecordId, ws.meta.userId, memberUserId);
+          invalidateRoomRole(memberUserId, roomRecordId);
+          disconnectMemberSockets(roomRecordId, memberUserId, "Your access to this room was revoked by the room owner.");
+          broadcast(roomRecordId, { type: "room:members", roomId: roomSlug, members });
+          await publishAuditMessage(roomRecordId, roomSlug, {
             kind: "member-removed",
             actorName: ws.meta.name,
-            actorAuthUserId: ws.meta.userId,
+            actorUserId: ws.meta.userId,
             targetName: targetMember?.name,
-            targetAuthUserId: memberAuthUserId,
+            targetUserId: memberUserId,
           }, `${ws.meta.name} removed ${targetMember?.name ?? "a member"} from the room access list.`);
+          await logSecurityEvent({
+            kind: "ws.membership.removed",
+            userId: ws.meta.userId,
+            sessionId: ws.meta.sessionId,
+            roomId: roomRecordId,
+            metadata: { targetUserId: memberUserId },
+          });
         } catch (error) {
           safeSend(ws, {
             type: "error",
@@ -538,16 +598,52 @@ export function createRoomConnectionHandler({
         return;
       }
 
-      if (payload.type === "ping") {
-        safeSend(ws, { type: "pong", ts: Date.now() });
+      if (event.type === "membership:update") {
+        try {
+          await store.updateRoomMemberRole(roomRecordId, ws.meta.userId, event.memberUserId, event.role);
+          invalidateRoomRole(event.memberUserId, roomRecordId);
+          const snapshot = await store.getRoomSnapshot(roomRecordId);
+          broadcast(roomRecordId, {
+            type: "room:members",
+            roomId: roomSlug,
+            members: snapshot?.members ?? [],
+          });
+          await publishAuditMessage(roomRecordId, roomSlug, {
+            kind: "member-role-updated",
+            actorName: ws.meta.name,
+            actorUserId: ws.meta.userId,
+            targetUserId: event.memberUserId,
+            role: event.role,
+          }, `${ws.meta.name} changed a member's role to ${event.role}.`);
+          await logSecurityEvent({
+            kind: "ws.membership.updated",
+            userId: ws.meta.userId,
+            sessionId: ws.meta.sessionId,
+            roomId: roomRecordId,
+            metadata: { targetUserId: event.memberUserId, role: event.role },
+          });
+        } catch (error) {
+          safeSend(ws, {
+            type: "error",
+            error: error instanceof Error ? error.message : "Failed to update member role.",
+          });
+        }
         return;
       }
 
-      safeSend(ws, { type: "error", error: `Unknown event type: ${String(payload.type)}` });
+      if (event.type === "ping") {
+        safeSend(ws, { type: "pong", ts: Date.now() });
+        return;
+      }
     });
 
     ws.on("close", () => {
+      const roomRecordId = ws.meta?.roomRecordId;
       leaveRoom(socketId, ws);
+      if (roomRecordId) {
+        const state = rooms.get(roomRecordId);
+        if (!state) invalidateAllRolesForRoom(roomRecordId);
+      }
     });
 
     ws.on("error", () => {

@@ -2,9 +2,32 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { authFetch } from "@/lib/auth-client";
 import { type AgentMode, type ChatMessage, type RoomContext, type RoomInvite, type RoomMember, type RoomOwner, type RoomUser, type ToastNotice } from "@/lib/paircode";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:3001";
+const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:3001";
+
+function buildWsUrl(ticket: string) {
+  const separator = WS_BASE_URL.includes("?") ? "&" : "?";
+  const base = WS_BASE_URL.endsWith("/ws") ? WS_BASE_URL : `${WS_BASE_URL.replace(/\/$/, "")}/ws`;
+  return `${base}${separator}ticket=${encodeURIComponent(ticket)}`;
+}
+
+async function fetchWsTicket(): Promise<string | null> {
+  try {
+    let res = await authFetch("/api/ws/ticket", { method: "POST" });
+    if (res.status === 401) {
+      const refreshed = await authFetch("/api/auth/refresh", { method: "POST" });
+      if (!refreshed.ok) return null;
+      res = await authFetch("/api/ws/ticket", { method: "POST" });
+    }
+    if (!res.ok) return null;
+    const data = (await res.json()) as { ticket?: string };
+    return data.ticket ?? null;
+  } catch {
+    return null;
+  }
+}
 
 const EMPTY_CONTEXT: RoomContext = {
   selectedFiles: "",
@@ -27,10 +50,9 @@ function createStreamingAgentMessage(runId: string, mode: AgentMode): ChatMessag
 type UsePaircodeRoomOptions = {
   userId: string;
   userName: string;
-  getToken: () => Promise<string | null>;
 };
 
-export function usePaircodeRoom({ userId, userName, getToken }: UsePaircodeRoomOptions) {
+export function usePaircodeRoom({ userId, userName }: UsePaircodeRoomOptions) {
   const socketRef = useRef<WebSocket | null>(null);
   const intentionalDisconnectRef = useRef(false);
   const typingTimeoutRef = useRef<number | null>(null);
@@ -297,9 +319,10 @@ export function usePaircodeRoom({ userId, userName, getToken }: UsePaircodeRoomO
       return;
     }
 
-    const sessionToken = await getToken();
-    if (!sessionToken) {
-      pushToast({ title: "Unable to fetch your authenticated session", variant: "danger" });
+    const ticket = await fetchWsTicket();
+    if (!ticket) {
+      pushToast({ title: "Unable to obtain a realtime access ticket", variant: "danger" });
+      setStatus("idle");
       return;
     }
 
@@ -312,7 +335,7 @@ export function usePaircodeRoom({ userId, userName, getToken }: UsePaircodeRoomO
     setStatus("connecting");
     setLastError("");
 
-    const socket = new WebSocket(WS_URL);
+    const socket = new WebSocket(buildWsUrl(ticket));
     socketRef.current = socket;
     intentionalDisconnectRef.current = false;
 
@@ -326,7 +349,6 @@ export function usePaircodeRoom({ userId, userName, getToken }: UsePaircodeRoomO
           type: "join",
           roomId: nextRoomId,
           userName: nextUserName,
-          sessionToken,
           inviteToken: nextInviteToken || undefined,
         })
       );
@@ -363,7 +385,7 @@ export function usePaircodeRoom({ userId, userName, getToken }: UsePaircodeRoomO
       setLastError("Failed to connect to real-time server.");
       pushToast({ title: "Connection error", detail: "Failed to reach real-time server.", variant: "danger" });
     });
-  }, [getToken, handleSocketPayload, inviteToken, pushToast, resetRoomState, roomId, userId, userName]);
+  }, [handleSocketPayload, inviteToken, pushToast, resetRoomState, roomId, userId, userName]);
 
   const handleLeave = useCallback(() => {
     const socket = socketRef.current;
@@ -472,10 +494,10 @@ export function usePaircodeRoom({ userId, userName, getToken }: UsePaircodeRoomO
     }
   }, [activeInviteLink, pushToast]);
 
-  const removeMember = useCallback((memberAuthUserId: string, memberName: string) => {
+  const removeMember = useCallback((memberUserId: string, memberName: string) => {
     send({
       type: "membership:remove",
-      memberAuthUserId,
+      memberUserId,
     });
     pushToast({
       title: `Removed ${memberName}`,

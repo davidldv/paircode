@@ -1,17 +1,20 @@
+export type RoomRole = "owner" | "collaborator" | "viewer";
+
 export type RoomUser = {
   id: string;
   name: string;
-  authUserId?: string;
+  userId?: string;
 };
 
 export type RoomOwner = {
-  authUserId: string;
+  userId: string;
   name: string;
 };
 
 export type RoomMember = {
-  authUserId: string;
+  userId: string;
   name: string;
+  role: RoomRole;
 };
 
 export type RoomInvite = {
@@ -20,11 +23,17 @@ export type RoomInvite = {
 };
 
 export type AuditMetadata = {
-  kind: "room-created" | "invite-rotated" | "member-added" | "member-removed";
+  kind:
+    | "room-created"
+    | "invite-rotated"
+    | "member-added"
+    | "member-removed"
+    | "member-role-updated";
   actorName?: string;
-  actorAuthUserId?: string;
+  actorUserId?: string;
   targetName?: string;
-  targetAuthUserId?: string;
+  targetUserId?: string;
+  role?: RoomRole;
 };
 
 export type RoomContext = {

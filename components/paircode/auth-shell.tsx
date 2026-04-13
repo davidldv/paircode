@@ -11,10 +11,7 @@ type AuthShellProps = {
 
 export function AuthShell({ title, description, children }: AuthShellProps) {
   return (
-    <main className="app-shell relative min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="float-glow pointer-events-none absolute -left-24 top-10 h-56 w-56 rounded-full bg-[rgba(216,93,45,0.14)] blur-3xl" />
-      <div className="float-glow pointer-events-none absolute -right-12 top-30 h-64 w-64 rounded-full bg-[rgba(61,137,130,0.14)] blur-3xl" />
-
+    <main className="app-shell relative min-h-screen bg-background text-foreground selection:bg-[var(--accent)] selection:text-background">
       <div className="mx-auto grid min-h-screen w-full max-w-7xl items-center gap-8 px-4 py-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,540px)] lg:px-8">
         <section className="fade-up space-y-6">
           <div className="space-y-4">
@@ -40,11 +37,11 @@ export function AuthShell({ title, description, children }: AuthShellProps) {
           <BrandConstellation />
         </section>
 
-        <Card className="hero-shell fade-up-delay mx-auto w-full max-w-xl">
-          <CardHeader className="space-y-3">
+        <Card className="hero-shell fade-up-delay mx-auto w-full max-w-xl border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-6 shadow-[8px_8px_0px_0px_var(--accent)] rounded-none">
+          <CardHeader className="space-y-3 pb-6 border-b-2 border-[var(--panel-border)]">
             <div className="space-y-2">
-              <CardTitle className="text-3xl">Enter PairCode</CardTitle>
-              <CardDescription className="text-sm leading-6">
+              <CardTitle className="text-3xl font-black uppercase tracking-widest text-[var(--foreground)]">Enter PairCode</CardTitle>
+              <CardDescription className="text-sm leading-6 font-mono text-[var(--muted)]">
                 Authenticate to access collaborative engineering rooms with persistent context, live presence, and AI facilitation.
               </CardDescription>
             </div>

@@ -1,71 +1,73 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f0e6;
-  --foreground: #1d1710;
-  --surface: #fff9f0;
-  --surface-strong: #f5e9d8;
-  --panel: rgba(255, 250, 242, 0.76);
-  --panel-soft: rgba(255, 247, 236, 0.84);
-  --panel-strong: rgba(243, 230, 210, 0.92);
-  --panel-border: rgba(127, 90, 42, 0.16);
-  --panel-border-strong: rgba(174, 122, 60, 0.28);
-  --panel-shadow: 0 32px 70px -42px rgba(101, 74, 36, 0.2);
-  --line: #dac9ae;
-  --muted: #74624b;
-  --accent: #d85d2d;
-  --accent-soft: #f2ad80;
-  --accent-glow: rgba(231, 146, 70, 0.16);
-  --success: #8fd9bb;
-  --focus-ring: rgba(216, 93, 45, 0.35);
-  --spot-a: rgba(216, 93, 45, 0.11);
-  --spot-b: rgba(61, 137, 130, 0.1);
-  --spot-c: rgba(247, 200, 142, 0.16);
-  --overlay-a: rgba(250, 246, 238, 0.9);
-  --overlay-b: rgba(239, 229, 213, 0.9);
-  --noise-stroke: #816d4f;
-  --agent-card-border: #99c8ad;
-  --agent-card-bg-a: #eef7f1;
-  --agent-card-bg-b: #edf4f5;
-  --agent-avatar-bg: #ecf9ef;
-  --agent-avatar-text: #256949;
-  --agent-badge-bg: #dff3e7;
-  --agent-badge-border: #8fbda0;
-  --agent-badge-text: #23593f;
+  --background: #f4f4f0;
+  --foreground: #0a0a0a;
+  --surface: #ffffff;
+  --surface-strong: #ebebeb;
+  --panel: #ffffff;
+  --panel-soft: #fbfbfb;
+  --panel-strong: #efefef;
+  --panel-border: #000000;
+  --panel-border-strong: #000000;
+  --panel-shadow: 4px 4px 0px 0px #0a0a0a;
+  --line: #0a0a0a;
+  --muted: #666666;
+  --accent: #ff4500;
+  --accent-soft: #ff8c66;
+  --accent-glow: rgba(255, 69, 0, 0.15);
+  --success: #00e676;
+  --focus-ring: rgba(255, 69, 0, 0.4);
+  --spot-a: rgba(255, 69, 0, 0.08);
+  --spot-b: rgba(0, 0, 0, 0.04);
+  --spot-c: rgba(59, 0, 255, 0.06);
+  --overlay-a: rgba(244, 244, 240, 0.95);
+  --overlay-b: rgba(244, 244, 240, 0.85);
+  --noise-stroke: rgba(0, 0, 0, 0.1);
+  /* Brutalist AI Agent Theme */
+  --agent-card-border: #3b00ff;
+  --agent-card-bg-a: #eef1ff;
+  --agent-card-bg-b: #e4e9ff;
+  --agent-avatar-bg: #3b00ff;
+  --agent-avatar-text: #ffffff;
+  --agent-badge-bg: #ffffff;
+  --agent-badge-border: #3b00ff;
+  --agent-badge-text: #3b00ff;
 }
 
 html[data-theme="dark"] {
-  --background: #19150f;
-  --foreground: #f8f0df;
-  --surface: #231c13;
-  --surface-strong: #2d2418;
-  --panel: rgba(30, 21, 11, 0.82);
-  --panel-soft: rgba(41, 30, 16, 0.68);
-  --panel-strong: rgba(21, 15, 8, 0.92);
-  --panel-border: rgba(193, 143, 77, 0.3);
-  --panel-border-strong: rgba(235, 183, 106, 0.42);
-  --panel-shadow: 0 36px 90px -42px rgba(0, 0, 0, 0.72);
-  --line: #5d4c33;
-  --muted: #bcab8d;
-  --accent: #f39a4e;
-  --accent-soft: #d4b58d;
-  --accent-glow: rgba(243, 154, 78, 0.2);
-  --success: #9de2c5;
-  --focus-ring: rgba(243, 154, 78, 0.35);
-  --spot-a: rgba(243, 154, 78, 0.22);
-  --spot-b: rgba(94, 183, 175, 0.2);
-  --spot-c: rgba(133, 111, 74, 0.25);
-  --overlay-a: rgba(25, 21, 15, 0.82);
-  --overlay-b: rgba(20, 17, 12, 0.7);
-  --noise-stroke: #f3e3c8;
-  --agent-card-border: #4f7a67;
-  --agent-card-bg-a: #243128;
-  --agent-card-bg-b: #1c2927;
-  --agent-avatar-bg: #30463a;
-  --agent-avatar-text: #d7f0de;
-  --agent-badge-bg: #31483d;
-  --agent-badge-border: #5a866f;
-  --agent-badge-text: #dcf4e3;
+  --background: #09090b;
+  --foreground: #f4f4f0;
+  --surface: #141417;
+  --surface-strong: #1f1f24;
+  --panel: #111113;
+  --panel-soft: #17171a;
+  --panel-strong: #1e1e22;
+  --panel-border: #f4f4f0;
+  --panel-border-strong: #f4f4f0;
+  --panel-shadow: 4px 4px 0px 0px #ff4500;
+  --line: #f4f4f0;
+  --muted: #a1a1aa;
+  --accent: #ff4500;
+  --accent-soft: #ff6a33;
+  --accent-glow: rgba(255, 69, 0, 0.25);
+  --success: #00e676;
+  --focus-ring: rgba(255, 69, 0, 0.4);
+  --spot-a: rgba(255, 69, 0, 0.15);
+  --spot-b: rgba(244, 244, 240, 0.05);
+  --spot-c: rgba(183, 0, 255, 0.1);
+  --overlay-a: rgba(9, 9, 11, 0.95);
+  --overlay-b: rgba(9, 9, 11, 0.85);
+  --noise-stroke: rgba(244, 244, 240, 0.08);
+  /* Brutalist AI Agent Theme */
+  --agent-card-border: #b700ff;
+  --agent-card-bg-a: #1c002b;
+  --agent-card-bg-b: #13001c;
+  --agent-avatar-bg: #b700ff;
+  --agent-avatar-text: #141417;
+  --agent-badge-bg: #141417;
+  --agent-badge-border: #b700ff;
+  --agent-badge-text: #e6b3ff;
 }
 
 @theme inline {
@@ -87,269 +89,174 @@ body {
 
 button:not(:disabled) {
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 button:disabled {
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 10% 8%, var(--spot-a), transparent 26%),
-    radial-gradient(circle at 82% 14%, var(--spot-b), transparent 26%),
-    radial-gradient(circle at 50% 88%, var(--spot-c), transparent 30%),
-    linear-gradient(135deg, var(--overlay-a), var(--overlay-b) 72%);
-  z-index: -2;
-}
-
+/* Sharp, blueprint-like grid background instead of blurs */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.07;
   z-index: -1;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--noise-stroke) 10%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--noise-stroke) 10%, transparent) 1px, transparent 1px),
-    repeating-linear-gradient(0deg, color-mix(in srgb, var(--noise-stroke) 18%, transparent) 0px, color-mix(in srgb, var(--noise-stroke) 18%, transparent) 1px, transparent 1px, transparent 84px),
-    repeating-linear-gradient(90deg, color-mix(in srgb, var(--noise-stroke) 18%, transparent) 0px, color-mix(in srgb, var(--noise-stroke) 18%, transparent) 1px, transparent 1px, transparent 84px);
-  background-size: 28px 28px, 28px 28px, auto, auto;
+  background-image: 
+    linear-gradient(var(--noise-stroke) 1px, transparent 1px),
+    linear-gradient(90deg, var(--noise-stroke) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  letter-spacing: -0.02em;
+h1, h2, h3, h4 {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
 }
 
+/* Brutalist strict surface card */
 .surface-card {
-  border: 1px solid var(--panel-border);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 96%, transparent), color-mix(in srgb, var(--panel-strong) 100%, transparent)),
-    linear-gradient(160deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0));
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.58) inset,
-    0 0 0 1px rgba(255, 255, 255, 0.16),
-    var(--panel-shadow);
-  backdrop-filter: blur(18px);
-  transition: border-color 220ms ease, background-color 220ms ease, transform 220ms ease, box-shadow 220ms ease;
-}
-
-html[data-theme="dark"] .surface-card {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 84%, transparent), color-mix(in srgb, var(--panel-strong) 96%, transparent)),
-    linear-gradient(160deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 0 0 1px rgba(255, 255, 255, 0.02),
-    var(--panel-shadow);
+  border: 2px solid var(--panel-border);
+  background: var(--surface);
+  box-shadow: 4px 4px 0px 0px var(--line);
+  border-radius: 0; /* Remove rounded corners for brutalist feel */
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .surface-card:hover {
-  border-color: var(--panel-border-strong);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.46) inset,
-    0 0 0 1px rgba(255, 255, 255, 0.18),
-    0 38px 82px -48px rgba(80, 58, 24, 0.28);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--accent);
 }
 
-html[data-theme="dark"] .surface-card:hover {
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.08) inset,
-    0 0 0 1px rgba(255, 255, 255, 0.02),
-    0 40px 95px -48px rgba(0, 0, 0, 0.8);
+/* AI specific cards */
+.agent-card {
+  border: 2px solid var(--agent-card-border);
+  background: var(--agent-card-bg-a);
+  box-shadow: 4px 4px 0px 0px var(--agent-card-border);
+  border-radius: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.agent-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--agent-card-border);
 }
 
 .mono-label {
   font-family: var(--font-ibm-plex-mono), "SFMono-Regular", monospace;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  font-weight: bold;
 }
 
 .app-shell {
   position: relative;
 }
 
-.app-shell::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 18% 18%, var(--accent-glow), transparent 22%),
-    radial-gradient(circle at 84% 30%, rgba(61, 137, 130, 0.12), transparent 26%);
-  opacity: 0.55;
-}
-
-html[data-theme="dark"] .app-shell::before {
-  opacity: 0.9;
-}
-
 .hero-shell {
+  border: 3px solid var(--panel-border);
+  background: var(--surface);
+  box-shadow: 8px 8px 0px 0px var(--accent);
+  border-radius: 0;
   position: relative;
   overflow: hidden;
 }
 
-.hero-shell::after {
+.hero-shell::before {
   content: "";
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04) 38%, transparent 62%),
-    radial-gradient(circle at top right, rgba(244, 164, 91, 0.12), transparent 28%);
-}
-
-html[data-theme="dark"] .hero-shell::after {
-  background:
-    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04) 38%, transparent 62%),
-    radial-gradient(circle at top right, rgba(244, 164, 91, 0.12), transparent 28%);
-}
-
-html:not([data-theme="dark"]) .hero-shell::after {
-  background:
-    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24) 38%, transparent 62%),
-    radial-gradient(circle at top right, rgba(244, 164, 91, 0.08), transparent 28%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: var(--accent);
 }
 
 .section-kicker {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--panel-border-strong) 80%, transparent);
-  background: color-mix(in srgb, var(--panel) 94%, transparent);
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
+  border: 2px solid var(--panel-border);
+  background: var(--accent);
+  color: var(--background);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0;
   font-family: var(--font-ibm-plex-mono), monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
+  font-weight: bold;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted);
+  box-shadow: 2px 2px 0px 0px var(--panel-border);
 }
 
 .metric-tile {
-  border: 1px solid color-mix(in srgb, var(--panel-border) 88%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 92%, transparent), color-mix(in srgb, var(--panel-strong) 100%, transparent));
-  border-radius: 1rem;
-  padding: 0.9rem 1rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  border: 2px solid var(--panel-border);
+  background: var(--surface-strong);
+  border-radius: 0;
+  padding: 1rem 1.25rem;
+  box-shadow: 2px 2px 0px 0px var(--panel-border);
+  transition: all 0.2s;
+}
+.metric-tile:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px var(--accent);
 }
 
 .panel-rule {
-  height: 1px;
+  height: 2px;
   width: 100%;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--panel-border-strong) 90%, transparent), transparent);
+  background: var(--panel-border);
 }
 
 .composer-shell {
-  border: 1px solid color-mix(in srgb, var(--panel-border) 90%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--panel-soft) 96%, transparent), color-mix(in srgb, var(--panel-strong) 100%, transparent));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--panel-border);
+  background: var(--surface-strong);
+  border-radius: 0;
+  box-shadow: 3px 3px 0px 0px var(--panel-border);
 }
 
-.subtle-grid {
-  position: relative;
+.composer-shell:focus-within {
+  box-shadow: 5px 5px 0px 0px var(--accent);
+  transform: translate(-2px, -2px);
+  outline: none;
 }
 
-.subtle-grid::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: linear-gradient(color-mix(in srgb, var(--panel-border) 35%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--panel-border) 35%, transparent) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 72%);
-  opacity: 0.18;
-}
-
-.fade-up {
-  animation: fade-up 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.fade-up-delay {
-  animation: fade-up 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.section-panel {
-  animation: fade-up 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.stage-1 {
-  animation-delay: 80ms;
-}
-
-.stage-2 {
-  animation-delay: 150ms;
-}
-
-.stage-3 {
-  animation-delay: 220ms;
-}
-
-.stage-4 {
-  animation-delay: 290ms;
-}
-
-.hero-shell .metric-tile {
-  animation: fade-up 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.hero-shell .metric-tile:nth-of-type(1) {
-  animation-delay: 90ms;
-}
-
-.hero-shell .metric-tile:nth-of-type(2) {
-  animation-delay: 160ms;
-}
-
-.hero-shell .metric-tile:nth-of-type(3) {
-  animation-delay: 230ms;
-}
-
-.float-glow {
-  animation: float-glow 8s ease-in-out infinite alternate;
-}
-
-.toast-in {
-  animation: toast-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+/* Animations */
+@keyframes slide-in-sharp {
+  0% { transform: translateX(-10px) translateY(10px); opacity: 0; }
+  100% { transform: translateX(0) translateY(0); opacity: 1; }
 }
 
 @keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { transform: translateY(15px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
-@keyframes float-glow {
-  from {
-    transform: translateY(0px) scale(1);
-  }
-
-  to {
-    transform: translateY(-8px) scale(1.02);
-  }
+.fade-up {
+  animation: fade-up 400ms cubic-bezier(0, 0, 0, 1) both;
 }
 
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.985);
-  }
+.fade-up-delay {
+  animation: fade-up 500ms cubic-bezier(0, 0, 0, 1) both;
+  animation-delay: 150ms;
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.slide-in {
+  animation: slide-in-sharp 300ms cubic-bezier(0, 0, 0, 1) both;
+}
+
+.section-panel {
+  animation: fade-up 400ms cubic-bezier(0, 0, 0, 1) both;
+}
+
+/* Base custom un-styling of typical rounded Tailwind stuff */
+.rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-full, .rounded {
+  border-radius: 0 !important;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--background);
 }

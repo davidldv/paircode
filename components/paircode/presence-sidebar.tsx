@@ -10,80 +10,80 @@ type PresenceSidebarProps = {
   users: RoomUser[];
   roomMembers: RoomMember[];
   mySocketId: string;
-  currentAuthUserId: string;
+  currentUserId: string;
   roomOwner: RoomOwner | null;
   canManageRoom: boolean;
-  onRemoveMember: (memberAuthUserId: string, memberName: string) => void;
+  onRemoveMember: (memberUserId: string, memberName: string) => void;
 };
 
 export function PresenceSidebar({
   users,
   roomMembers,
   mySocketId,
-  currentAuthUserId,
+  currentUserId,
   roomOwner,
   canManageRoom,
   onRemoveMember,
 }: PresenceSidebarProps) {
-  const connectedMemberIds = new Set(users.map((user) => user.authUserId).filter(Boolean));
+  const connectedMemberIds = new Set(users.map((user) => user.userId).filter(Boolean));
 
   return (
-    <aside className="space-y-4">
-      <Card className="section-panel stage-1">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="h-4 w-4 text-(--accent)" /> Team Presence
+    <aside className="space-y-6">
+      <Card className="section-panel stage-1 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+        <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--surface-strong)]">
+          <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-[var(--foreground)]">
+            <Users className="h-5 w-5 text-[var(--accent)]" /> Team Presence
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
+        <CardContent className="pt-6">
+          <ul className="space-y-3">
             {users.map((user) => (
-              <li key={user.id} className="flex items-center justify-between rounded-2xl border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-soft)_76%,transparent)] px-3 py-2.5 text-sm">
+              <li key={user.id} className="flex items-center justify-between border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] px-3 py-2.5 text-sm shadow-[2px_2px_0px_0px_var(--panel-border)]">
                 <div className="flex items-center gap-2">
-                  <Avatar className="h-7 w-7">
-                    <AvatarFallback>{initialsFromName(user.name)}</AvatarFallback>
+                  <Avatar className="h-7 w-7 border-2 border-[var(--panel-border)] rounded-none">
+                    <AvatarFallback className="rounded-none bg-[var(--background)] font-bold text-[10px] text-[var(--foreground)]">{initialsFromName(user.name)}</AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{user.name}</span>
+                  <span className="font-extrabold uppercase tracking-wide">{user.name}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  {roomOwner?.authUserId === user.authUserId ? (
-                    <Badge className="border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-strong)_92%,transparent)] text-foreground">owner</Badge>
+                  {roomOwner?.userId === user.userId ? (
+                    <Badge className="border-2 border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] rounded-none font-bold">OWNER</Badge>
                   ) : null}
-                  {user.id === mySocketId ? <Badge>you</Badge> : null}
+                  {user.id === mySocketId ? <Badge className="border-2 border-[var(--panel-border)] bg-[var(--foreground)] text-[var(--background)] rounded-none font-bold hover:bg-[var(--foreground)]">YOU</Badge> : null}
                 </div>
               </li>
             ))}
           </ul>
-          {users.length === 0 ? <p className="mt-3 text-sm text-(--muted)">Join a room to see active collaborators.</p> : null}
+          {users.length === 0 ? <p className="mt-3 text-xs font-mono font-bold uppercase text-[var(--muted)]">Join a room to see active collaborators.</p> : null}
         </CardContent>
       </Card>
 
-      <Card className="section-panel stage-2">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="h-4 w-4 text-(--accent)" /> Room Members
+      <Card className="section-panel stage-2 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+        <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--surface-strong)]">
+          <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-[var(--foreground)]">
+            <Users className="h-5 w-5 text-[var(--accent)]" /> Room Members
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
+        <CardContent className="pt-6">
+          <ul className="space-y-3">
             {roomMembers.map((member) => {
-              const isOwner = roomOwner?.authUserId === member.authUserId;
-              const isSelf = currentAuthUserId === member.authUserId;
-              const isConnected = connectedMemberIds.has(member.authUserId);
+              const isOwner = member.role === "owner" || roomOwner?.userId === member.userId;
+              const isSelf = currentUserId === member.userId;
+              const isConnected = connectedMemberIds.has(member.userId);
 
               return (
-                <li key={member.authUserId} className="rounded-2xl border border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-soft)_76%,transparent)] px-3 py-2.5 text-sm">
+                <li key={member.userId} className="border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] px-3 py-2.5 text-sm shadow-[2px_2px_0px_0px_var(--panel-border)]">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
-                      <Avatar className="h-7 w-7">
-                        <AvatarFallback>{initialsFromName(member.name)}</AvatarFallback>
+                      <Avatar className="h-7 w-7 border-2 border-[var(--panel-border)] rounded-none">
+                        <AvatarFallback className="rounded-none bg-[var(--background)] font-bold text-[10px] text-[var(--foreground)]">{initialsFromName(member.name)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-foreground">{member.name}</p>
+                        <p className="truncate font-extrabold uppercase tracking-wide text-[var(--foreground)]">{member.name}</p>
                         <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                          {isConnected ? <Badge>online</Badge> : <Badge className="border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-strong)_92%,transparent)] text-(--muted)">offline</Badge>}
-                          {isOwner ? <Badge className="border-(--panel-border) bg-[color-mix(in_srgb,var(--panel-strong)_92%,transparent)] text-foreground">owner</Badge> : null}
-                          {isSelf ? <Badge>you</Badge> : null}
+                          {isConnected ? <Badge className="border-2 border-[var(--panel-border)] bg-[var(--success)] text-[var(--background)] rounded-none font-bold">ONLINE</Badge> : <Badge className="border-2 border-[var(--panel-border)] bg-[var(--background)] text-[var(--muted)] rounded-none font-bold">OFFLINE</Badge>}
+                          {isOwner ? <Badge className="border-2 border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] rounded-none font-bold">OWNER</Badge> : null}
+                          {isSelf ? <Badge className="border-2 border-[var(--panel-border)] bg-[var(--foreground)] text-[var(--background)] rounded-none font-bold hover:bg-[var(--foreground)]">YOU</Badge> : null}
                         </div>
                       </div>
                     </div>
@@ -93,10 +93,10 @@ export function PresenceSidebar({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="shrink-0"
-                        onClick={() => onRemoveMember(member.authUserId, member.name)}
+                        className="shrink-0 border-2 border-transparent hover:border-[var(--panel-border)] rounded-none font-bold tracking-wider uppercase text-[10px] hover:shadow-[2px_2px_0px_0px_var(--panel-border)] transition-all"
+                        onClick={() => onRemoveMember(member.userId, member.name)}
                       >
-                        <ShieldMinus className="h-4 w-4" /> Remove
+                        <ShieldMinus className="h-4 w-4 mr-1" /> RMV
                       </Button>
                     ) : null}
                   </div>
@@ -104,20 +104,20 @@ export function PresenceSidebar({
               );
             })}
           </ul>
-          {roomMembers.length === 0 ? <p className="mt-3 text-sm text-(--muted)">Join a room to load its persisted member list.</p> : null}
+          {roomMembers.length === 0 ? <p className="mt-3 text-xs font-mono font-bold uppercase text-[var(--muted)]">Join a room to load its persisted member list.</p> : null}
         </CardContent>
       </Card>
 
-      <Card className="section-panel stage-3">
-        <CardHeader>
-          <CardTitle className="text-lg">Workflow Tips</CardTitle>
+      <Card className="section-panel stage-3 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+        <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--surface-strong)]">
+          <CardTitle className="text-lg font-black uppercase tracking-widest text-[var(--foreground)]">Workflow Tips</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-(--muted)">
+        <CardContent className="space-y-4 pt-6 text-sm text-[var(--foreground)] font-mono">
           <p className="leading-6">Open a second tab to simulate another teammate in the same room.</p>
           <p className="leading-6">Pin important file paths and requirements before invoking the room agent.</p>
           <p className="leading-6">Press Enter to send quickly during active discussion.</p>
           <div className="panel-rule my-4" />
-          <p className="flex items-center gap-2 text-xs">
+          <p className="flex items-center gap-2 text-xs font-bold bg-[var(--accent)] text-[var(--background)] px-2 py-1 uppercase tracking-wider border-2 border-[var(--panel-border)]">
             <Keyboard className="h-3.5 w-3.5" /> Shift+M jumps to message input.
           </p>
         </CardContent>
