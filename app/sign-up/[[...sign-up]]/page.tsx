@@ -27,15 +27,18 @@ export default function SignUpPage() {
         body: JSON.stringify({ email, password, displayName }),
       });
       if (!res.ok) {
-        const message = await readJsonError(res);
+        const authError = await readJsonError(res);
         setError(
-          message === "email_in_use"
+          authError.code === "email_taken" || authError.status === 409
             ? "An account with this email already exists."
-            : message === "weak_password"
-              ? "Password must be at least 12 characters and mix upper, lower, numbers, or symbols."
-              : message === "rate_limited"
-                ? "Too many sign-ups from this network. Please wait and try again."
-                : "Sign-up failed. Please verify your details and try again.",
+            : authError.code === "weak_password"
+              ? authError.detail ??
+                "Password must be at least 12 characters and include 3 of: uppercase, lowercase, number, symbol."
+              : authError.code === "invalid_input" || authError.status === 400
+                ? "Please check your details — all fields are required and your email must be valid."
+                : authError.code === "rate_limited" || authError.status === 429
+                  ? "Too many sign-ups from this network. Please wait and try again."
+                  : "We could not create your account right now. Please try again in a moment.",
         );
         return;
       }
@@ -93,7 +96,7 @@ export default function SignUpPage() {
             onChange={(event) => setPassword(event.target.value)}
           />
           <span className="text-[10px] font-mono text-(--muted)">
-            12+ characters, mix of upper / lower / numbers / symbols.
+            12+ characters, at least 3 of: uppercase, lowercase, number, symbol.
           </span>
         </label>
         {error ? (

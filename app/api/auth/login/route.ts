@@ -20,113 +20,126 @@ export async function POST(request: NextRequest) {
   const ipHash = hashIp(ip);
   const ua = request.headers.get("user-agent") ?? "";
 
-  const ipLimit = consumeToken(`login:ip:${ipHash}`, RATE_LIMITS.loginPerIp);
-  if (!ipLimit.allowed) {
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-  }
+  try {
+    const ipLimit = consumeToken(`login:ip:${ipHash}`, RATE_LIMITS.loginPerIp);
+    if (!ipLimit.allowed) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
 
-  const parsed = loginSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) {
-    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
-  }
-  const { email, password } = parsed.data;
-  const emailNormalized = normalizeEmail(email);
+    const parsed = loginSchema.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) {
+      return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+    }
+    const { email, password } = parsed.data;
+    const emailNormalized = normalizeEmail(email);
 
-  const acctLimit = consumeToken(`login:acct:${emailNormalized}`, RATE_LIMITS.loginPerAccount);
-  if (!acctLimit.allowed) {
-    await logSecurityEvent({
-      kind: "auth.login.rate_limited",
-      severity: "warn",
-      ipHash,
-      metadata: { emailNormalized, ua },
-    });
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-  }
+    const acctLimit = consumeToken(`login:acct:${emailNormalized}`, RATE_LIMITS.loginPerAccount);
+    if (!acctLimit.allowed) {
+      await logSecurityEvent({
+        kind: "auth.login.rate_limited",
+        severity: "warn",
+        ipHash,
+        metadata: { emailNormalized, ua },
+      });
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
 
-  const user = await prisma.user.findUnique({
-    where: { emailNormalized },
-    select: {
-      id: true,
-      passwordHash: true,
-      lockedUntil: true,
-      failedLoginCount: true,
-      displayName: true,
-      email: true,
-    },
-  });
-
-  if (!user) {
-    await logSecurityEvent({
-      kind: "auth.login.failed",
-      severity: "warn",
-      ipHash,
-      metadata: { reason: "no_such_user", emailNormalized, ua },
-    });
-    return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
-  }
-
-  if (user.lockedUntil && user.lockedUntil > new Date()) {
-    await logSecurityEvent({
-      kind: "auth.login.locked",
-      severity: "warn",
-      userId: user.id,
-      ipHash,
-      metadata: { until: user.lockedUntil.toISOString(), ua },
-    });
-    return NextResponse.json({ error: "account_locked" }, { status: 423 });
-  }
-
-  const ok = await verifyPassword(user.passwordHash, password);
-  if (!ok) {
-    const nextFailed = user.failedLoginCount + 1;
-    const shouldLock = nextFailed >= MAX_FAILED_LOGINS;
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        failedLoginCount: nextFailed,
-        ...(shouldLock
-          ? { lockedUntil: new Date(Date.now() + LOCK_MINUTES * 60 * 1000), failedLoginCount: 0 }
-          : {}),
+    const user = await prisma.user.findUnique({
+      where: { emailNormalized },
+      select: {
+        id: true,
+        passwordHash: true,
+        lockedUntil: true,
+        failedLoginCount: true,
+        displayName: true,
+        email: true,
       },
     });
-    await logSecurityEvent({
-      kind: shouldLock ? "auth.login.locked" : "auth.login.failed",
-      severity: shouldLock ? "crit" : "warn",
-      userId: user.id,
-      ipHash,
-      metadata: { reason: "bad_password", ua },
+
+    if (!user) {
+      await logSecurityEvent({
+        kind: "auth.login.failed",
+        severity: "warn",
+        ipHash,
+        metadata: { reason: "no_such_user", emailNormalized, ua },
+      });
+      return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
+    }
+
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      await logSecurityEvent({
+        kind: "auth.login.locked",
+        severity: "warn",
+        userId: user.id,
+        ipHash,
+        metadata: { until: user.lockedUntil.toISOString(), ua },
+      });
+      return NextResponse.json({ error: "account_locked" }, { status: 423 });
+    }
+
+    const ok = await verifyPassword(user.passwordHash, password);
+    if (!ok) {
+      const nextFailed = user.failedLoginCount + 1;
+      const shouldLock = nextFailed >= MAX_FAILED_LOGINS;
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedLoginCount: nextFailed,
+          ...(shouldLock
+            ? { lockedUntil: new Date(Date.now() + LOCK_MINUTES * 60 * 1000), failedLoginCount: 0 }
+            : {}),
+        },
+      });
+      await logSecurityEvent({
+        kind: shouldLock ? "auth.login.locked" : "auth.login.failed",
+        severity: shouldLock ? "crit" : "warn",
+        userId: user.id,
+        ipHash,
+        metadata: { reason: "bad_password", ua },
+      });
+      return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { failedLoginCount: 0, lockedUntil: null },
     });
-    return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
+
+    const tokens = await issueSessionTokens(user.id, { ipHash, userAgent: ua });
+    const csrfToken = mintCsrfToken();
+
+    const response = NextResponse.json({
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+    });
+    setAuthCookies(response, {
+      accessJwt: tokens.accessJwt,
+      refreshToken: tokens.refreshToken,
+      refreshExpiresAt: tokens.refreshExpiresAt,
+      csrfToken,
+    });
+
+    await logSecurityEvent({
+      kind: "auth.login.success",
+      severity: "info",
+      userId: user.id,
+      sessionId: tokens.sessionId,
+      ipHash,
+      metadata: { ua },
+    });
+
+    return response;
+  } catch (error) {
+    await logSecurityEvent({
+      kind: "auth.login.error",
+      severity: "crit",
+      ipHash,
+      metadata: {
+        ua,
+        reason: error instanceof Error ? error.message : "unknown_error",
+      },
+    });
+    return NextResponse.json({ error: "login_unavailable" }, { status: 503 });
   }
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { failedLoginCount: 0, lockedUntil: null },
-  });
-
-  const tokens = await issueSessionTokens(user.id, { ipHash, userAgent: ua });
-  const csrfToken = mintCsrfToken();
-
-  const response = NextResponse.json({
-    id: user.id,
-    email: user.email,
-    displayName: user.displayName,
-  });
-  setAuthCookies(response, {
-    accessJwt: tokens.accessJwt,
-    refreshToken: tokens.refreshToken,
-    refreshExpiresAt: tokens.refreshExpiresAt,
-    csrfToken,
-  });
-
-  await logSecurityEvent({
-    kind: "auth.login.success",
-    severity: "info",
-    userId: user.id,
-    sessionId: tokens.sessionId,
-    ipHash,
-    metadata: { ua },
-  });
-
-  return response;
 }

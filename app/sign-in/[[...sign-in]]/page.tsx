@@ -28,15 +28,15 @@ export default function SignInPage() {
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
-        const message = await readJsonError(res);
+        const authError = await readJsonError(res);
         setError(
-          message === "invalid_credentials"
+          authError.code === "invalid_credentials" || authError.status === 401
             ? "Incorrect email or password."
-            : message === "account_locked"
+            : authError.code === "account_locked" || authError.status === 423
               ? "Account temporarily locked due to too many failed attempts."
-              : message === "rate_limited"
+              : authError.code === "rate_limited" || authError.status === 429
                 ? "Too many attempts. Please wait and try again."
-                : "Sign-in failed. Please try again.",
+                : "We could not sign you in right now. Please try again in a moment.",
         );
         return;
       }
@@ -59,7 +59,7 @@ export default function SignInPage() {
         }}
         className="flex w-full flex-col gap-4"
       >
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
           Email
           <Input
             type="email"
@@ -70,7 +70,7 @@ export default function SignInPage() {
             placeholder="you@example.com"
           />
         </label>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
           Password
           <Input
             type="password"
@@ -81,14 +81,14 @@ export default function SignInPage() {
           />
         </label>
         {error ? (
-          <p className="border-2 border-[var(--panel-border)] bg-[var(--surface)] px-3 py-2 text-xs font-mono text-[var(--danger,#b00020)]">
+          <p className="border-2 border-(--panel-border) bg-(--surface) px-3 py-2 text-xs font-mono text-(--danger,#b00020)">
             {error}
           </p>
         ) : null}
         <Button type="submit" disabled={submitting} className="mt-2">
           {submitting ? "Signing in…" : "Sign in"}
         </Button>
-        <p className="text-xs font-mono text-[var(--muted)]">
+        <p className="text-xs font-mono text-(--muted)">
           No account yet?{" "}
           <Link href="/sign-up" className="underline underline-offset-4">
             Create one

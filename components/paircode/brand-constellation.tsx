@@ -50,7 +50,6 @@ export function BrandConstellation({ compact = false, className }: BrandConstell
             alt="PairCode mark"
             width={compact ? 52 : 64}
             height={compact ? 52 : 64}
-            priority
           />
         </div>
 

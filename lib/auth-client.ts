@@ -32,11 +32,24 @@ export async function authFetch(
   });
 }
 
-export async function readJsonError(response: Response): Promise<string> {
+export type AuthErrorPayload = {
+  code: string;
+  detail?: string;
+  status: number;
+};
+
+export async function readJsonError(response: Response): Promise<AuthErrorPayload> {
   try {
-    const data = (await response.json()) as { error?: string };
-    return data.error ?? `Request failed with status ${response.status}`;
+    const data = (await response.json()) as { error?: string; detail?: string };
+    return {
+      code: data.error ?? `http_${response.status}`,
+      detail: data.detail,
+      status: response.status,
+    };
   } catch {
-    return `Request failed with status ${response.status}`;
+    return {
+      code: `http_${response.status}`,
+      status: response.status,
+    };
   }
 }
