@@ -29,7 +29,7 @@ export function PresenceSidebar({
 
   return (
     <aside className="space-y-6">
-      <Card className="section-panel stage-1 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+      <Card className="section-panel stage-1 border border-[var(--panel-border)] bg-[var(--surface)] shadow-sm rounded-xl">
         <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--surface-strong)]">
           <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-[var(--foreground)]">
             <Users className="h-5 w-5 text-[var(--accent)]" /> Team Presence
@@ -38,18 +38,18 @@ export function PresenceSidebar({
         <CardContent className="pt-6">
           <ul className="space-y-3">
             {users.map((user) => (
-              <li key={user.id} className="flex items-center justify-between border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] px-3 py-2.5 text-sm shadow-[2px_2px_0px_0px_var(--panel-border)]">
+              <li key={user.id} className="flex items-center justify-between border border-[var(--panel-border)] bg-[var(--surface-strong)] px-3 py-2.5 text-sm shadow-sm">
                 <div className="flex items-center gap-2">
-                  <Avatar className="h-7 w-7 border-2 border-[var(--panel-border)] rounded-none">
-                    <AvatarFallback className="rounded-none bg-[var(--background)] font-bold text-[10px] text-[var(--foreground)]">{initialsFromName(user.name)}</AvatarFallback>
+                  <Avatar className="h-7 w-7 border border-[var(--panel-border)] rounded-xl">
+                    <AvatarFallback className="rounded-xl bg-[var(--background)] font-bold text-[10px] text-[var(--foreground)]">{initialsFromName(user.name)}</AvatarFallback>
                   </Avatar>
                   <span className="font-extrabold uppercase tracking-wide">{user.name}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   {roomOwner?.userId === user.userId ? (
-                    <Badge className="border-2 border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] rounded-none font-bold">OWNER</Badge>
+                    <Badge className="border border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] rounded-xl font-bold">OWNER</Badge>
                   ) : null}
-                  {user.id === mySocketId ? <Badge className="border-2 border-[var(--panel-border)] bg-[var(--foreground)] text-[var(--background)] rounded-none font-bold hover:bg-[var(--foreground)]">YOU</Badge> : null}
+                  {user.id === mySocketId ? <Badge className="border border-[var(--panel-border)] bg-[var(--foreground)] text-[var(--background)] rounded-xl font-bold hover:bg-[var(--foreground)]">YOU</Badge> : null}
                 </div>
               </li>
             ))}
@@ -58,7 +58,7 @@ export function PresenceSidebar({
         </CardContent>
       </Card>
 
-      <Card className="section-panel stage-2 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+      <Card className="section-panel stage-2 border border-[var(--panel-border)] bg-[var(--surface)] shadow-sm rounded-xl">
         <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--surface-strong)]">
           <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-[var(--foreground)]">
             <Users className="h-5 w-5 text-[var(--accent)]" /> Room Members
@@ -72,18 +72,18 @@ export function PresenceSidebar({
               const isConnected = connectedMemberIds.has(member.userId);
 
               return (
-                <li key={member.userId} className="border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] px-3 py-2.5 text-sm shadow-[2px_2px_0px_0px_var(--panel-border)]">
+                <li key={member.userId} className="border border-[var(--panel-border)] bg-[var(--surface-strong)] px-3 py-2.5 text-sm shadow-sm">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
-                      <Avatar className="h-7 w-7 border-2 border-[var(--panel-border)] rounded-none">
-                        <AvatarFallback className="rounded-none bg-[var(--background)] font-bold text-[10px] text-[var(--foreground)]">{initialsFromName(member.name)}</AvatarFallback>
+                      <Avatar className="h-7 w-7 border border-[var(--panel-border)] rounded-xl">
+                        <AvatarFallback className="rounded-xl bg-[var(--background)] font-bold text-[10px] text-[var(--foreground)]">{initialsFromName(member.name)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
                         <p className="truncate font-extrabold uppercase tracking-wide text-[var(--foreground)]">{member.name}</p>
                         <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                          {isConnected ? <Badge className="border-2 border-[var(--panel-border)] bg-[var(--success)] text-[var(--background)] rounded-none font-bold">ONLINE</Badge> : <Badge className="border-2 border-[var(--panel-border)] bg-[var(--background)] text-[var(--muted)] rounded-none font-bold">OFFLINE</Badge>}
-                          {isOwner ? <Badge className="border-2 border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] rounded-none font-bold">OWNER</Badge> : null}
-                          {isSelf ? <Badge className="border-2 border-[var(--panel-border)] bg-[var(--foreground)] text-[var(--background)] rounded-none font-bold hover:bg-[var(--foreground)]">YOU</Badge> : null}
+                          {isConnected ? <Badge className="border border-[var(--panel-border)] bg-[var(--success)] text-[var(--background)] rounded-xl font-bold">ONLINE</Badge> : <Badge className="border border-[var(--panel-border)] bg-[var(--background)] text-[var(--muted)] rounded-xl font-bold">OFFLINE</Badge>}
+                          {isOwner ? <Badge className="border border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] rounded-xl font-bold">OWNER</Badge> : null}
+                          {isSelf ? <Badge className="border border-[var(--panel-border)] bg-[var(--foreground)] text-[var(--background)] rounded-xl font-bold hover:bg-[var(--foreground)]">YOU</Badge> : null}
                         </div>
                       </div>
                     </div>
@@ -93,7 +93,7 @@ export function PresenceSidebar({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="shrink-0 border-2 border-transparent hover:border-[var(--panel-border)] rounded-none font-bold tracking-wider uppercase text-[10px] hover:shadow-[2px_2px_0px_0px_var(--panel-border)] transition-all"
+                        className="shrink-0 border border-transparent hover:border-[var(--panel-border)] rounded-xl font-bold tracking-wider uppercase text-[10px] hover:shadow-sm transition-all"
                         onClick={() => onRemoveMember(member.userId, member.name)}
                       >
                         <ShieldMinus className="h-4 w-4 mr-1" /> RMV
@@ -108,7 +108,7 @@ export function PresenceSidebar({
         </CardContent>
       </Card>
 
-      <Card className="section-panel stage-3 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+      <Card className="section-panel stage-3 border border-[var(--panel-border)] bg-[var(--surface)] shadow-sm rounded-xl">
         <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--surface-strong)]">
           <CardTitle className="text-lg font-black uppercase tracking-widest text-[var(--foreground)]">Workflow Tips</CardTitle>
         </CardHeader>
@@ -117,7 +117,7 @@ export function PresenceSidebar({
           <p className="leading-6">Pin important file paths and requirements before invoking the room agent.</p>
           <p className="leading-6">Press Enter to send quickly during active discussion.</p>
           <div className="panel-rule my-4" />
-          <p className="flex items-center gap-2 text-xs font-bold bg-[var(--accent)] text-[var(--background)] px-2 py-1 uppercase tracking-wider border-2 border-[var(--panel-border)]">
+          <p className="flex items-center gap-2 text-xs font-bold bg-[var(--accent)] text-[var(--background)] px-2 py-1 uppercase tracking-wider border border-[var(--panel-border)]">
             <Keyboard className="h-3.5 w-3.5" /> Shift+M jumps to message input.
           </p>
         </CardContent>

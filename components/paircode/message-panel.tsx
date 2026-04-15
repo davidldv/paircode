@@ -71,11 +71,11 @@ export function MessagePanel({
                 return (
                   <article
                     key={message.id}
-                    className="border-2 border-dashed border-[var(--panel-border)] bg-[var(--surface-strong)] px-4 py-3 text-sm shadow-[2px_2px_0px_0px_var(--panel-border)]"
+                    className="border border-dashed border-[var(--panel-border)] bg-[var(--surface-strong)] px-4 py-3 text-sm shadow-sm"
                   >
                     <div className="flex items-center justify-between gap-3 text-xs text-[var(--muted)]">
                       <div className="flex items-center gap-2">
-                        <Badge className="border-2 border-[var(--panel-border)] bg-[var(--background)] text-[var(--foreground)] rounded-none">AUDIT</Badge>
+                        <Badge className="border border-[var(--panel-border)] bg-[var(--background)] text-[var(--foreground)] rounded-xl">AUDIT</Badge>
                         <span className="font-medium text-foreground">{message.userName}</span>
                       </div>
                       <span className="mono-label text-[10px]">{formatTime(message.timestamp)}</span>
@@ -90,14 +90,14 @@ export function MessagePanel({
                   key={message.id}
                   className={
                     agentMessage
-                      ? "border-2 border-[var(--agent-card-border)] bg-[var(--agent-card-bg-a)] p-4 text-[var(--foreground)] shadow-[4px_4px_0px_0px_var(--agent-card-border)]"
-                      : "border-2 border-[var(--panel-border)] bg-[var(--surface)] p-4 shadow-[4px_4px_0px_0px_var(--panel-border)]"
+                      ? "border border-[var(--agent-card-border)] bg-[var(--agent-card-bg-a)] p-4 text-[var(--foreground)] shadow-sm"
+                      : "border border-[var(--panel-border)] bg-[var(--surface)] p-4 shadow-sm"
                   }
                 >
                   <div className="mb-3 flex items-center justify-between gap-3 text-xs text-[var(--muted)] border-b-2 border-[var(--panel-border)] pb-2">
                     <div className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6 border-2 border-[var(--panel-border)] rounded-none">
-                        <AvatarFallback className={agentMessage ? "bg-[var(--agent-avatar-bg)] text-[var(--agent-avatar-text)] text-[10px] rounded-none font-bold" : "bg-[var(--background)] text-[var(--foreground)] text-[10px] rounded-none font-bold"}>
+                      <Avatar className="h-6 w-6 border border-[var(--panel-border)] rounded-xl">
+                        <AvatarFallback className={agentMessage ? "bg-[var(--agent-avatar-bg)] text-[var(--agent-avatar-text)] text-[10px] rounded-xl font-bold" : "bg-[var(--background)] text-[var(--foreground)] text-[10px] rounded-xl font-bold"}>
                           {initialsFromName(message.userName)}
                         </AvatarFallback>
                       </Avatar>
@@ -114,15 +114,15 @@ export function MessagePanel({
             })}
 
             {messages.length === 0 ? (
-              <div className="border-2 border-dashed border-[var(--panel-border)] bg-[var(--surface-strong)] p-5 text-sm text-[var(--muted)] shadow-[4px_4px_0px_0px_var(--panel-border)]">
-                <div className="section-kicker mb-3 mr-auto inline-flex bg-[var(--accent)] text-[var(--background)] font-bold px-2 py-1 uppercase tracking-wider border-2 border-[var(--panel-border)]">Ready State</div>
+              <div className="border border-dashed border-[var(--panel-border)] bg-[var(--surface-strong)] p-5 text-sm text-[var(--muted)] shadow-sm">
+                <div className="section-kicker mb-3 mr-auto inline-flex bg-[var(--accent)] text-[var(--background)] font-bold px-2 py-1 uppercase tracking-wider border border-[var(--panel-border)]">Ready State</div>
                 <p className="mb-2 text-base font-extrabold text-[var(--foreground)]">No messages yet. Start the conversation.</p>
                 <p className="mb-4 max-w-md leading-6 font-mono text-xs">Seed the room with a summary request, implementation direction, or decision log so everyone is working from the same thread.</p>
                 <div className="flex flex-wrap gap-2">
-                  <Button type="button" size="sm" variant="secondary" className="border-2 border-[var(--panel-border)] shadow-[2px_2px_0px_0px_var(--panel-border)] rounded-none hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0px_0px_var(--accent)] transition-all font-bold uppercase text-[10px]" onClick={onInsertStarter}>
+                  <Button type="button" size="sm" variant="secondary" className="border border-[var(--panel-border)] shadow-sm rounded-xl hover:-translate-y-0.5  hover:shadow-sm transition-all font-bold uppercase text-[10px]" onClick={onInsertStarter}>
                     Insert starter message
                   </Button>
-                  <Button type="button" size="sm" variant="ghost" className="border-2 border-transparent hover:border-[var(--panel-border)] rounded-none font-bold uppercase text-[10px]" onClick={onFocusInput}>
+                  <Button type="button" size="sm" variant="ghost" className="border border-transparent hover:border-[var(--panel-border)] rounded-xl font-bold uppercase text-[10px]" onClick={onFocusInput}>
                     Focus input
                   </Button>
                 </div>
@@ -156,7 +156,7 @@ export function MessagePanel({
           <div className="flex gap-2">
             <Input
               ref={messageInputRef}
-              className="flex-1 border-2 border-[var(--panel-border)] shadow-[2px_2px_0px_0px_var(--panel-border)] focus-visible:shadow-[4px_4px_0px_0px_var(--accent)] focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all text-sm rounded-none"
+              className="flex-1 border border-[var(--panel-border)] shadow-sm focus-visible:shadow-sm focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all text-sm rounded-xl"
               value={messageInput}
               disabled={!canSendMessages}
               onChange={(event) => onMessageInputChange(event.target.value)}
@@ -168,7 +168,7 @@ export function MessagePanel({
               }}
               placeholder={canSendMessages ? "SHARE CONTEXT OR DECISIONS..." : "JOIN A ROOM TO UNLOCK STREAM..."}
             />
-            <Button type="button" onClick={onSendMessage} disabled={!canSendMessages || !messageInput.trim()} className="min-w-29.5 border-2 border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] shadow-[2px_2px_0px_0px_var(--panel-border)] hover:shadow-[4px_4px_0px_0px_var(--panel-border)] hover:-translate-y-1 hover:-translate-x-1 transition-all rounded-none font-bold uppercase tracking-wider">
+            <Button type="button" onClick={onSendMessage} disabled={!canSendMessages || !messageInput.trim()} className="min-w-29.5 border border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)] shadow-sm hover:shadow-sm hover:-translate-y-1  transition-all rounded-xl font-bold uppercase tracking-wider">
               <SendHorizontal className="h-4 w-4 mr-2" />
               SEND
             </Button>

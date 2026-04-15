@@ -49,7 +49,7 @@ export function ContextSidebar({
 }: ContextSidebarProps) {
   return (
     <aside className="space-y-6">
-      <Card className="section-panel stage-2 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+      <Card className="section-panel stage-2 border border-[var(--panel-border)] bg-[var(--surface)] shadow-sm rounded-xl">
         <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--accent)] text-[var(--background)]">
           <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest">
             <LockKeyhole className="h-5 w-5" /> Membership Control
@@ -57,7 +57,7 @@ export function ContextSidebar({
           <CardDescription className="leading-6 font-mono text-xs text-[var(--background)] opacity-90">Existing rooms require explicit membership. Owners issue signed invite links and invited operators become persistent members after their first successful join.</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
-          <div className="border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-3 text-sm text-[var(--foreground)] font-mono shadow-[2px_2px_0px_0px_var(--panel-border)]">
+          <div className="border border-[var(--panel-border)] bg-[var(--surface-strong)] p-3 text-sm text-[var(--foreground)] font-mono shadow-sm">
             {activeRoom
               ? canManageRoom
                 ? "You own this room. Generate an invite link whenever you need to grant access to another authenticated collaborator."
@@ -66,17 +66,17 @@ export function ContextSidebar({
           </div>
 
           {canManageRoom ? (
-            <Button type="button" variant="secondary" className="mt-4 w-full border-2 border-[var(--panel-border)] bg-[var(--surface)] text-[var(--foreground)] shadow-[2px_2px_0px_0px_var(--panel-border)] hover:shadow-[4px_4px_0px_0px_var(--accent)] hover:-translate-y-1 hover:-translate-x-1 transition-all rounded-none font-bold uppercase tracking-wider" onClick={onCreateInvite} disabled={!activeRoom}>
+            <Button type="button" variant="secondary" className="mt-4 w-full border border-[var(--panel-border)] bg-[var(--surface)] text-[var(--foreground)] shadow-sm hover:shadow-sm hover:-translate-y-1  transition-all rounded-xl font-bold uppercase tracking-wider" onClick={onCreateInvite} disabled={!activeRoom}>
               <LockKeyhole className="h-4 w-4 mr-2" /> {activeInvite ? "Rotate Invite Link" : "Generate Invite Link"}
             </Button>
           ) : null}
 
           {activeInvite ? (
-            <div className="mt-4 border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-4 shadow-[2px_2px_0px_0px_var(--panel-border)] relative">
-              <span className="absolute -top-3 left-3 bg-[var(--accent)] text-[var(--background)] font-bold text-[10px] px-2 py-0.5 border-2 border-[var(--panel-border)] uppercase tracking-widest">Active invite link</span>
+            <div className="mt-4 border border-[var(--panel-border)] bg-[var(--surface-strong)] p-4 shadow-sm relative">
+              <span className="absolute -top-3 left-3 bg-[var(--accent)] text-[var(--background)] font-bold text-[10px] px-2 py-0.5 border border-[var(--panel-border)] uppercase tracking-widest">Active invite link</span>
               <p className="mt-2 break-all text-xs leading-6 text-[var(--foreground)] font-mono">{activeInviteLink || "Invite link will appear here after generation."}</p>
               <p className="mt-2 text-xs text-[var(--muted)] font-mono font-bold">EXPIRES {new Date(activeInvite.expiresAt).toLocaleString()}</p>
-              <Button type="button" variant="ghost" size="sm" className="mt-4 w-full border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[2px_2px_0px_0px_var(--panel-border)] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0px_0px_var(--accent)] rounded-none font-bold uppercase" onClick={onCopyInviteLink}>
+              <Button type="button" variant="ghost" size="sm" className="mt-4 w-full border border-[var(--panel-border)] bg-[var(--surface)] shadow-sm hover:-translate-y-0.5  hover:shadow-sm rounded-xl font-bold uppercase" onClick={onCopyInviteLink}>
                 <LockKeyhole className="h-4 w-4 mr-2" /> Copy Invite Link
               </Button>
             </div>
@@ -84,7 +84,7 @@ export function ContextSidebar({
         </CardContent>
       </Card>
 
-      <Card className="section-panel stage-3 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+      <Card className="section-panel stage-3 border border-[var(--panel-border)] bg-[var(--surface)] shadow-sm rounded-xl">
         <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--surface-strong)]">
           <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-[var(--foreground)]">
             <FolderTree className="h-5 w-5 text-[var(--accent)]" /> Shared Context
@@ -94,7 +94,7 @@ export function ContextSidebar({
         <CardContent className="pt-6">
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[var(--foreground)]">Selected files or snippets</label>
           <Textarea
-            className="mb-4 h-24 border-2 border-[var(--panel-border)] rounded-none shadow-[2px_2px_0px_0px_var(--panel-border)] focus-visible:shadow-[4px_4px_0px_0px_var(--accent)] focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all font-mono text-sm"
+            className="mb-4 h-24 border border-[var(--panel-border)] rounded-xl shadow-sm focus-visible:shadow-sm focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all font-mono text-sm"
             value={context.selectedFiles}
             disabled={!canManageRoom}
             onChange={(event) => onContextChange({ ...context, selectedFiles: event.target.value })}
@@ -103,7 +103,7 @@ export function ContextSidebar({
 
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[var(--foreground)]">Pinned requirements</label>
           <Textarea
-            className="h-24 border-2 border-[var(--panel-border)] rounded-none shadow-[2px_2px_0px_0px_var(--panel-border)] focus-visible:shadow-[4px_4px_0px_0px_var(--accent)] focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all font-mono text-sm"
+            className="h-24 border border-[var(--panel-border)] rounded-xl shadow-sm focus-visible:shadow-sm focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all font-mono text-sm"
             value={context.pinnedRequirements}
             disabled={!canManageRoom}
             onChange={(event) => onContextChange({ ...context, pinnedRequirements: event.target.value })}
@@ -126,7 +126,7 @@ export function ContextSidebar({
         </CardContent>
       </Card>
 
-      <Card className="section-panel stage-4 border-2 border-[var(--panel-border)] bg-[var(--surface)] shadow-[6px_6px_0px_0px_var(--panel-border)] rounded-none">
+      <Card className="section-panel stage-4 border border-[var(--panel-border)] bg-[var(--surface)] shadow-sm rounded-xl">
         <CardHeader className="border-b-2 border-[var(--panel-border)] bg-[var(--agent-card-border)] text-[var(--background)]">
           <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-[var(--background)]">
             <Sparkles className="h-5 w-5" /> Room Agent
@@ -136,7 +136,7 @@ export function ContextSidebar({
         <CardContent className="pt-6">
           <Textarea
             ref={agentInputRef}
-            className="h-32 border-2 border-[var(--panel-border)] rounded-none shadow-[2px_2px_0px_0px_var(--panel-border)] focus-visible:shadow-[4px_4px_0px_0px_var(--agent-card-border)] focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all font-mono text-sm"
+            className="h-32 border border-[var(--panel-border)] rounded-xl shadow-sm focus-visible:shadow-sm focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all font-mono text-sm"
             value={agentInput}
             disabled={!canManageRoom}
             onChange={(event) => onAgentInputChange(event.target.value)}
@@ -145,7 +145,7 @@ export function ContextSidebar({
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Button
-              className={`flex-1 border-2 border-[var(--panel-border)] rounded-none font-bold uppercase tracking-wider text-xs shadow-[2px_2px_0px_0px_var(--panel-border)] transition-all hover:-translate-y-0.5 hover:-translate-x-0.5 ${agentMode === "answer" ? "bg-[var(--agent-card-border)] text-[var(--background)] shadow-[3px_3px_0px_0px_var(--panel-border)]" : "bg-[var(--surface-strong)] text-[var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--agent-card-border)]"}`}
+              className={`flex-1 border border-[var(--panel-border)] rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "answer" ? "bg-[var(--agent-card-border)] text-[var(--background)] shadow-sm" : "bg-[var(--surface-strong)] text-[var(--foreground)] hover:shadow-sm"}`}
               type="button"
               onClick={() => {
                 onSelectMode("answer");
@@ -156,7 +156,7 @@ export function ContextSidebar({
               <Bot className="h-3.5 w-3.5 mr-1" /> Ask
             </Button>
             <Button
-              className={`flex-1 border-2 border-[var(--panel-border)] rounded-none font-bold uppercase tracking-wider text-xs shadow-[2px_2px_0px_0px_var(--panel-border)] transition-all hover:-translate-y-0.5 hover:-translate-x-0.5 ${agentMode === "summarize" ? "bg-[var(--agent-card-border)] text-[var(--background)] shadow-[3px_3px_0px_0px_var(--panel-border)]" : "bg-[var(--surface-strong)] text-[var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--agent-card-border)]"}`}
+              className={`flex-1 border border-[var(--panel-border)] rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "summarize" ? "bg-[var(--agent-card-border)] text-[var(--background)] shadow-sm" : "bg-[var(--surface-strong)] text-[var(--foreground)] hover:shadow-sm"}`}
               type="button"
               onClick={() => {
                 onSelectMode("summarize");
@@ -167,7 +167,7 @@ export function ContextSidebar({
               Summarize
             </Button>
             <Button
-              className={`flex-1 border-2 border-[var(--panel-border)] rounded-none font-bold uppercase tracking-wider text-xs shadow-[2px_2px_0px_0px_var(--panel-border)] transition-all hover:-translate-y-0.5 hover:-translate-x-0.5 ${agentMode === "next-steps" ? "bg-[var(--agent-card-border)] text-[var(--background)] shadow-[3px_3px_0px_0px_var(--panel-border)]" : "bg-[var(--surface-strong)] text-[var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--agent-card-border)]"}`}
+              className={`flex-1 border border-[var(--panel-border)] rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "next-steps" ? "bg-[var(--agent-card-border)] text-[var(--background)] shadow-sm" : "bg-[var(--surface-strong)] text-[var(--foreground)] hover:shadow-sm"}`}
               type="button"
               onClick={() => {
                 onSelectMode("next-steps");
@@ -179,7 +179,7 @@ export function ContextSidebar({
             </Button>
           </div>
 
-          <div className="mt-5 border-2 border-[var(--panel-border)] bg-[var(--surface)] p-3 shadow-[2px_2px_0px_0px_var(--panel-border)]">
+          <div className="mt-5 border border-[var(--panel-border)] bg-[var(--surface)] p-3 shadow-sm">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
               {agentStreaming ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5 text-[var(--success)]" />}
               <span>
