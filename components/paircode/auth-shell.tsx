@@ -11,7 +11,7 @@ type AuthShellProps = {
 
 export function AuthShell({ title, description, children }: AuthShellProps) {
   return (
-    <main className="app-shell relative min-h-screen bg-background text-foreground selection:bg-[var(--accent)] selection:text-background">
+    <main className="app-shell relative min-h-screen bg-background text-foreground selection:bg-(--accent) selection:text-background">
       <div className="mx-auto grid min-h-screen w-full max-w-7xl items-center gap-8 px-4 py-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,540px)] lg:px-8">
         <section className="fade-up space-y-6">
           <div className="space-y-4">
@@ -37,11 +37,11 @@ export function AuthShell({ title, description, children }: AuthShellProps) {
           <BrandConstellation />
         </section>
 
-        <Card className="hero-shell fade-up-delay mx-auto w-full max-w-xl border border-[var(--panel-border)] bg-[var(--surface)] p-8 shadow-xl rounded-2xl transition-all duration-500 animate-slide-up">
-          <CardHeader className="space-y-4 pb-8 border-b border-[var(--panel-border)] mb-8">
+        <Card className="hero-shell fade-up-delay mx-auto w-full max-w-xl border border-(--panel-border) bg-(--surface) p-8 shadow-xl rounded-2xl transition-all duration-500 animate-slide-up">
+          <CardHeader className="space-y-4 pb-8 border-b border-(--panel-border) mb-8">
             <div className="space-y-3">
-              <CardTitle className="text-3xl font-bold tracking-tight text-[var(--foreground)]">Enter PairCode</CardTitle>
-              <CardDescription className="text-base leading-relaxed text-[var(--muted)]">
+              <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Enter PairCode</CardTitle>
+              <CardDescription className="text-base leading-relaxed text-(--muted)">
                 Authenticate to access collaborative engineering rooms with persistent context, live presence, and AI facilitation.
               </CardDescription>
             </div>

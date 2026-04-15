@@ -21,7 +21,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
-  return <p data-slot="card-description" className={cn("text-sm font-mono text-[var(--muted)]", className)} {...props} />;
+  return <p data-slot="card-description" className={cn("text-sm font-mono text-(--muted)", className)} {...props} />;
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {

@@ -12,10 +12,10 @@ export function ToastStack({ toasts }: ToastStackProps) {
           key={toast.id}
           className={
             toast.variant === "success"
-              ? "toast-in pointer-events-auto border border-[var(--panel-border)] bg-[var(--success)] p-3 text-[var(--background)] shadow-sm rounded-xl"
+              ? "toast-in pointer-events-auto border border-(--panel-border) bg-(--success) p-3 text-(--background) shadow-sm rounded-xl"
               : toast.variant === "danger"
-                ? "toast-in pointer-events-auto border border-[var(--panel-border)] bg-[#ff0000] p-3 text-white shadow-sm rounded-xl"
-                : "toast-in pointer-events-auto border border-[var(--panel-border)] bg-[var(--surface-strong)] p-3 text-[var(--foreground)] shadow-sm rounded-xl"
+                ? "toast-in pointer-events-auto border border-(--panel-border) bg-[#ff0000] p-3 text-white shadow-sm rounded-xl"
+                : "toast-in pointer-events-auto border border-(--panel-border) bg-(--surface-strong) p-3 text-foreground shadow-sm rounded-xl"
           }
         >
           <p className="text-sm font-black uppercase tracking-wider">{toast.title}</p>

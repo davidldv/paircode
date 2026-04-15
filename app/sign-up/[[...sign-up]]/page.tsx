@@ -82,7 +82,7 @@ export default function SignUpPage() {
         }}
         className="flex w-full flex-col gap-5 animate-fade-in"
       >
-        <label className="flex flex-col gap-2 text-sm font-medium text-[var(--foreground)]">
+        <label className="flex flex-col gap-2 text-sm font-medium text-foreground">
           Display name
           <Input
             type="text"
@@ -93,10 +93,10 @@ export default function SignUpPage() {
             value={displayName}
             onChange={(event) => setDisplayName(event.target.value)}
             placeholder="Ada Lovelace"
-            className="h-12 px-4 rounded-xl border-[var(--panel-border-strong)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-all bg-[var(--surface-strong)] hover:bg-[var(--surface)]"
+            className="h-12 px-4 rounded-xl border-(--panel-border-strong) focus-visible:ring-2 focus-visible:ring-(--focus-ring) transition-all bg-(--surface-strong) hover:bg-(--surface)"
           />
         </label>
-        <label className="flex flex-col gap-2 text-sm font-medium text-[var(--foreground)]">
+        <label className="flex flex-col gap-2 text-sm font-medium text-foreground">
           Email
           <Input
             type="email"
@@ -105,10 +105,10 @@ export default function SignUpPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            className="h-12 px-4 rounded-xl border-[var(--panel-border-strong)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-all bg-[var(--surface-strong)] hover:bg-[var(--surface)]"
+            className="h-12 px-4 rounded-xl border-(--panel-border-strong) focus-visible:ring-2 focus-visible:ring-(--focus-ring) transition-all bg-(--surface-strong) hover:bg-(--surface)"
           />
         </label>
-        <label className="flex flex-col gap-2 text-sm font-medium text-[var(--foreground)]">
+        <label className="flex flex-col gap-2 text-sm font-medium text-foreground">
           Password
           <div className="relative">
             <Input
@@ -118,18 +118,18 @@ export default function SignUpPage() {
               minLength={12}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="h-12 pl-4 pr-12 rounded-xl border-[var(--panel-border-strong)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-all bg-[var(--surface-strong)] hover:bg-[var(--surface)] w-full"
+              className="h-12 pl-4 pr-12 rounded-xl border-(--panel-border-strong) focus-visible:ring-2 focus-visible:ring-(--focus-ring) transition-all bg-(--surface-strong) hover:bg-(--surface) w-full"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors rounded-r-xl"
+              className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-(--muted) hover:text-foreground transition-colors rounded-r-xl"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          <span className="text-xs text-[var(--muted)]">
+          <span className="text-xs text-(--muted)">
             12+ characters, at least 3 of: uppercase, lowercase, number, symbol.
           </span>
         </label>
@@ -143,7 +143,7 @@ export default function SignUpPage() {
           <Button 
             type="submit" 
             disabled={submitting || guestSubmitting} 
-            className="h-12 text-base font-semibold rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-soft)] text-white shadow-lg shadow-[var(--accent-glow)] transition-all hover:scale-[1.02] active:scale-95"
+            className="h-12 text-base font-semibold rounded-xl bg-(--accent) hover:bg-(--accent-soft) text-white shadow-(--accent-glow) transition-all hover:scale-[1.02] active:scale-95"
           >
             {submitting ? "Signing up…" : "Sign up"}
           </Button>
@@ -153,7 +153,7 @@ export default function SignUpPage() {
             onClick={submitGuest}
             variant="secondary"
             disabled={submitting || guestSubmitting} 
-            className="h-12 text-base font-semibold rounded-xl border border-[var(--panel-border)] bg-[var(--surface-strong)] hover:bg-[var(--surface)] text-[var(--foreground)] transition-all hover:scale-[1.02] active:scale-95"
+            className="h-12 text-base font-semibold rounded-xl border border-(--panel-border) bg-(--surface-strong) hover:bg-(--surface) text-foreground transition-all hover:scale-[1.02] active:scale-95"
           >
             {guestSubmitting ? "Creating guest session…" : (
               <>
@@ -163,9 +163,9 @@ export default function SignUpPage() {
           </Button>
         </div>
 
-        <p className="mt-4 text-center text-sm text-[var(--muted)]">
+        <p className="mt-4 text-center text-sm text-(--muted)">
           Already have an account?{" "}
-          <Link href="/sign-in" className="font-semibold text-[var(--foreground)] hover:text-[var(--accent)] transition-colors">
+          <Link href="/sign-in" className="font-semibold text-foreground hover:text-(--accent) transition-colors">
             Sign in
           </Link>
         </p>

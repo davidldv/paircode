@@ -157,12 +157,12 @@ export default function Home() {
     return (
       <main className="app-shell relative min-h-screen overflow-hidden bg-background text-foreground">
         <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4">
-          <div className="hero-shell w-full max-w-xl border border-[var(--panel-border)] shadow-xl p-12 text-center bg-[var(--surface)] rounded-2xl animate-fade-in">
-            <div className="inline-flex items-center justify-center p-3 bg-[var(--surface-strong)] rounded-full mb-6 animate-pulse-slow">
+          <div className="hero-shell w-full max-w-xl border border-(--panel-border) shadow-xl p-12 text-center bg-(--surface) rounded-2xl animate-fade-in">
+            <div className="inline-flex items-center justify-center p-3 bg-(--surface-strong) rounded-full mb-6 animate-pulse-slow">
               <img src="/brand/paircode-mark.svg" alt="" width={48} height={48} className="opacity-80" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">Connecting to workspace...</h1>
-            <p className="mt-3 text-sm leading-relaxed text-[var(--muted)] max-w-sm mx-auto">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Connecting to workspace...</h1>
+            <p className="mt-3 text-sm leading-relaxed text-(--muted) max-w-sm mx-auto">
               Please wait while we verify your session and establish a secure connection.
             </p>
           </div>
@@ -189,7 +189,7 @@ export default function Home() {
               variant="ghost"
               size="sm"
               onClick={() => void signOut()}
-              className="text-xs font-medium text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface-strong)] transition-colors rounded-lg px-3"
+              className="text-xs font-medium text-(--muted) hover:text-foreground hover:bg-(--surface-strong) transition-colors rounded-lg px-3"
             >
               Sign out
             </Button>
