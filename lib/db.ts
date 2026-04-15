@@ -19,7 +19,10 @@ function createPool() {
   }
   const url = new URL(connectionString);
   const sslMode = url.searchParams.get("sslmode");
-  const shouldUseSsl = sslMode === "require" || url.hostname.endsWith(".supabase.co");
+  const shouldUseSsl =
+    sslMode === "require" ||
+    url.hostname.endsWith(".supabase.co") ||
+    url.hostname.endsWith(".supabase.com");
   return new Pool({
     connectionString,
     ...(shouldUseSsl ? { ssl: { rejectUnauthorized: false } } : {}),

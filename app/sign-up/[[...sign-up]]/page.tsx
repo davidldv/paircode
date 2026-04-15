@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 import { AuthShell } from "@/components/paircode/auth-shell";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export default function SignUpPage() {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -87,14 +89,25 @@ export default function SignUpPage() {
         </label>
         <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
           Password
-          <Input
-            type="password"
-            autoComplete="new-password"
-            required
-            minLength={12}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              required
+              minLength={12}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="pr-11"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-(--muted) hover:text-(--foreground) transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           <span className="text-[10px] font-mono text-(--muted)">
             12+ characters, at least 3 of: uppercase, lowercase, number, symbol.
           </span>

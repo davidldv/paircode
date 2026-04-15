@@ -1,31 +1,9 @@
-<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="paircode-bg" x1="28" y1="20" x2="228" y2="236" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFF4D7" />
-      <stop offset="0.5" stop-color="#FFD27A" />
-      <stop offset="1" stop-color="#D85D2D" />
-    </linearGradient>
-    <linearGradient id="paircode-collab" x1="102" y1="173" x2="154" y2="173" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#143A36" />
-      <stop offset="1" stop-color="#2E6D67" />
-    </linearGradient>
-  </defs>
-
-  <rect x="12" y="12" width="232" height="232" rx="56" fill="url(#paircode-bg)" />
-  <rect x="28" y="28" width="200" height="200" rx="44" stroke="#FFF7E7" stroke-opacity="0.55" stroke-width="2" />
-
-  <rect x="40" y="62" width="80" height="64" rx="20" fill="#FFF8EB" stroke="#143A36" stroke-width="6" />
-  <path d="M72 126L62 142L86 130" fill="#FFF8EB" stroke="#143A36" stroke-width="6" stroke-linejoin="round" />
-  <path d="M84 82L68 94L84 106" stroke="#143A36" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
-
-  <rect x="136" y="62" width="80" height="64" rx="20" fill="#FFF8EB" stroke="#143A36" stroke-width="6" />
-  <path d="M184 126L194 142L170 130" fill="#FFF8EB" stroke="#143A36" stroke-width="6" stroke-linejoin="round" />
-  <path d="M172 82L188 94L172 106" stroke="#143A36" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
-
-  <circle cx="128" cy="118" r="10" fill="#D85D2D" stroke="#143A36" stroke-width="4" />
-
-  <rect x="56" y="154" width="144" height="36" rx="18" fill="#FFF8EB" stroke="#143A36" stroke-width="6" />
-  <circle cx="92" cy="172" r="8" fill="#143A36" />
-  <circle cx="164" cy="172" r="8" fill="#2E6D67" />
-  <path d="M102 172H154" stroke="url(#paircode-collab)" stroke-width="7" stroke-linecap="round" />
+<svg width="256" height="256" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" fill="#f4f4f0"/>
+  <rect width="64" height="7" fill="#ff4500"/>
+  <rect x="7" y="14" width="32" height="37" fill="#e5e5e5" stroke="#0a0a0a" stroke-width="2"/>
+  <rect x="17" y="20" width="32" height="37" fill="#ffffff" stroke="#0a0a0a" stroke-width="2"/>
+  <rect x="17" y="20" width="32" height="6" fill="#0a0a0a"/>
+  <polyline points="26,36 22,42 26,48" stroke="#ff4500" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
+  <polyline points="38,36 42,42 38,48" stroke="#ff4500" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" fill="none"/>
 </svg>

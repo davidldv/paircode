@@ -4,7 +4,7 @@ import { COOKIE_NAMES } from "@/lib/auth/env";
 import { CSRF_HEADER, constantTimeEquals } from "@/lib/auth/csrf";
 import { verifyAccessToken } from "@/lib/auth/jwt";
 
-const PUBLIC_PAGE_PREFIXES = ["/sign-in", "/sign-up"];
+const PUBLIC_PAGE_PREFIXES = ["/sign-in", "/sign-up", "/brand"];
 const PUBLIC_API_ROUTES = new Set([
   "/api/auth/login",
   "/api/auth/signup",
@@ -121,6 +121,6 @@ export async function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|sitemap.xml).*)",
+    "/((?!_next/static|_next/image|brand|favicon.ico|icon.svg|robots.txt|sitemap.xml).*)",
   ],
 };

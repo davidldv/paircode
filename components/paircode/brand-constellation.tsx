@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { cn } from "@/lib/utils";
 
 const capabilityCards = [
@@ -45,7 +43,7 @@ export function BrandConstellation({ compact = false, className }: BrandConstell
             compact ? "p-2.5" : "p-3",
           )}
         >
-          <Image
+          <img
             src="/brand/paircode-mark.svg"
             alt="PairCode mark"
             width={compact ? 52 : 64}
@@ -69,7 +67,7 @@ export function BrandConstellation({ compact = false, className }: BrandConstell
           >
             <div className="flex items-start gap-3">
               <div className="border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-2 rounded-none">
-                <Image src={card.icon} alt="" width={40} height={40} aria-hidden />
+                <img src={card.icon} alt="" width={40} height={40} aria-hidden />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-black uppercase text-[var(--foreground)]">{card.title}</p>
