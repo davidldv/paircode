@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
+import { formatRoomId } from "@/lib/utils";
+
 type HeaderCardProps = {
   status: "idle" | "connecting" | "connected" | "disconnected";
   statusBadgeVariant: "default" | "success" | "danger";
@@ -93,7 +95,7 @@ export function HeaderCard({
             <label className="text-xs font-semibold text-foreground uppercase tracking-wide">Workspace Room</label>
             <Input 
               value={roomId} 
-              onChange={(event) => onRoomIdChange(event.target.value)} 
+              onChange={(event) => onRoomIdChange(formatRoomId(event.target.value))} 
               placeholder="Enter Room Code..." 
               className="h-12 bg-(--surface) border-(--panel-border-strong) rounded-xl focus-visible:ring-2 focus-visible:ring-(--focus-ring) transition-all"
             />

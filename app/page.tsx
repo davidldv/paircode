@@ -13,6 +13,7 @@ import { usePaircodePageUi } from "@/lib/use-paircode-page-ui";
 import { usePaircodePreferences } from "@/lib/use-paircode-preferences";
 import { usePaircodeRoom } from "@/lib/use-paircode-room";
 import { usePaircodeSession } from "@/lib/use-paircode-session";
+import { formatRoomId } from "@/lib/utils";
 
 export default function Home() {
   const { status: sessionStatus, user, signOut } = usePaircodeSession();
@@ -129,7 +130,7 @@ export default function Home() {
     if (!isLoaded || !user) return;
 
     const url = new URL(window.location.href);
-    const invitedRoomId = url.searchParams.get("room")?.trim() ?? "";
+    const invitedRoomId = formatRoomId(url.searchParams.get("room")?.trim() ?? "");
     const signedInviteToken = url.searchParams.get("invite")?.trim() ?? "";
     const inviteKey = `${invitedRoomId}:${signedInviteToken}`;
 

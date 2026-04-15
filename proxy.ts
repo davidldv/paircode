@@ -16,6 +16,7 @@ const PUBLIC_API_ROUTES = new Set([
 const CSRF_SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 function applySecurityHeaders(res: NextResponse, wsOrigin: string) {
+  const isVercelPreview = process.env.VERCEL_ENV === "preview";
   res.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -26,11 +27,15 @@ function applySecurityHeaders(res: NextResponse, wsOrigin: string) {
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      isVercelPreview
+        ? "script-src 'self' 'unsafe-inline' https://vercel.live"
+        : "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data: https://fonts.gstatic.com",
       "img-src 'self' data: blob:",
-      `connect-src 'self' ${wsOrigin}`,
+      isVercelPreview
+        ? `connect-src 'self' ${wsOrigin} https://vercel.live wss://ws-us3.pusher.com`
+        : `connect-src 'self' ${wsOrigin}`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

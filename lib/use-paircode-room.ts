@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { authFetch } from "@/lib/auth-client";
 import { type AgentMode, type ChatMessage, type RoomContext, type RoomInvite, type RoomMember, type RoomOwner, type RoomUser, type ToastNotice } from "@/lib/paircode";
+import { formatRoomId } from "@/lib/utils";
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:3001";
 
@@ -310,7 +311,7 @@ export function usePaircodeRoom({ userId, userName }: UsePaircodeRoomOptions) {
   ]);
 
   const handleJoin = useCallback(async (overrides?: { roomId?: string; inviteToken?: string }) => {
-    const nextRoomId = (overrides?.roomId ?? roomId).trim();
+    const nextRoomId = formatRoomId((overrides?.roomId ?? roomId).trim());
     const nextUserName = userName.trim();
     const nextInviteToken = (overrides?.inviteToken ?? inviteToken).trim();
 
