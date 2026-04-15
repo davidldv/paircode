@@ -34,6 +34,8 @@ export default function SignInPage() {
         setError(
           authError.code === "invalid_credentials" || authError.status === 401
             ? "Incorrect email or password."
+            : authError.code === "invalid_input" || authError.status === 400
+              ? "Check your email and password format. Password must be at least 12 characters."
             : authError.code === "account_locked" || authError.status === 423
               ? "Account temporarily locked due to too many failed attempts."
               : authError.code === "rate_limited" || authError.status === 429

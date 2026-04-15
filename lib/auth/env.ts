@@ -6,12 +6,21 @@ function required(name: string): string {
   return value;
 }
 
+function normalizedMultilineSecret(name: string): string {
+  const raw = required(name).trim();
+  const unquoted =
+    (raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))
+      ? raw.slice(1, -1)
+      : raw;
+  return unquoted.replace(/\\n/g, "\n").trim();
+}
+
 export const AUTH_ENV = {
   get jwtPrivateKey() {
-    return required("JWT_PRIVATE_KEY").replace(/\\n/g, "\n");
+    return normalizedMultilineSecret("JWT_PRIVATE_KEY");
   },
   get jwtPublicKey() {
-    return required("JWT_PUBLIC_KEY").replace(/\\n/g, "\n");
+    return normalizedMultilineSecret("JWT_PUBLIC_KEY");
   },
   get jwtKid() {
     return required("JWT_KID");
