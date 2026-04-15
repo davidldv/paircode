@@ -37,17 +37,17 @@ export function AuthShell({ title, description, children }: AuthShellProps) {
           <BrandConstellation />
         </section>
 
-        <Card className="hero-shell fade-up-delay mx-auto w-full max-w-xl border-2 border-[var(--panel-border)] bg-[var(--surface-strong)] p-6 shadow-[8px_8px_0px_0px_var(--accent)] rounded-none">
-          <CardHeader className="space-y-3 pb-6 border-b-2 border-[var(--panel-border)]">
-            <div className="space-y-2">
-              <CardTitle className="text-3xl font-black uppercase tracking-widest text-[var(--foreground)]">Enter PairCode</CardTitle>
-              <CardDescription className="text-sm leading-6 font-mono text-[var(--muted)]">
+        <Card className="hero-shell fade-up-delay mx-auto w-full max-w-xl border border-[var(--panel-border)] bg-[var(--surface)] p-8 shadow-xl rounded-2xl transition-all duration-500 animate-slide-up">
+          <CardHeader className="space-y-4 pb-8 border-b border-[var(--panel-border)] mb-8">
+            <div className="space-y-3">
+              <CardTitle className="text-3xl font-bold tracking-tight text-[var(--foreground)]">Enter PairCode</CardTitle>
+              <CardDescription className="text-base leading-relaxed text-[var(--muted)]">
                 Authenticate to access collaborative engineering rooms with persistent context, live presence, and AI facilitation.
               </CardDescription>
             </div>
           </CardHeader>
-          <CardContent className="flex justify-center px-4">
-            <div className="mx-auto flex w-full max-w-md justify-center *:mx-auto">{children}</div>
+          <CardContent className="flex justify-center px-0">
+            <div className="w-full">{children}</div>
           </CardContent>
         </Card>
       </div>

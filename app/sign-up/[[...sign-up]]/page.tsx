@@ -63,9 +63,9 @@ export default function SignUpPage() {
           event.preventDefault();
           void submit();
         }}
-        className="flex w-full flex-col gap-4"
+        className="flex w-full flex-col gap-5 animate-fade-in"
       >
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
+        <label className="flex flex-col gap-2 text-sm font-medium text-[var(--foreground)]">
           Display name
           <Input
             type="text"
@@ -76,9 +76,10 @@ export default function SignUpPage() {
             value={displayName}
             onChange={(event) => setDisplayName(event.target.value)}
             placeholder="Ada Lovelace"
+            className="h-12 px-4 rounded-xl border-[var(--panel-border-strong)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-all bg-[var(--surface-strong)] hover:bg-[var(--surface)]"
           />
         </label>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
+        <label className="flex flex-col gap-2 text-sm font-medium text-[var(--foreground)]">
           Email
           <Input
             type="email"
@@ -87,9 +88,10 @@ export default function SignUpPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
+            className="h-12 px-4 rounded-xl border-[var(--panel-border-strong)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-all bg-[var(--surface-strong)] hover:bg-[var(--surface)]"
           />
         </label>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-(--muted)">
+        <label className="flex flex-col gap-2 text-sm font-medium text-[var(--foreground)]">
           Password
           <div className="relative">
             <Input
@@ -99,35 +101,38 @@ export default function SignUpPage() {
               minLength={12}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="pr-11"
+              className="h-12 pl-4 pr-12 rounded-xl border-[var(--panel-border-strong)] focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-all bg-[var(--surface-strong)] hover:bg-[var(--surface)] w-full"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex items-center px-3 text-(--muted) hover:text-foreground transition-colors"
+              className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors rounded-r-xl"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          <span className="text-[10px] font-mono text-(--muted)">
+          <span className="text-xs text-[var(--muted)]">
             12+ characters, at least 3 of: uppercase, lowercase, number, symbol.
           </span>
         </label>
         {error ? (
-          <p className="border-2 border-(--panel-border) bg-(--surface) px-3 py-2 text-xs font-mono text-(--danger,#b00020)">
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 animate-slide-up">
             {error}
           </p>
         ) : null}
-        <Button type="submit" disabled={submitting} className="mt-2">
-          {submitting ? "Creating account…" : "Create account"}
+        <Button 
+          type="submit" 
+          disabled={submitting} 
+          className="h-12 mt-4 text-base font-semibold rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-soft)] text-white shadow-lg shadow-[var(--accent-glow)] transition-all hover:scale-[1.02] active:scale-95"
+        >
+          {submitting ? "Signing up…" : "Sign up"}
         </Button>
-        <p className="text-xs font-mono text-(--muted)">
+        <p className="mt-4 text-center text-sm text-[var(--muted)]">
           Already have an account?{" "}
-          <Link href="/sign-in" className="underline underline-offset-4">
+          <Link href="/sign-in" className="font-semibold text-[var(--foreground)] hover:text-[var(--accent)] transition-colors">
             Sign in
           </Link>
-          .
         </p>
       </form>
     </AuthShell>

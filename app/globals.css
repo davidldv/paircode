@@ -1,73 +1,88 @@
 @import "tailwindcss";
 
+@theme {
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-up: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
 :root {
-  --background: #f4f4f0;
-  --foreground: #0a0a0a;
+  --background: #fdfdfd;
+  --foreground: #111827;
   --surface: #ffffff;
-  --surface-strong: #ebebeb;
+  --surface-strong: #f3f4f6;
   --panel: #ffffff;
-  --panel-soft: #fbfbfb;
-  --panel-strong: #efefef;
-  --panel-border: #000000;
-  --panel-border-strong: #000000;
-  --panel-shadow: 4px 4px 0px 0px #0a0a0a;
-  --line: #0a0a0a;
-  --muted: #666666;
-  --accent: #ff4500;
-  --accent-soft: #ff8c66;
-  --accent-glow: rgba(255, 69, 0, 0.15);
-  --success: #00e676;
-  --focus-ring: rgba(255, 69, 0, 0.4);
-  --spot-a: rgba(255, 69, 0, 0.08);
-  --spot-b: rgba(0, 0, 0, 0.04);
-  --spot-c: rgba(59, 0, 255, 0.06);
-  --overlay-a: rgba(244, 244, 240, 0.95);
-  --overlay-b: rgba(244, 244, 240, 0.85);
-  --noise-stroke: rgba(0, 0, 0, 0.1);
-  /* Brutalist AI Agent Theme */
-  --agent-card-border: #3b00ff;
-  --agent-card-bg-a: #eef1ff;
-  --agent-card-bg-b: #e4e9ff;
-  --agent-avatar-bg: #3b00ff;
+  --panel-soft: #f9fafb;
+  --panel-strong: #e5e7eb;
+  --panel-border: #e5e7eb;
+  --panel-border-strong: #d1d5db;
+  --panel-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --line: #e5e7eb;
+  --muted: #6b7280;
+  --accent: #f97316;
+  --accent-soft: #ffedd5;
+  --accent-glow: rgba(249, 115, 22, 0.15);
+  --success: #10b981;
+  --focus-ring: rgba(249, 115, 22, 0.4);
+  --spot-a: rgba(249, 115, 22, 0.05);
+  --spot-b: rgba(0, 0, 0, 0.02);
+  --spot-c: rgba(59, 130, 246, 0.05);
+  --overlay-a: rgba(255, 255, 255, 0.95);
+  --overlay-b: rgba(255, 255, 255, 0.85);
+  --noise-stroke: rgba(0, 0, 0, 0.03);
+  /* Modern AI Agent Theme */
+  --agent-card-border: #e0e7ff;
+  --agent-card-bg-a: #ffffff;
+  --agent-card-bg-b: #f8fafc;
+  --agent-avatar-bg: #4f46e5;
   --agent-avatar-text: #ffffff;
-  --agent-badge-bg: #ffffff;
-  --agent-badge-border: #3b00ff;
-  --agent-badge-text: #3b00ff;
+  --agent-badge-bg: #e0e7ff;
+  --agent-badge-border: transparent;
+  --agent-badge-text: #4338ca;
 }
 
 html[data-theme="dark"] {
-  --background: #09090b;
-  --foreground: #f4f4f0;
-  --surface: #141417;
-  --surface-strong: #1f1f24;
-  --panel: #111113;
-  --panel-soft: #17171a;
-  --panel-strong: #1e1e22;
-  --panel-border: #f4f4f0;
-  --panel-border-strong: #f4f4f0;
-  --panel-shadow: 4px 4px 0px 0px #ff4500;
-  --line: #f4f4f0;
-  --muted: #a1a1aa;
-  --accent: #ff4500;
-  --accent-soft: #ff6a33;
-  --accent-glow: rgba(255, 69, 0, 0.25);
-  --success: #00e676;
-  --focus-ring: rgba(255, 69, 0, 0.4);
-  --spot-a: rgba(255, 69, 0, 0.15);
-  --spot-b: rgba(244, 244, 240, 0.05);
-  --spot-c: rgba(183, 0, 255, 0.1);
-  --overlay-a: rgba(9, 9, 11, 0.95);
-  --overlay-b: rgba(9, 9, 11, 0.85);
-  --noise-stroke: rgba(244, 244, 240, 0.08);
-  /* Brutalist AI Agent Theme */
-  --agent-card-border: #b700ff;
-  --agent-card-bg-a: #1c002b;
-  --agent-card-bg-b: #13001c;
-  --agent-avatar-bg: #b700ff;
-  --agent-avatar-text: #141417;
-  --agent-badge-bg: #141417;
-  --agent-badge-border: #b700ff;
-  --agent-badge-text: #e6b3ff;
+  --background: #0f1115;
+  --foreground: #f9fafb;
+  --surface: #18191e;
+  --surface-strong: #22242a;
+  --panel: #141519;
+  --panel-soft: #1d1e24;
+  --panel-strong: #2a2b33;
+  --panel-border: #2a2b33;
+  --panel-border-strong: #3f4250;
+  --panel-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --line: #2a2b33;
+  --muted: #9ca3af;
+  --accent: #f97316;
+  --accent-soft: #ea580c;
+  --accent-glow: rgba(249, 115, 22, 0.25);
+  --success: #10b981;
+  --focus-ring: rgba(249, 115, 22, 0.4);
+  --spot-a: rgba(249, 115, 22, 0.1);
+  --spot-b: rgba(255, 255, 255, 0.02);
+  --spot-c: rgba(99, 102, 241, 0.1);
+  --overlay-a: rgba(15, 17, 21, 0.95);
+  --overlay-b: rgba(15, 17, 21, 0.85);
+  --noise-stroke: rgba(255, 255, 255, 0.03);
+  /* Modern AI Agent Theme */
+  --agent-card-border: #312e81;
+  --agent-card-bg-a: #1e1b4b;
+  --agent-card-bg-b: #18181b;
+  --agent-avatar-bg: #6366f1;
+  --agent-avatar-text: #ffffff;
+  --agent-badge-bg: #312e81;
+  --agent-badge-border: transparent;
+  --agent-badge-text: #e0e7ff;
 }
 
 @theme inline {
@@ -97,51 +112,46 @@ button:disabled {
   opacity: 0.5;
 }
 
-/* Sharp, blueprint-like grid background instead of blurs */
+/* Soft, modern backdrop instead of harsh blueprint */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: -1;
-  background-image: 
-    linear-gradient(var(--noise-stroke) 1px, transparent 1px),
-    linear-gradient(90deg, var(--noise-stroke) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: center center;
+  background-image: radial-gradient(var(--noise-stroke) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 h1, h2, h3, h4 {
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* Brutalist strict surface card */
+/* Modern soft surface card */
 .surface-card {
-  border: 2px solid var(--panel-border);
+  border: 1px solid var(--panel-border);
   background: var(--surface);
-  box-shadow: 4px 4px 0px 0px var(--line);
-  border-radius: 0; /* Remove rounded corners for brutalist feel */
-  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: var(--panel-shadow);
+  border-radius: 12px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .surface-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
 
 /* AI specific cards */
 .agent-card {
-  border: 2px solid var(--agent-card-border);
+  border: 1px solid var(--agent-card-border);
   background: var(--agent-card-bg-a);
-  box-shadow: 4px 4px 0px 0px var(--agent-card-border);
-  border-radius: 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--panel-shadow);
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .agent-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px var(--agent-card-border);
+  transform: translateY(-4px);
 }
 
 .mono-label {
