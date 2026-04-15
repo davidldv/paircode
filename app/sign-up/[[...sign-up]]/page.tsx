@@ -36,6 +36,8 @@ export default function SignUpPage() {
             : authError.code === "weak_password"
               ? authError.detail ??
                 "Password must be at least 12 characters and include 3 of: uppercase, lowercase, number, symbol."
+            : authError.code === "auth_misconfigured" || authError.status === 500
+              ? "Authentication is temporarily misconfigured. Please contact support."
               : authError.code === "invalid_input" || authError.status === 400
                 ? "Please check your details — all fields are required and your email must be valid."
                 : authError.code === "rate_limited" || authError.status === 429
@@ -102,7 +104,7 @@ export default function SignUpPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex items-center px-3 text-(--muted) hover:text-(--foreground) transition-colors"
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-(--muted) hover:text-foreground transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}

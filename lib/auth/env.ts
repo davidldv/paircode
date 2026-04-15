@@ -12,7 +12,13 @@ function normalizedMultilineSecret(name: string): string {
     (raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))
       ? raw.slice(1, -1)
       : raw;
-  return unquoted.replace(/\\n/g, "\n").trim();
+  return unquoted
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\\r/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\\\n/g, "\n")
+    .trim();
 }
 
 export const AUTH_ENV = {

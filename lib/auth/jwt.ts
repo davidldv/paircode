@@ -14,9 +14,19 @@ let cachedKeys: KeyPair | null = null;
 
 async function loadKeys(): Promise<KeyPair> {
   if (cachedKeys) return cachedKeys;
+  const privatePem = AUTH_ENV.jwtPrivateKey;
+  const publicPem = AUTH_ENV.jwtPublicKey;
+
+  if (!privatePem.includes("BEGIN PRIVATE KEY")) {
+    throw new Error("invalid_jwt_private_key_format");
+  }
+  if (!publicPem.includes("BEGIN PUBLIC KEY")) {
+    throw new Error("invalid_jwt_public_key_format");
+  }
+
   const [privateKey, publicKey] = await Promise.all([
-    importPKCS8(AUTH_ENV.jwtPrivateKey, ALG),
-    importSPKI(AUTH_ENV.jwtPublicKey, ALG),
+    importPKCS8(privatePem, ALG),
+    importSPKI(publicPem, ALG),
   ]);
   cachedKeys = { privateKey, publicKey, kid: AUTH_ENV.jwtKid };
   return cachedKeys;

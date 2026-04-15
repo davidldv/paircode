@@ -83,16 +83,26 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
+    const reason = error instanceof Error ? error.message : "unknown_error";
+    const isAuthMisconfigured =
+      reason.includes("invalid_jwt_") ||
+      reason.toLowerCase().includes("pkcs8") ||
+      reason.toLowerCase().includes("spki") ||
+      reason.includes("Missing required environment variable: JWT_");
+
     await logSecurityEvent({
       kind: "auth.signup.error",
       severity: "crit",
       ipHash,
       metadata: {
         ua,
-        reason: error instanceof Error ? error.message : "unknown_error",
+        reason,
       },
     });
-    return NextResponse.json({ error: "signup_unavailable" }, { status: 503 });
+    return NextResponse.json(
+      { error: isAuthMisconfigured ? "auth_misconfigured" : "signup_unavailable" },
+      { status: isAuthMisconfigured ? 500 : 503 },
+    );
   }
 }
 

@@ -36,6 +36,8 @@ export default function SignInPage() {
             ? "Incorrect email or password."
             : authError.code === "invalid_input" || authError.status === 400
               ? "Check your email and password format. Password must be at least 12 characters."
+            : authError.code === "auth_misconfigured" || authError.status === 500
+              ? "Authentication is temporarily misconfigured. Please contact support."
             : authError.code === "account_locked" || authError.status === 423
               ? "Account temporarily locked due to too many failed attempts."
               : authError.code === "rate_limited" || authError.status === 429
@@ -88,7 +90,7 @@ export default function SignInPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex items-center px-3 text-(--muted) hover:text-(--foreground) transition-colors"
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-(--muted) hover:text-foreground transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
