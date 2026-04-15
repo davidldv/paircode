@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UserCircle2 } from "lucide-react";
 
 import { AuthShell } from "@/components/paircode/auth-shell";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,23 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
+
+  async function submitGuest() {
+    setError("");
+    setGuestSubmitting(true);
+    try {
+      const res = await authFetch("/api/auth/guest", { method: "POST" });
+      if (!res.ok) {
+        setError("Could not create guest session. Please try regular sign in.");
+        return;
+      }
+      router.replace(nextPath.startsWith("/") ? nextPath : "/");
+      router.refresh();
+    } finally {
+      setGuestSubmitting(false);
+    }
+  }
 
   async function submit() {
     setError("");
@@ -103,13 +120,31 @@ export default function SignInPage() {
             {error}
           </p>
         ) : null}
-        <Button 
-          type="submit" 
-          disabled={submitting} 
-          className="h-12 mt-4 text-base font-semibold rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-soft)] text-white shadow-lg shadow-[var(--accent-glow)] transition-all hover:scale-[1.02] active:scale-95"
-        >
-          {submitting ? "Signing in…" : "Sign in"}
-        </Button>
+        
+        <div className="flex flex-col gap-3 mt-4">
+          <Button 
+            type="submit" 
+            disabled={submitting || guestSubmitting} 
+            className="h-12 text-base font-semibold rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-soft)] text-white shadow-lg shadow-[var(--accent-glow)] transition-all hover:scale-[1.02] active:scale-95"
+          >
+            {submitting ? "Signing in…" : "Sign in"}
+          </Button>
+
+          <Button 
+            type="button" 
+            onClick={submitGuest}
+            variant="secondary"
+            disabled={submitting || guestSubmitting} 
+            className="h-12 text-base font-semibold rounded-xl border border-[var(--panel-border)] bg-[var(--surface-strong)] hover:bg-[var(--surface)] text-[var(--foreground)] transition-all hover:scale-[1.02] active:scale-95"
+          >
+            {guestSubmitting ? "Creating guest session…" : (
+              <>
+                <UserCircle2 className="w-5 h-5 mr-2" /> Try as Guest
+              </>
+            )}
+          </Button>
+        </div>
+
         <p className="mt-4 text-center text-sm text-[var(--muted)]">
           No account yet?{" "}
           <Link href="/sign-up" className="font-semibold text-[var(--foreground)] hover:text-[var(--accent)] transition-colors">
