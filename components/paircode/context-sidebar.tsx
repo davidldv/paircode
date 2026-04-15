@@ -127,11 +127,11 @@ export function ContextSidebar({
       </Card>
 
       <Card className="section-panel stage-4 border border-(--panel-border) bg-(--surface) shadow-sm rounded-xl">
-        <CardHeader className="border-b-2 border-(--panel-border) bg-(--agent-card-border) text-(--background)">
-          <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-(--background)">
-            <Sparkles className="h-5 w-5" /> Room Agent
-          </CardTitle>
-          <CardDescription className="leading-6 font-mono text-(--background) opacity-90 text-xs">Ask, summarize, and generate practical next steps from room context.</CardDescription>
+          <CardHeader className="border-b border-(--panel-border) bg-(--accent-glow) text-(--accent) rounded-t-xl">
+            <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-(--accent)">
+              <Sparkles className="h-5 w-5" /> Room Agent
+            </CardTitle>
+            <CardDescription className="leading-6 font-mono text-(--foreground) opacity-90 text-xs">Ask, summarize, and generate practical next steps from room context.</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <Textarea
@@ -145,7 +145,7 @@ export function ContextSidebar({
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Button
-              className={`flex-1 border border-(--panel-border) rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "answer" ? "bg-(--agent-card-border) text-(--background) shadow-sm" : "bg-(--surface-strong) text-foreground hover:shadow-sm"}`}
+              className={`flex-1 border border-(--panel-border) rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "answer" ? "bg-(--accent) text-white border-transparent shadow-sm" : "bg-(--surface-strong) text-foreground hover:shadow-sm"}`}
               type="button"
               onClick={() => {
                 onSelectMode("answer");
@@ -156,7 +156,7 @@ export function ContextSidebar({
               <Bot className="h-3.5 w-3.5 mr-1" /> Ask
             </Button>
             <Button
-              className={`flex-1 border border-(--panel-border) rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "summarize" ? "bg-(--agent-card-border) text-(--background) shadow-sm" : "bg-(--surface-strong) text-foreground hover:shadow-sm"}`}
+              className={`flex-1 border border-(--panel-border) rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "summarize" ? "bg-(--accent) text-white border-transparent shadow-sm" : "bg-(--surface-strong) text-foreground hover:shadow-sm"}`}
               type="button"
               onClick={() => {
                 onSelectMode("summarize");
@@ -167,7 +167,7 @@ export function ContextSidebar({
               Summarize
             </Button>
             <Button
-              className={`flex-1 border border-(--panel-border) rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "next-steps" ? "bg-(--agent-card-border) text-(--background) shadow-sm" : "bg-(--surface-strong) text-foreground hover:shadow-sm"}`}
+              className={`flex-1 border border-(--panel-border) rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm transition-all hover:-translate-y-0.5  ${agentMode === "next-steps" ? "bg-(--accent) text-white border-transparent shadow-sm" : "bg-(--surface-strong) text-foreground hover:shadow-sm"}`}
               type="button"
               onClick={() => {
                 onSelectMode("next-steps");

@@ -68,7 +68,7 @@ async function* streamOpenAI(prompt: string) {
         {
           role: "system",
           content:
-            "You are a collaborative room AI pair programmer. Provide concise and practical guidance with concrete steps.",
+            "You are a collaborative room AI pair programmer. Provide concise and practical guidance with concrete steps. VERY IMPORTANT: Do NOT use markdown formatting, asterisks, bold, italics, headers, or any markdown syntax. Output plain text only.",
         },
         { role: "user", content: prompt },
       ],
@@ -121,7 +121,7 @@ async function* streamGemini(prompt: string) {
         {
           role: "system",
           content:
-            "You are a collaborative room AI pair programmer. Provide concise and practical guidance with concrete steps.",
+            "You are a collaborative room AI pair programmer. Provide concise and practical guidance with concrete steps. VERY IMPORTANT: Do NOT use markdown formatting, asterisks, bold, italics, headers, or any markdown syntax. Output plain text only.",
         },
         { role: "user", content: prompt },
       ],

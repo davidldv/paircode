@@ -40,14 +40,14 @@
   --overlay-b: rgba(255, 255, 255, 0.85);
   --noise-stroke: rgba(0, 0, 0, 0.03);
   /* Modern AI Agent Theme */
-  --agent-card-border: #e0e7ff;
-  --agent-card-bg-a: #ffffff;
-  --agent-card-bg-b: #f8fafc;
-  --agent-avatar-bg: #4f46e5;
-  --agent-avatar-text: #ffffff;
-  --agent-badge-bg: #e0e7ff;
+  --agent-card-border: var(--accent-glow);
+  --agent-card-bg-a: rgba(99, 102, 241, 0.03); /* Subtle blueish tint */
+  --agent-card-bg-b: transparent;
+  --agent-avatar-bg: var(--accent);
+  --agent-avatar-text: var(--background);
+  --agent-badge-bg: var(--accent-glow);
   --agent-badge-border: transparent;
-  --agent-badge-text: #4338ca;
+  --agent-badge-text: var(--accent);
 }
 
 html[data-theme="dark"] {
@@ -75,14 +75,14 @@ html[data-theme="dark"] {
   --overlay-b: rgba(15, 17, 21, 0.85);
   --noise-stroke: rgba(255, 255, 255, 0.03);
   /* Modern AI Agent Theme */
-  --agent-card-border: #312e81;
-  --agent-card-bg-a: #1e1b4b;
-  --agent-card-bg-b: #18181b;
-  --agent-avatar-bg: #6366f1;
-  --agent-avatar-text: #ffffff;
-  --agent-badge-bg: #312e81;
+  --agent-card-border: var(--accent-glow);
+  --agent-card-bg-a: rgba(129, 140, 248, 0.05); /* Subtle glowing tint in dark */
+  --agent-card-bg-b: transparent;
+  --agent-avatar-bg: var(--accent);
+  --agent-avatar-text: var(--background);
+  --agent-badge-bg: var(--accent-glow);
   --agent-badge-border: transparent;
-  --agent-badge-text: #e0e7ff;
+  --agent-badge-text: var(--accent);
 }
 
 @theme inline {
