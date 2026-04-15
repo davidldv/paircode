@@ -8,6 +8,7 @@ const PUBLIC_PAGE_PREFIXES = ["/sign-in", "/sign-up", "/brand"];
 const PUBLIC_API_ROUTES = new Set([
   "/api/auth/login",
   "/api/auth/signup",
+  "/api/auth/guest",
   "/api/auth/refresh",
   "/api/auth/logout",
   "/api/health",
