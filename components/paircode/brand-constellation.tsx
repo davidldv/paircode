@@ -1,27 +1,29 @@
+import { History, Layers, Radio, Sparkles, type LucideIcon } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
-const capabilityCards = [
+const capabilityCards: { title: string; description: string; icon: LucideIcon }[] = [
   {
     title: "Persistent Context",
     description: "Threaded room context keeps files, requirements, and decisions visible to everyone.",
-    icon: "/brand/context-thread.svg",
+    icon: Layers,
   },
   {
     title: "Live Presence",
     description: "Operators, memberships, and join state stay synchronized while the room is active.",
-    icon: "/brand/live-presence.svg",
+    icon: Radio,
   },
   {
     title: "AI Facilitation",
     description: "The room agent works from the shared implementation surface instead of isolated prompts.",
-    icon: "/brand/ai-facilitation.svg",
+    icon: Sparkles,
   },
   {
     title: "Implementation History",
     description: "Audit events and room messages persist so the team can reconnect without losing context.",
-    icon: "/brand/implementation-history.svg",
+    icon: History,
   },
-] as const;
+];
 
 type BrandConstellationProps = {
   compact?: boolean;
@@ -67,7 +69,7 @@ export function BrandConstellation({ compact = false, className }: BrandConstell
           >
             <div className="flex flex-col gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-(--accent-tint) text-(--accent) transition-transform duration-300 group-hover:scale-105">
-                <img src={card.icon} alt="" width={20} height={20} aria-hidden className="opacity-90" />
+                <card.icon className="h-[18px] w-[18px]" aria-hidden strokeWidth={2} />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-medium text-foreground">{card.title}</p>
