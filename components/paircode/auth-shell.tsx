@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 
 import { BrandConstellation } from "@/components/paircode/brand-constellation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 type AuthShellProps = {
   title: string;
@@ -11,45 +10,56 @@ type AuthShellProps = {
 
 export function AuthShell({ title, description, children }: AuthShellProps) {
   return (
-    <main className="app-shell relative min-h-screen bg-background text-foreground selection:bg-(--accent) selection:text-background">
-      <div className="mx-auto grid min-h-screen w-full max-w-7xl items-center gap-8 px-4 py-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,540px)] lg:px-8">
-        <section className="fade-up space-y-6">
-          <div className="space-y-4">
-            <h1 className="text-4xl leading-none sm:text-5xl">{title}</h1>
-            <p className="max-w-2xl text-base leading-7 text-(--muted)">{description}</p>
+    <main className="relative min-h-screen bg-background text-foreground selection:bg-(--accent) selection:text-(--accent-contrast)">
+      <div className="mx-auto grid min-h-screen w-full max-w-7xl items-center gap-10 px-4 py-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(400px,500px)] lg:px-8">
+        <section className="fade-up space-y-8">
+          <div className="space-y-5">
+            <div className="inline-flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--surface) ring-1 ring-(--panel-border)">
+                <img src="/brand/paircode-mark.svg" alt="" width={20} height={20} className="opacity-90" />
+              </div>
+              <span className="text-sm font-semibold tracking-tight text-foreground">PairCode</span>
+            </div>
+            <h1 className="max-w-2xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+              {title}
+            </h1>
+            <p className="max-w-xl text-base leading-7 text-(--muted)">{description}</p>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             <div className="metric-tile">
-              <p className="mono-label text-[10px] text-(--muted)">Persistent context</p>
-              <p className="mt-2 text-sm font-semibold text-foreground">Threaded room context and implementation history survive reconnects.</p>
+              <p className="mono-label text-[11px] text-(--accent)">Persistent context</p>
+              <p className="mt-2 text-sm leading-relaxed text-foreground">
+                Threaded room context and implementation history survive reconnects.
+              </p>
             </div>
             <div className="metric-tile">
-              <p className="mono-label text-[10px] text-(--muted)">Authenticated operators</p>
-              <p className="mt-2 text-sm font-semibold text-foreground">Each collaborator enters the workspace with a verified engineering identity.</p>
+              <p className="mono-label text-[11px] text-(--accent)">Authenticated operators</p>
+              <p className="mt-2 text-sm leading-relaxed text-foreground">
+                Each collaborator enters the workspace with a verified engineering identity.
+              </p>
             </div>
             <div className="metric-tile">
-              <p className="mono-label text-[10px] text-(--muted)">Live facilitation</p>
-              <p className="mt-2 text-sm font-semibold text-foreground">Presence, AI facilitation, and room state stay synchronized for the whole team.</p>
+              <p className="mono-label text-[11px] text-(--accent)">Live facilitation</p>
+              <p className="mt-2 text-sm leading-relaxed text-foreground">
+                Presence, AI facilitation, and room state stay synchronized for the whole team.
+              </p>
             </div>
           </div>
 
           <BrandConstellation />
         </section>
 
-        <Card className="hero-shell fade-up-delay mx-auto w-full max-w-xl border border-(--panel-border) bg-(--surface) p-8 shadow-xl rounded-2xl transition-all duration-500 animate-slide-up">
-          <CardHeader className="space-y-4 pb-8 border-b border-(--panel-border) mb-8">
-            <div className="space-y-3">
-              <CardTitle className="text-3xl font-bold tracking-tight text-foreground">Enter PairCode</CardTitle>
-              <CardDescription className="text-base leading-relaxed text-(--muted)">
-                Authenticate to access collaborative engineering rooms with persistent context, live presence, and AI facilitation.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="flex justify-center px-0">
-            <div className="w-full">{children}</div>
-          </CardContent>
-        </Card>
+        <div className="hero-shell fade-up-delay mx-auto w-full max-w-md p-8">
+          <div className="mb-8 space-y-2 border-b border-(--panel-border) pb-7">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground">Enter PairCode</h2>
+            <p className="text-sm leading-relaxed text-(--muted)">
+              Authenticate to access collaborative engineering rooms with persistent context, live presence, and AI
+              facilitation.
+            </p>
+          </div>
+          {children}
+        </div>
       </div>
     </main>
   );

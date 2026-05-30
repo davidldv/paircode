@@ -38,7 +38,7 @@ function ScrollBar({ className, orientation = "vertical", ...props }: React.Comp
       )}
       {...props}
     >
-      <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-(--accent-soft)" />
+      <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-(--panel-border-strong) transition-colors hover:bg-(--muted)" />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>
   );
 }

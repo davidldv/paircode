@@ -1,4 +1,4 @@
-import { Keyboard, ShieldMinus, Users } from "lucide-react";
+import { Lightbulb, ShieldMinus, UserRound, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,20 @@ type PresenceSidebarProps = {
   onRemoveMember: (memberUserId: string, memberName: string) => void;
 };
 
+function PanelHeading({ icon, title, count }: { icon: React.ReactNode; title: string; count?: number }) {
+  return (
+    <CardHeader className="flex-row items-center justify-between border-b border-(--panel-border) py-4">
+      <CardTitle className="flex items-center gap-2.5 text-[15px]">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-tint) text-(--accent)">
+          {icon}
+        </span>
+        {title}
+      </CardTitle>
+      {typeof count === "number" ? <Badge>{count}</Badge> : null}
+    </CardHeader>
+  );
+}
+
 export function PresenceSidebar({
   users,
   roomMembers,
@@ -28,98 +42,106 @@ export function PresenceSidebar({
   const connectedMemberIds = new Set(users.map((user) => user.userId).filter(Boolean));
 
   return (
-    <aside className="space-y-6">
-      <Card className="section-panel stage-1 border border-(--panel-border) bg-(--surface) shadow-sm rounded-xl">
-        <CardHeader className="border-b-2 border-(--panel-border) bg-(--surface-strong)">
-          <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-foreground">
-            <Users className="h-5 w-5 text-(--accent)" /> Team Presence
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <ul className="space-y-3">
+    <aside className="space-y-5">
+      <Card className="section-panel stage-1">
+        <PanelHeading icon={<Users className="h-4 w-4" />} title="Team Presence" count={users.length} />
+        <CardContent className="p-3">
+          <ul className="space-y-1.5">
             {users.map((user) => (
-              <li key={user.id} className="flex items-center justify-between border border-(--panel-border) bg-(--surface-strong) px-3 py-2.5 text-sm shadow-sm">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-7 w-7 border border-(--panel-border) rounded-xl">
-                    <AvatarFallback className="rounded-xl bg-background font-bold text-[10px] text-foreground">{initialsFromName(user.name)}</AvatarFallback>
-                  </Avatar>
-                  <span className="font-extrabold uppercase tracking-wide">{user.name}</span>
+              <li
+                key={user.id}
+                className="flex items-center justify-between rounded-xl px-2.5 py-2 transition-colors hover:bg-(--surface-strong)"
+              >
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className="relative">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-[11px]">{initialsFromName(user.name)}</AvatarFallback>
+                    </Avatar>
+                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-(--success) ring-2 ring-(--surface)" />
+                  </span>
+                  <span className="truncate text-sm font-medium text-foreground">{user.name}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex shrink-0 items-center gap-1.5">
                   {roomOwner?.userId === user.userId ? (
-                    <Badge className="border border-(--panel-border) bg-(--accent) text-(--background) rounded-xl font-bold">OWNER</Badge>
+                    <Badge className="border-transparent bg-(--accent-tint) text-(--accent)">Owner</Badge>
                   ) : null}
-                  {user.id === mySocketId ? <Badge className="border border-(--panel-border) bg-(--foreground) text-(--background) rounded-xl font-bold hover:bg-(--foreground)">YOU</Badge> : null}
+                  {user.id === mySocketId ? <Badge>You</Badge> : null}
                 </div>
               </li>
             ))}
           </ul>
-          {users.length === 0 ? <p className="mt-3 text-xs font-mono font-bold uppercase text-(--muted)">Join a room to see active collaborators.</p> : null}
+          {users.length === 0 ? (
+            <p className="px-2.5 py-2 text-sm text-(--muted)">Join a room to see active collaborators.</p>
+          ) : null}
         </CardContent>
       </Card>
 
-      <Card className="section-panel stage-2 border border-(--panel-border) bg-(--surface) shadow-sm rounded-xl">
-        <CardHeader className="border-b-2 border-(--panel-border) bg-(--surface-strong)">
-          <CardTitle className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-foreground">
-            <Users className="h-5 w-5 text-(--accent)" /> Room Members
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <ul className="space-y-3">
+      <Card className="section-panel stage-2">
+        <PanelHeading icon={<UserRound className="h-4 w-4" />} title="Room Members" count={roomMembers.length} />
+        <CardContent className="p-3">
+          <ul className="space-y-1.5">
             {roomMembers.map((member) => {
               const isOwner = member.role === "owner" || roomOwner?.userId === member.userId;
               const isSelf = currentUserId === member.userId;
               const isConnected = connectedMemberIds.has(member.userId);
 
               return (
-                <li key={member.userId} className="border border-(--panel-border) bg-(--surface-strong) px-3 py-2.5 text-sm shadow-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <Avatar className="h-7 w-7 border border-(--panel-border) rounded-xl">
-                        <AvatarFallback className="rounded-xl bg-background font-bold text-[10px] text-foreground">{initialsFromName(member.name)}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="truncate font-extrabold uppercase tracking-wide text-foreground">{member.name}</p>
-                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                          {isConnected ? <Badge className="border border-(--panel-border) bg-(--success) text-(--background) rounded-xl font-bold">ONLINE</Badge> : <Badge className="border border-(--panel-border) bg-background text-(--muted) rounded-xl font-bold">OFFLINE</Badge>}
-                          {isOwner ? <Badge className="border border-(--panel-border) bg-(--accent) text-(--background) rounded-xl font-bold">OWNER</Badge> : null}
-                          {isSelf ? <Badge className="border border-(--panel-border) bg-(--foreground) text-(--background) rounded-xl font-bold hover:bg-(--foreground)">YOU</Badge> : null}
-                        </div>
+                <li
+                  key={member.userId}
+                  className="flex items-center justify-between gap-3 rounded-xl px-2.5 py-2 transition-colors hover:bg-(--surface-strong)"
+                >
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-[11px]">{initialsFromName(member.name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{member.name}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                        {isConnected ? (
+                          <Badge variant="success">Online</Badge>
+                        ) : (
+                          <Badge>Offline</Badge>
+                        )}
+                        {isOwner ? (
+                          <Badge className="border-transparent bg-(--accent-tint) text-(--accent)">Owner</Badge>
+                        ) : null}
+                        {isSelf ? <Badge>You</Badge> : null}
                       </div>
                     </div>
-
-                    {canManageRoom && !isOwner ? (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="shrink-0 border border-transparent hover:border-(--panel-border) rounded-xl font-bold tracking-wider uppercase text-[10px] hover:shadow-sm transition-all"
-                        onClick={() => onRemoveMember(member.userId, member.name)}
-                      >
-                        <ShieldMinus className="h-4 w-4 mr-1" /> RMV
-                      </Button>
-                    ) : null}
                   </div>
+
+                  {canManageRoom && !isOwner ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0 text-(--muted) hover:text-(--danger)"
+                      aria-label={`Remove ${member.name}`}
+                      title={`Remove ${member.name}`}
+                      onClick={() => onRemoveMember(member.userId, member.name)}
+                    >
+                      <ShieldMinus className="h-4 w-4" />
+                    </Button>
+                  ) : null}
                 </li>
               );
             })}
           </ul>
-          {roomMembers.length === 0 ? <p className="mt-3 text-xs font-mono font-bold uppercase text-(--muted)">Join a room to load its persisted member list.</p> : null}
+          {roomMembers.length === 0 ? (
+            <p className="px-2.5 py-2 text-sm text-(--muted)">Join a room to load its persisted member list.</p>
+          ) : null}
         </CardContent>
       </Card>
 
-      <Card className="section-panel stage-3 border border-(--panel-border) bg-(--surface) shadow-sm rounded-xl">
-        <CardHeader className="border-b-2 border-(--panel-border) bg-(--surface-strong)">
-          <CardTitle className="text-lg font-black uppercase tracking-widest text-foreground">Workflow Tips</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 pt-6 text-sm text-foreground font-mono">
-          <p className="leading-6">Open a second tab to simulate another teammate in the same room.</p>
-          <p className="leading-6">Pin important file paths and requirements before invoking the room agent.</p>
-          <p className="leading-6">Press Enter to send quickly during active discussion.</p>
-          <div className="panel-rule my-4" />
-          <p className="flex items-center gap-2 text-xs font-bold bg-(--accent) text-(--background) px-2 py-1 uppercase tracking-wider border border-(--panel-border)">
-            <Keyboard className="h-3.5 w-3.5" /> Shift+M jumps to message input.
-          </p>
+      <Card className="section-panel stage-3">
+        <PanelHeading icon={<Lightbulb className="h-4 w-4" />} title="Workflow Tips" />
+        <CardContent className="space-y-3 p-5 text-sm leading-relaxed text-(--muted)">
+          <p>Open a second tab to simulate another teammate in the same room.</p>
+          <p>Pin important file paths and requirements before invoking the room agent.</p>
+          <p>Press Enter to send quickly during active discussion.</p>
+          <div className="mt-4 flex items-center gap-2 rounded-lg bg-(--accent-tint) px-3 py-2 text-xs font-medium text-(--accent)">
+            <Lightbulb className="h-3.5 w-3.5" /> Shift + M jumps to the message input.
+          </div>
         </CardContent>
       </Card>
     </aside>

@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { ArrowDown, MessageSquareText, SendHorizontal } from "lucide-react";
+import { ArrowDown, MessageSquareText, SendHorizontal, Sparkles } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -45,43 +45,38 @@ export function MessagePanel({
   const canSendMessages = Boolean(activeRoom);
 
   return (
-    <Card className="subtle-grid section-panel stage-2 flex min-h-[66vh] flex-col overflow-hidden">
-      <CardHeader className="border-b border-(--panel-border)">
-        <div className="flex items-center justify-between gap-3">
-          <div className="space-y-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <MessageSquareText className="h-4 w-4 text-(--accent)" /> Message Stream
-            </CardTitle>
+    <Card className="section-panel stage-2 flex min-h-[68vh] flex-col overflow-hidden">
+      <CardHeader className="flex-row items-center justify-between gap-3 border-b border-(--panel-border) py-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-tint) text-(--accent)">
+            <MessageSquareText className="h-4 w-4" />
           </div>
-          <div className="text-right">
-            <Badge>{messages.length} items</Badge>
-            <p className="mt-2 text-xs text-(--muted)">Live implementation notes, blockers, and AI guidance.</p>
+          <div>
+            <CardTitle className="text-[15px]">Message Stream</CardTitle>
+            <p className="text-xs text-(--muted)">Notes, blockers, and AI guidance</p>
           </div>
         </div>
+        <Badge>{messages.length} items</Badge>
       </CardHeader>
 
-      <CardContent className="flex flex-1 flex-col gap-4 p-4 min-h-0">
+      <CardContent className="flex min-h-0 flex-1 flex-col gap-3 p-3 md:p-4">
         <ScrollArea className="min-h-0 flex-1 pr-2" viewportRef={messageViewportRef} onViewportScroll={onMessageViewportScroll}>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {messages.map((message) => {
               const agentMessage = isAgentMessage(message);
               const systemMessage = isSystemMessage(message);
 
               if (systemMessage) {
                 return (
-                  <article
-                    key={message.id}
-                    className="border border-dashed border-(--panel-border) bg-(--surface-strong) px-4 py-3 text-sm shadow-sm"
-                  >
-                    <div className="flex items-center justify-between gap-3 text-xs text-(--muted)">
-                      <div className="flex items-center gap-2">
-                        <Badge className="border border-(--panel-border) bg-background text-foreground rounded-xl">AUDIT</Badge>
-                        <span className="font-medium text-foreground">{message.userName}</span>
-                      </div>
-                      <span className="mono-label text-[10px]">{formatTime(message.timestamp)}</span>
-                    </div>
-                    <p className="mt-2 leading-6 text-foreground">{message.text}</p>
-                  </article>
+                  <div key={message.id} className="flex items-center gap-2.5 px-1 py-1.5 text-xs text-(--muted)">
+                    <span className="h-px flex-1 bg-(--panel-border)" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <span className="font-medium text-foreground/70">{message.userName}</span>
+                      {message.text}
+                      <span className="mono-label opacity-60">{formatTime(message.timestamp)}</span>
+                    </span>
+                    <span className="h-px flex-1 bg-(--panel-border)" />
+                  </div>
                 );
               }
 
@@ -90,39 +85,54 @@ export function MessagePanel({
                   key={message.id}
                   className={
                     agentMessage
-                      ? "border border-(--agent-card-border) bg-(--agent-card-bg-a) p-4 text-foreground shadow-sm"
-                      : "border border-(--panel-border) bg-(--surface) p-4 shadow-sm"
+                      ? "agent-card p-4"
+                      : "rounded-xl border border-(--panel-border) bg-(--surface) p-4 transition-colors hover:border-(--panel-border-strong)"
                   }
                 >
-                  <div className="mb-3 flex items-center justify-between gap-3 text-xs text-(--muted) border-b-2 border-(--panel-border) pb-2">
+                  <div className="mb-2.5 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6 border border-(--panel-border) rounded-xl">
-                        <AvatarFallback className={agentMessage ? "bg-(--agent-avatar-bg) text-(--agent-avatar-text) text-[10px] rounded-xl font-bold" : "bg-background text-foreground text-[10px] rounded-xl font-bold"}>
-                          {initialsFromName(message.userName)}
+                      <Avatar className="h-7 w-7">
+                        <AvatarFallback
+                          className={
+                            agentMessage
+                              ? "bg-(--agent-avatar-bg) text-[10px] font-semibold text-(--agent-avatar-text)"
+                              : "text-[10px] font-semibold"
+                          }
+                        >
+                          {agentMessage ? <Sparkles className="h-3.5 w-3.5" /> : initialsFromName(message.userName)}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-foreground">{message.userName}</span>
-                      {agentMessage ? <Badge className="border-(--agent-badge-border) bg-(--agent-badge-bg) text-(--agent-badge-text)">AI</Badge> : null}
+                      <span className="text-sm font-medium text-foreground">{message.userName}</span>
+                      {agentMessage ? (
+                        <span className="rounded-full bg-(--agent-badge-bg) px-2 py-0.5 text-[10px] font-semibold text-(--agent-badge-text)">
+                          AI
+                        </span>
+                      ) : null}
                     </div>
-                    <span className="mono-label text-[10px]">{formatTime(message.timestamp)}</span>
+                    <span className="mono-label text-[11px] text-(--muted)">{formatTime(message.timestamp)}</span>
                   </div>
-                  <pre className="whitespace-pre-wrap font-sans text-sm leading-7 text-foreground">
-                    {message.text || (message.isStreaming ? "..." : "")}
+                  <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground">
+                    {message.text || (message.isStreaming ? "…" : "")}
                   </pre>
                 </article>
               );
             })}
 
             {messages.length === 0 ? (
-              <div className="border border-dashed border-(--panel-border) bg-(--surface-strong) p-5 text-sm text-(--muted) shadow-sm">
-                <div className="section-kicker mb-3 mr-auto inline-flex bg-(--accent) text-(--background) font-bold px-2 py-1 uppercase tracking-wider border border-(--panel-border)">Ready State</div>
-                <p className="mb-2 text-base font-extrabold text-foreground">No messages yet. Start the conversation.</p>
-                <p className="mb-4 max-w-md leading-6 font-mono text-xs">Seed the room with a summary request, implementation direction, or decision log so everyone is working from the same thread.</p>
-                <div className="flex flex-wrap gap-2">
-                  <Button type="button" size="sm" variant="secondary" className="border border-(--panel-border) shadow-sm rounded-xl hover:-translate-y-0.5  hover:shadow-sm transition-all font-bold uppercase text-[10px]" onClick={onInsertStarter}>
+              <div className="flex flex-col items-center rounded-2xl border border-dashed border-(--panel-border) bg-(--surface-strong)/40 px-6 py-12 text-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-(--accent-tint) text-(--accent)">
+                  <MessageSquareText className="h-5 w-5" />
+                </div>
+                <p className="text-base font-semibold text-foreground">No messages yet</p>
+                <p className="mx-auto mt-1.5 max-w-sm text-sm leading-relaxed text-(--muted)">
+                  Seed the room with a summary request, implementation direction, or decision log so everyone works
+                  from the same thread.
+                </p>
+                <div className="mt-5 flex flex-wrap justify-center gap-2">
+                  <Button type="button" size="sm" onClick={onInsertStarter}>
                     Insert starter message
                   </Button>
-                  <Button type="button" size="sm" variant="ghost" className="border border-transparent hover:border-(--panel-border) rounded-xl font-bold uppercase text-[10px]" onClick={onFocusInput}>
+                  <Button type="button" size="sm" variant="secondary" onClick={onFocusInput}>
                     Focus input
                   </Button>
                 </div>
@@ -133,13 +143,13 @@ export function MessagePanel({
         </ScrollArea>
 
         {showJumpToLatest ? (
-          <div className="pointer-events-none -mt-2 flex justify-center">
+          <div className="pointer-events-none -mt-1 flex justify-center">
             <Button
               type="button"
               variant="secondary"
               size="sm"
               onClick={onJumpToLatest}
-              className="pointer-events-auto rounded-full px-4 shadow-[0_18px_36px_-24px_rgba(0,0,0,0.55)]"
+              className="pointer-events-auto rounded-full px-4 shadow-md"
             >
               <ArrowDown className="h-3.5 w-3.5" />
               Jump to latest
@@ -147,16 +157,14 @@ export function MessagePanel({
           </div>
         ) : null}
 
-        <div className="panel-rule" />
-
-        <div className="composer-shell p-3">
-          <div className="mb-2 h-4 font-mono text-[10px] tracking-wider text-(--muted) uppercase">
+        <div>
+          <div className="mb-1.5 h-4 px-1 text-xs text-(--muted)">
             {canSendMessages ? typingIndicator || "" : "Join a room to send messages to the shared stream."}
           </div>
-          <div className="flex gap-2">
+          <div className="composer-shell flex items-center gap-2 p-2">
             <Input
               ref={messageInputRef}
-              className="flex-1 border border-(--panel-border) shadow-sm focus-visible:shadow-sm focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5 transition-all text-sm rounded-xl"
+              className="h-10 flex-1 border-transparent bg-transparent shadow-none hover:border-transparent focus-visible:border-transparent focus-visible:bg-transparent focus-visible:ring-0"
               value={messageInput}
               disabled={!canSendMessages}
               onChange={(event) => onMessageInputChange(event.target.value)}
@@ -166,11 +174,16 @@ export function MessagePanel({
                   onSendMessage();
                 }
               }}
-              placeholder={canSendMessages ? "SHARE CONTEXT OR DECISIONS..." : "JOIN A ROOM TO UNLOCK STREAM..."}
+              placeholder={canSendMessages ? "Share context or decisions…" : "Join a room to unlock the stream…"}
             />
-            <Button type="button" onClick={onSendMessage} disabled={!canSendMessages || !messageInput.trim()} className="min-w-29.5 border border-(--panel-border) bg-(--accent) text-(--background) shadow-sm hover:shadow-sm hover:-translate-y-1  transition-all rounded-xl font-bold uppercase tracking-wider">
-              <SendHorizontal className="h-4 w-4 mr-2" />
-              SEND
+            <Button
+              type="button"
+              onClick={onSendMessage}
+              disabled={!canSendMessages || !messageInput.trim()}
+              className="h-10 shrink-0"
+            >
+              <SendHorizontal className="h-4 w-4" />
+              <span className="hidden sm:inline">Send</span>
             </Button>
           </div>
         </div>

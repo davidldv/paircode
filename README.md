@@ -21,6 +21,26 @@ Collaborative engineering room with persistent threaded context, live presence, 
 
 ## Architecture
 
+Full C4 model with sequence diagrams: [`docs/architecture-c4.md`](docs/architecture-c4.md).
+
+### System Context
+
+![System context — User, PairCode, Gemini API](docs/diagram1.jpg)
+
+### Containers
+
+![Containers — Web App, HTTP API, Realtime Server, PostgreSQL, Gemini](docs/diagram2.jpg)
+
+### Login → first WebSocket connection
+
+![Sequence — login, WS ticket issuance, realtime handshake](docs/diagram3.jpg)
+
+### AI assist inside a room
+
+![Sequence — RBAC, message persistence, Gemini SSE stream relay](docs/diagram4.jpg)
+
+### Code map
+
 - Next.js app UI: `app/page.tsx`
 - Auth middleware / route protection: `proxy.ts`
 - WebSocket room server: `server/ws-server.mjs`

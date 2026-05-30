@@ -5,21 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-none text-sm font-bold uppercase tracking-wider transition-transform duration-100 disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:shadow-[4px_4px_0px_0px_var(--accent)] focus-visible:-translate-y-0.5 focus-visible:-translate-x-0.5",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-sm font-medium transition-all duration-150 ease-out outline-none disabled:pointer-events-none disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:ring-offset-0 active:scale-[0.98] [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "border-2 border-(--panel-border) bg-(--accent) text-(--background) shadow-[2px_2px_0px_0px_var(--panel-border)] hover:shadow-[4px_4px_0px_0px_var(--panel-border)] hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0 active:shadow-[0px_0px_0px_0px_var(--panel-border)]",
+          "bg-(--accent) text-(--accent-contrast) shadow-sm hover:bg-(--accent-soft)",
         secondary:
-          "border-2 border-(--panel-border) bg-(--surface-strong) text-[color:var(--foreground)] shadow-[2px_2px_0px_0px_var(--panel-border)] hover:shadow-[4px_4px_0px_0px_var(--accent)] hover:-translate-y-1 hover:-translate-x-1 active:translate-y-0 active:translate-x-0 active:shadow-[0px_0px_0px_0px_var(--panel-border)]",
-        ghost: "border-2 border-transparent text-[color:var(--muted)] hover:border-(--panel-border) hover:text-[color:var(--foreground)] hover:shadow-[2px_2px_0px_0px_var(--panel-border)] hover:-translate-y-0.5 hover:-translate-x-0.5 active:translate-y-0 active:translate-x-0 active:shadow-[0px_0px_0px_0px_var(--panel-border)]",
+          "border border-(--panel-border) bg-(--surface) text-foreground hover:bg-(--surface-strong) hover:border-(--panel-border-strong)",
+        ghost:
+          "text-(--muted) hover:bg-(--surface-strong) hover:text-foreground",
       },
       size: {
-        default: "h-11 px-5 py-2",
-        sm: "h-8 px-3 text-xs",
-        lg: "h-12 px-8",
-        icon: "h-10 w-10",
+        default: "h-10 px-4",
+        sm: "h-8 px-3 text-[13px]",
+        lg: "h-11 px-6",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: {

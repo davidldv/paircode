@@ -80,9 +80,9 @@ export default function SignUpPage() {
           event.preventDefault();
           void submit();
         }}
-        className="flex w-full flex-col gap-5 animate-fade-in"
+        className="flex w-full flex-col gap-4 animate-fade-in"
       >
-        <label className="flex flex-col gap-2 text-sm font-medium text-foreground">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
           Display name
           <Input
             type="text"
@@ -93,10 +93,10 @@ export default function SignUpPage() {
             value={displayName}
             onChange={(event) => setDisplayName(event.target.value)}
             placeholder="Ada Lovelace"
-            className="h-12 px-4 rounded-xl border-(--panel-border-strong) focus-visible:ring-2 focus-visible:ring-(--focus-ring) transition-all bg-(--surface-strong) hover:bg-(--surface)"
+            className="h-11"
           />
         </label>
-        <label className="flex flex-col gap-2 text-sm font-medium text-foreground">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
           Email
           <Input
             type="email"
@@ -105,10 +105,10 @@ export default function SignUpPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            className="h-12 px-4 rounded-xl border-(--panel-border-strong) focus-visible:ring-2 focus-visible:ring-(--focus-ring) transition-all bg-(--surface-strong) hover:bg-(--surface)"
+            className="h-11"
           />
         </label>
-        <label className="flex flex-col gap-2 text-sm font-medium text-foreground">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
           Password
           <div className="relative">
             <Input
@@ -118,12 +118,12 @@ export default function SignUpPage() {
               minLength={12}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="h-12 pl-4 pr-12 rounded-xl border-(--panel-border-strong) focus-visible:ring-2 focus-visible:ring-(--focus-ring) transition-all bg-(--surface-strong) hover:bg-(--surface) w-full"
+              className="h-11 w-full pr-11"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-(--muted) hover:text-foreground transition-colors rounded-r-xl"
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[10px] text-(--muted) transition-colors hover:text-foreground"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -134,38 +134,37 @@ export default function SignUpPage() {
           </span>
         </label>
         {error ? (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 animate-slide-up">
+          <p className="rounded-[10px] border border-(--danger)/30 bg-(--danger-tint) px-3.5 py-2.5 text-sm text-(--danger) animate-slide-up">
             {error}
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-3 mt-4">
-          <Button 
-            type="submit" 
-            disabled={submitting || guestSubmitting} 
-            className="h-12 text-base font-semibold rounded-xl bg-(--accent) hover:bg-(--accent-soft) text-white shadow-(--accent-glow) transition-all hover:scale-[1.02] active:scale-95"
-          >
+        <div className="mt-2 flex flex-col gap-2.5">
+          <Button type="submit" size="lg" disabled={submitting || guestSubmitting} className="text-[15px]">
             {submitting ? "Signing up…" : "Sign up"}
           </Button>
 
-          <Button 
-            type="button" 
+          <Button
+            type="button"
             onClick={submitGuest}
             variant="secondary"
-            disabled={submitting || guestSubmitting} 
-            className="h-12 text-base font-semibold rounded-xl border border-(--panel-border) bg-(--surface-strong) hover:bg-(--surface) text-foreground transition-all hover:scale-[1.02] active:scale-95"
+            size="lg"
+            disabled={submitting || guestSubmitting}
+            className="text-[15px]"
           >
-            {guestSubmitting ? "Creating guest session…" : (
+            {guestSubmitting ? (
+              "Creating guest session…"
+            ) : (
               <>
-                <UserCircle2 className="w-5 h-5 mr-2" /> Try as Guest
+                <UserCircle2 className="h-4 w-4" /> Try as guest
               </>
             )}
           </Button>
         </div>
 
-        <p className="mt-4 text-center text-sm text-(--muted)">
+        <p className="mt-2 text-center text-sm text-(--muted)">
           Already have an account?{" "}
-          <Link href="/sign-in" className="font-semibold text-foreground hover:text-(--accent) transition-colors">
+          <Link href="/sign-in" className="font-medium text-(--accent) transition-colors hover:text-(--accent-soft)">
             Sign in
           </Link>
         </p>

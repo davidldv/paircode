@@ -6,26 +6,26 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
-      className={cn("surface-card rounded-none", className)}
+      className={cn("surface-card", className)}
       {...props}
     />
   );
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-header" className={cn("flex flex-col gap-1.5 p-6", className)} {...props} />;
+  return <div data-slot="card-header" className={cn("flex flex-col gap-1.5 p-5", className)} {...props} />;
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
-  return <h3 data-slot="card-title" className={cn("font-black uppercase tracking-widest", className)} {...props} />;
+  return <h3 data-slot="card-title" className={cn("text-base font-semibold tracking-tight text-foreground", className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
-  return <p data-slot="card-description" className={cn("text-sm font-mono text-(--muted)", className)} {...props} />;
+  return <p data-slot="card-description" className={cn("text-sm leading-relaxed text-(--muted)", className)} {...props} />;
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-content" className={cn("p-6 pt-0", className)} {...props} />;
+  return <div data-slot="card-content" className={cn("p-5 pt-0", className)} {...props} />;
 }
 
 export { Card, CardHeader, CardTitle, CardDescription, CardContent };

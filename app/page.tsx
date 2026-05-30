@@ -156,16 +156,17 @@ export default function Home() {
 
   if (!isLoaded || !user) {
     return (
-      <main className="app-shell relative min-h-screen overflow-hidden bg-background text-foreground">
-        <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4">
-          <div className="hero-shell w-full max-w-xl border border-(--panel-border) shadow-xl p-12 text-center bg-(--surface) rounded-2xl animate-fade-in">
-            <div className="inline-flex items-center justify-center p-3 bg-(--surface-strong) rounded-full mb-6 animate-pulse-slow">
-              <img src="/brand/paircode-mark.svg" alt="" width={48} height={48} className="opacity-80" />
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Connecting to workspace...</h1>
-            <p className="mt-3 text-sm leading-relaxed text-(--muted) max-w-sm mx-auto">
-              Please wait while we verify your session and establish a secure connection.
-            </p>
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 text-foreground">
+        <div className="hero-shell w-full max-w-md p-10 text-center animate-fade-in">
+          <div className="mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-(--surface-strong) ring-1 ring-(--panel-border) animate-pulse-slow">
+            <img src="/brand/paircode-mark.svg" alt="" width={36} height={36} className="opacity-90" />
+          </div>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">Connecting to workspace</h1>
+          <p className="mx-auto mt-2.5 max-w-xs text-sm leading-relaxed text-(--muted)">
+            Verifying your session and establishing a secure connection.
+          </p>
+          <div className="mx-auto mt-6 h-1 w-40 overflow-hidden rounded-full bg-(--surface-strong)">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-(--accent)" />
           </div>
         </div>
       </main>
@@ -173,9 +174,9 @@ export default function Home() {
   }
 
   return (
-    <main className="app-shell relative min-h-screen bg-background pb-10 text-foreground selection:bg-(--accent) selection:text-background">
+    <main className="relative min-h-screen bg-background pb-10 text-foreground selection:bg-(--accent) selection:text-(--accent-contrast)">
 
-      <div className="mx-auto flex w-full max-w-360 flex-col gap-6 px-4 pt-5 lg:px-8 lg:pt-8">
+      <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 pt-4 lg:px-6 lg:pt-5">
         <HeaderCard
           status={status}
           statusBadgeVariant={statusBadgeVariant}
