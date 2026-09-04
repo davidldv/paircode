@@ -37,20 +37,45 @@ export const AUTH_ENV = {
   get inviteSigningSecret() {
     return required("INVITE_SIGNING_SECRET");
   },
-  get cookieDomain() {
-    return process.env.COOKIE_DOMAIN ?? undefined;
-  },
-  get isProduction() {
-    return process.env.NODE_ENV === "production";
-  },
 } as const;
 
 export const ACCESS_TTL_SECONDS = 60 * 10;
 export const REFRESH_TTL_SECONDS = 60 * 60 * 24 * 14;
 export const WS_TICKET_TTL_SECONDS = 30;
 
-export const COOKIE_NAMES = {
-  access: "__Host-paircode_access",
-  refresh: "__Host-paircode_refresh",
-  csrf: "paircode_csrf",
-} as const;
+/**
+ * A cookie name prefix is a contract with the browser, not decoration:
+ *
+ *   __Host-    requires Secure, Path=/, and no Domain
+ *   __Secure-  requires Secure
+ *
+ * A prefixed cookie that breaks its contract is dropped silently. There is no
+ * error and no warning — the Set-Cookie header simply has no effect, and the
+ * next request arrives unauthenticated. That makes the prefix and the Secure
+ * attribute a single decision, which is why they are derived here together
+ * rather than set independently at each call site.
+ *
+ * Production is always secure. A dev server behind HTTPS can opt in with
+ * COOKIE_SECURE=true; nothing can opt production out.
+ */
+export const SECURE_COOKIES =
+  process.env.NODE_ENV === "production" || process.env.COOKIE_SECURE === "true";
+
+/**
+ * The refresh token is scoped to the auth endpoints so it never rides along on
+ * ordinary requests. That narrowing is worth more than __Host-'s Path=/
+ * guarantee, so the refresh cookie takes __Secure- instead.
+ */
+export const REFRESH_COOKIE_PATH = "/api/auth";
+
+export function cookieNamesFor(secure: boolean) {
+  return {
+    access: secure ? "__Host-paircode_access" : "paircode_access",
+    refresh: secure ? "__Secure-paircode_refresh" : "paircode_refresh",
+    // The double-submit check needs the client to read this one, so it is
+    // never httpOnly and never prefixed.
+    csrf: "paircode_csrf",
+  } as const;
+}
+
+export const COOKIE_NAMES = cookieNamesFor(SECURE_COOKIES);
