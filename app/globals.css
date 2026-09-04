@@ -1,346 +1,559 @@
 @import "tailwindcss";
 
-/* ------------------------------------------------------------------ */
-/*  PairCode design system                                            */
-/*  A calm, premium workspace aesthetic: layered surfaces, soft       */
-/*  borders, a single confident accent, and restrained typography.    */
-/* ------------------------------------------------------------------ */
+/* ==================================================================== */
+/*  PairCode — THE CREDENTIAL                                           */
+/*  Access-control badges and security printing. Every device on this   */
+/*  surface encodes a real fact: a role band is a real role, an expiry  */
+/*  is a real expiry, a guilloché is a hash of a real identity, and a   */
+/*  cancellation stamp appears only when access is actually revoked.    */
+/*  Ornament that means nothing does not ship here.                     */
+/* ==================================================================== */
 
-@theme {
-  --animate-fade-in: fade-in 0.4s ease-out both;
-  --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes slide-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pulse-slow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.55; }
-  }
-}
-
-/* ----------------------------- Tokens ----------------------------- */
+/* ------------------------------- Ink ------------------------------- */
+/* Light is the default: credentials are read at a door, under building */
+/* light, by a reviewer with a bright browser window among many tabs.   */
 
 :root {
-  /* surfaces */
-  --background: #f7f7f9;
-  --foreground: #0b0b0f;
-  --surface: #ffffff;
-  --surface-strong: #f2f2f5;
-  --panel: #ffffff;
-  --panel-soft: #f7f7f9;
-  --panel-strong: #e9e9ee;
-  --panel-border: #e7e7ec;
-  --panel-border-strong: #d7d7df;
-  --panel-shadow:
-    0 1px 2px rgba(15, 18, 32, 0.04),
-    0 6px 20px -8px rgba(15, 18, 32, 0.08);
-  --panel-shadow-lg:
-    0 1px 2px rgba(15, 18, 32, 0.05),
-    0 18px 48px -16px rgba(15, 18, 32, 0.16);
-  --line: #ececf1;
+  /* stock — safety-paper green-grey, never cream */
+  --stock: #e4e7df;
+  --stock-face: #f5f7f2;
+  --stock-rack: #dbdfd5;
+  --stock-sunk: #d3d9cd;
 
-  /* text */
-  --muted: #6c6c78;
+  /* ink */
+  --ink: #0f1a15;
+  --ink-2: #46504a;
+  --ink-3: #525b56;
 
-  /* accent */
-  --accent: #6366f1;
-  --accent-soft: #4f46e5;
-  --accent-contrast: #ffffff;
-  --accent-glow: rgba(99, 102, 241, 0.14);
-  --accent-tint: rgba(99, 102, 241, 0.08);
+  /* rules — the printed blank */
+  --rule: #b3bbad;
+  --rule-strong: #8b948660;
+  --rule-heavy: #0f1a15;
 
-  /* status */
-  --success: #10b981;
-  --success-tint: rgba(16, 185, 129, 0.12);
-  --danger: #e5484d;
-  --danger-tint: rgba(229, 72, 77, 0.12);
+  /* secure — intaglio green, the committed colour */
+  --secure: #0c4b33;
+  --secure-deep: #073323;
+  --secure-ink: #f5f7f2;
+  --secure-tint: rgba(12, 75, 51, 0.1);
+  --secure-wash: rgba(12, 75, 51, 0.04);
 
-  --focus-ring: rgba(99, 102, 241, 0.35);
+  /* lamp — the reader's own light, brighter than printed ink */
+  --lamp: #10774f;
 
-  /* ambient backdrop */
-  --spot-a: rgba(99, 102, 241, 0.10);
-  --spot-b: rgba(59, 130, 246, 0.06);
-  --grid-stroke: rgba(11, 11, 15, 0.025);
+  /* provisional — the visitor band */
+  --provisional: #7d5205;
+  --provisional-ink: #ffffff;
+  --provisional-tint: rgba(125, 82, 5, 0.13);
 
-  /* agent surface */
-  --agent-card-border: rgba(99, 102, 241, 0.22);
-  --agent-card-bg: rgba(99, 102, 241, 0.05);
-  --agent-avatar-bg: var(--accent);
-  --agent-avatar-text: #ffffff;
-  --agent-badge-bg: var(--accent-tint);
-  --agent-badge-text: var(--accent);
+  /* cancel — the stamp pad */
+  --cancel: #a52a1a;
+  --cancel-tint: rgba(165, 42, 26, 0.1);
 
-  --radius: 14px;
+  --focus: rgba(12, 75, 51, 0.3);
+
+  /* ISO/IEC 7810 ID-1: 3.18mm corner on an 85.6mm card. Credentials get
+     this radius; nothing else on the surface is round. */
+  --card-radius: 12px;
+
+  --lift: 0 1px 0 rgba(15, 26, 21, 0.06), 0 8px 18px -12px rgba(15, 26, 21, 0.45);
+  --lift-high: 0 2px 0 rgba(15, 26, 21, 0.07), 0 22px 44px -22px rgba(15, 26, 21, 0.55);
+
+  color-scheme: light;
 }
 
+/* Dark is the same door after hours: the credential lit by the reader's
+   own lamp, not the page inverted. */
 html[data-theme="dark"] {
-  --background: #08080b;
-  --foreground: #f4f4f6;
-  --surface: #131318;
-  --surface-strong: #1c1c22;
-  --panel: #131318;
-  --panel-soft: #0f0f13;
-  --panel-strong: #26262e;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --panel-border-strong: rgba(255, 255, 255, 0.14);
-  --panel-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.4),
-    0 10px 30px -12px rgba(0, 0, 0, 0.5);
-  --panel-shadow-lg:
-    0 2px 4px rgba(0, 0, 0, 0.5),
-    0 24px 60px -20px rgba(0, 0, 0, 0.7);
-  --line: rgba(255, 255, 255, 0.08);
+  --stock: #0d1310;
+  --stock-face: #18201b;
+  --stock-rack: #131a16;
+  --stock-sunk: #0a0f0c;
 
-  --muted: #9b9ba6;
+  --ink: #dee5db;
+  --ink-2: #9aa79e;
+  --ink-3: #8a958e;
 
-  --accent: #818cf8;
-  --accent-soft: #6366f1;
-  --accent-contrast: #0b0b0f;
-  --accent-glow: rgba(129, 140, 248, 0.2);
-  --accent-tint: rgba(129, 140, 248, 0.12);
+  --rule: rgba(222, 229, 219, 0.15);
+  --rule-strong: rgba(222, 229, 219, 0.28);
+  --rule-heavy: rgba(222, 229, 219, 0.62);
 
-  --success: #34d399;
-  --success-tint: rgba(52, 211, 153, 0.14);
-  --danger: #ff6369;
-  --danger-tint: rgba(255, 99, 105, 0.14);
+  --secure: #2e8c66;
+  --secure-deep: #256f51;
+  --secure-ink: #05100b;
+  --secure-tint: rgba(69, 192, 141, 0.14);
+  --secure-wash: rgba(69, 192, 141, 0.06);
 
-  --focus-ring: rgba(129, 140, 248, 0.45);
+  --lamp: #45c08d;
 
-  --spot-a: rgba(129, 140, 248, 0.14);
-  --spot-b: rgba(99, 102, 241, 0.08);
-  --grid-stroke: rgba(255, 255, 255, 0.025);
+  --provisional: #d9a03a;
+  --provisional-ink: #231700;
+  --provisional-tint: rgba(217, 160, 58, 0.16);
 
-  --agent-card-border: rgba(129, 140, 248, 0.28);
-  --agent-card-bg: rgba(129, 140, 248, 0.07);
-  --agent-avatar-bg: var(--accent);
-  --agent-avatar-text: #0b0b0f;
-  --agent-badge-bg: var(--accent-tint);
-  --agent-badge-text: var(--accent);
+  --cancel: #e4614a;
+  --cancel-tint: rgba(228, 97, 74, 0.15);
+
+  --focus: rgba(69, 192, 141, 0.38);
+
+  --lift: 0 1px 0 rgba(0, 0, 0, 0.5), 0 8px 20px -12px rgba(0, 0, 0, 0.8);
+  --lift-high: 0 2px 0 rgba(0, 0, 0, 0.6), 0 24px 48px -24px rgba(0, 0, 0, 0.9);
+
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains-mono);
+  --color-stock: var(--stock);
+  --color-background: var(--stock);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-courier);
 }
 
-/* ----------------------------- Base ------------------------------- */
+/* ------------------------------ Base ------------------------------- */
 
-* {
-  border-color: var(--panel-border);
-}
+@layer base {
+    *,
+    *::before,
+    *::after {
+      border-color: var(--rule);
+    }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), "Inter", "Segoe UI", system-ui, sans-serif;
-  min-height: 100vh;
-  position: relative;
-  transition: background-color 240ms ease, color 240ms ease;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
+  body {
+    background: var(--stock);
+    color: var(--ink);
+    font-family: var(--font-archivo), "Archivo", "Helvetica Neue", Arial, sans-serif;
+    font-synthesis-weight: none;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
 
-/* Ambient backdrop: a soft accent glow up top + a faint grid. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -2;
-  background:
-    radial-gradient(900px 520px at 12% -8%, var(--spot-a), transparent 60%),
-    radial-gradient(760px 520px at 100% 0%, var(--spot-b), transparent 55%);
-}
+  /* Safety-paper tint: a faint printed field, the way secured stock is
+     tinted so an erasure shows. Two hairline courses, no glow, no grid
+     fading into a gradient. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        var(--secure-wash) 0 1px,
+        transparent 1px 6px
+      );
+    opacity: 0.7;
+  }
 
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background-image:
-    linear-gradient(var(--grid-stroke) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-stroke) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
-}
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
 
-h1, h2, h3, h4 {
-  font-weight: 650;
-  letter-spacing: -0.02em;
-}
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
 
-button:not(:disabled) {
-  cursor: pointer;
-}
-button:disabled {
-  cursor: not-allowed;
-}
+  /* Browser surfaces the design still owns. */
+  ::selection {
+    background: var(--secure);
+    color: var(--secure-ink);
+  }
 
-::selection {
-  background-color: var(--accent);
-  color: var(--accent-contrast);
-}
+  :root {
+    accent-color: var(--secure);
+    caret-color: var(--secure);
+  }
 
-/* ---------------------- Component utilities ----------------------- */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule-strong) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--rule-strong);
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-3);
+    background-clip: content-box;
+  }
 
-.surface-card {
-  background: var(--surface);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius);
-  box-shadow: var(--panel-shadow);
-}
+  a {
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
 
-.surface-inset {
-  background: var(--surface-strong);
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-}
+  :focus-visible {
+    outline: 2px solid var(--secure);
+    outline-offset: 2px;
+  }
 
-.agent-card {
-  background: var(--agent-card-bg);
-  border: 1px solid var(--agent-card-border);
-  border-radius: 12px;
-}
-
-.mono-label {
-  font-family: var(--font-jetbrains-mono), "SFMono-Regular", ui-monospace, monospace;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
-}
-
-.hero-shell {
-  background: var(--surface);
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  box-shadow: var(--panel-shadow-lg);
-  position: relative;
-  overflow: hidden;
-}
-
-.app-bar {
-  background: color-mix(in srgb, var(--surface) 78%, transparent);
-  border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  box-shadow: var(--panel-shadow);
-  backdrop-filter: saturate(160%) blur(14px);
 }
 
-.section-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: var(--accent-tint);
-  color: var(--accent);
-  padding: 0.3rem 0.7rem;
-  border-radius: 9999px;
-  font-family: var(--font-jetbrains-mono), monospace;
-  font-weight: 600;
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
+@layer components {
+  /* ---------------------- The printed vocabulary --------------------- */
+
+  /* LEGEND — the fixed text printed on the blank before anything is
+     issued. Condensed grotesque, caps, tracked. */
+  .legend {
+    font-family: var(--font-archivo), "Archivo", Arial, sans-serif;
+    font-stretch: 78%;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-size: 0.625rem;
+    line-height: 1.2;
+  }
+
+  :where(.legend) {
+    color: var(--ink-2);
+  }
+
+  .legend-lg {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* VALUE — what the machine typed into the blank. */
+  .value {
+    font-family: var(--font-courier), "Courier New", monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  /* SHEET — a section of the issuing paperwork. Ruled, square, flat.
+     Not a card: cards are what the credentials themselves are. */
+  .sheet {
+    background: var(--stock-face);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+  }
+
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--secure);
+    color: var(--secure-ink);
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid var(--secure-deep);
+  }
+
+  :where(.sheet-head) :where(.legend) {
+    color: var(--secure-ink);
+  }
+
+  /* NOTE — a full sentence never goes in tracked caps. This is the running
+     voice for asides and status prose beside a legend. */
+  .note {
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--ink-3);
+  }
+
+  /* CREDENTIAL — the issued card. The only radius on the surface. */
+  .credential {
+    position: relative;
+    background: var(--stock-face);
+    border: 1px solid var(--rule);
+    border-radius: var(--card-radius);
+    box-shadow: var(--lift);
+  }
+
+  /* BAND — a solid course across a credential carrying its role. */
+  .band {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.25rem 0.6rem;
+    background: var(--secure);
+    color: var(--secure-ink);
+    border-radius: 0 0 calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px);
+  }
+
+  .band-provisional {
+    background: var(--provisional);
+    color: var(--provisional-ink);
+  }
+
+  .band-plain {
+    background: var(--stock-rack);
+    color: var(--ink-2);
+    box-shadow: inset 0 1px 0 var(--rule);
+  }
+
+  /* MRZ — the machine-readable zone. These are the real token characters,
+     chevron-padded the way a travel document pads a short field. Case is
+     never normalised: the strip has to stay the payload. */
+  .mrz {
+    font-family: var(--font-courier), "Courier New", monospace;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    letter-spacing: 0.14em;
+    word-break: break-all;
+    color: var(--ink);
+    background: var(--stock-sunk);
+    border-top: 1px solid var(--rule);
+    padding: 0.5rem 0.65rem;
+  }
+
+  /* STAMP — the cancellation. Struck, not deleted. */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 1.5px solid currentColor;
+    border-radius: 2px;
+    padding: 0.1rem 0.35rem;
+    font-family: var(--font-archivo), Arial, sans-serif;
+    font-stretch: 78%;
+    font-weight: 700;
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cancel);
+  }
+
+  .stamp-struck {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-9deg);
+    z-index: 2;
+    background: color-mix(in srgb, var(--stock-face) 82%, transparent);
+    font-size: 0.8125rem;
+    padding: 0.2rem 0.75rem;
+    border-width: 2px;
+  }
+
+  /* OVERPRINT — a locked field says why it is locked, on the field. The
+     hatch covers the field; the word sits in the corner so it never lands
+     across the copy it is protecting. */
+  .overprint {
+    position: relative;
+  }
+  .overprint::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent 0 7px,
+      color-mix(in srgb, var(--ink-3) 9%, transparent) 7px 8px
+    );
+  }
+  .overprint::after {
+    content: attr(data-overprint);
+    position: absolute;
+    right: 0.4rem;
+    bottom: 0.4rem;
+    pointer-events: none;
+    font-family: var(--font-archivo), Arial, sans-serif;
+    font-stretch: 78%;
+    font-weight: 700;
+    font-size: 0.5625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    background: var(--stock-face);
+    border: 1px solid var(--ink-3);
+    border-radius: 2px;
+    padding: 0.1rem 0.35rem;
+  }
+
+  /* FIELD — the blank on a form: ruled underneath, filled from the left. */
+  .field {
+    width: 100%;
+    background: var(--stock-sunk);
+    border: 1px solid var(--rule);
+    border-bottom-width: 2px;
+    border-bottom-color: var(--rule-strong);
+    border-radius: 2px;
+    padding: 0.5rem 0.65rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 120ms linear, background-color 120ms linear;
+  }
+  .field::placeholder {
+    color: var(--ink-3);
+  }
+  .field:hover:not(:disabled) {
+    border-color: var(--rule-strong);
+  }
+  .field:focus-visible {
+    outline: none;
+    background: var(--stock-face);
+    border-bottom-color: var(--secure);
+    box-shadow: inset 0 -2px 0 var(--secure);
+  }
+  .field:disabled {
+    color: var(--ink-3);
+    cursor: not-allowed;
+  }
+
+  /* LAMP — the reader's verdict. Shape and label carry the state too;
+     colour alone never does. */
+  .lamp {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--ink-3);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ink-3) 22%, transparent);
+  }
+  .lamp-live {
+    background: var(--lamp);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--lamp) 26%, transparent);
+  }
+  .lamp-reading {
+    background: var(--provisional);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--provisional) 26%, transparent);
+    animation: lamp-read 900ms steps(1, end) infinite;
+  }
+  .lamp-denied {
+    background: var(--cancel);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cancel) 26%, transparent);
+  }
+
+
+  /* LOG — the access register. Ruled courses, banded stock, no cards. */
+  .log-row {
+    position: relative;
+    padding: 0.6rem 0.75rem 0.7rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .log-row:nth-of-type(even) {
+    background: var(--secure-wash);
+  }
+
+  /* Printed, not faded in: the head sweeps left to right once. */
+  .print-in {
+    animation: print-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Stamps land: press, overshoot, settle. */
+  .stamp-struck {
+    animation: stamp-down 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .stamp-press:active:not(:disabled) {
+    animation: stamp-press 190ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Credentials arrive on the rail. */
+  .rail-in {
+    animation: rail-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* The reader read: the one authored moment. Amber while it reads the
+     credential, then the lamp settles. */
+  .reader-sweep::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--lamp) 22%, transparent),
+      transparent
+    );
+    animation: reader-sweep 900ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
 }
 
-.metric-tile {
-  border: 1px solid var(--panel-border);
-  background: var(--surface);
-  border-radius: 14px;
-  padding: 1.1rem 1.25rem;
-  box-shadow: var(--panel-shadow);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+@keyframes lamp-read {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.25;
+  }
 }
-.metric-tile:hover {
-  transform: translateY(-3px);
-  border-color: var(--panel-border-strong);
+@keyframes print-in {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
-
-.panel-rule {
-  height: 1px;
-  width: 100%;
-  background: var(--panel-border);
+@keyframes stamp-down {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-9deg) scale(1.5);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-9deg) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-9deg) scale(1);
+  }
 }
-
-.composer-shell {
-  border: 1px solid var(--panel-border);
-  background: var(--surface-strong);
-  border-radius: 14px;
-  transition: box-shadow 0.18s ease, border-color 0.18s ease;
-}
-.composer-shell:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px var(--focus-ring);
-}
-
-.live-dot {
-  position: relative;
-  display: inline-flex;
-  height: 0.5rem;
-  width: 0.5rem;
-}
-.live-dot::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  background: var(--success);
-  opacity: 0.7;
-  animation: ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-.live-dot::after {
-  content: "";
-  position: relative;
-  border-radius: 9999px;
-  height: 100%;
-  width: 100%;
-  background: var(--success);
+@keyframes stamp-press {
+  0% {
+    transform: none;
+  }
+  35% {
+    transform: scale(0.955) translateY(1px);
+  }
+  72% {
+    transform: scale(1.014);
+  }
+  100% {
+    transform: none;
+  }
 }
 
-@keyframes ping {
-  75%, 100% { transform: scale(2.2); opacity: 0; }
+@keyframes rail-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
-
-/* --------------------------- Animations --------------------------- */
-
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-up {
-  animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.fade-up-delay {
-  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.08s;
-}
-.section-panel {
-  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.stage-1 { animation-delay: 0.04s; }
-.stage-2 { animation-delay: 0.10s; }
-.stage-3 { animation-delay: 0.16s; }
-.stage-4 { animation-delay: 0.22s; }
-
-@keyframes toast-in {
-  from { opacity: 0; transform: translateX(16px) scale(0.98); }
-  to { opacity: 1; transform: translateX(0) scale(1); }
-}
-.toast-in {
-  animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+@keyframes reader-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition-duration: 1ms !important;
+  }
+  .reader-sweep::after {
+    display: none;
   }
 }

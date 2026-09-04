@@ -1,64 +1,110 @@
 import type { ReactNode } from "react";
 
-import { BrandConstellation } from "@/components/paircode/brand-constellation";
+import { IdentityPanel } from "@/components/paircode/identity";
 
 type AuthShellProps = {
   title: string;
   description: string;
+  /** Name printed on the credential preview as the applicant types it. */
+  bearerName: string;
+  /** Identity the guilloché is engraved from — the applicant's email. */
+  bearerSeed: string;
+  formTitle: string;
   children: ReactNode;
 };
 
-export function AuthShell({ title, description, children }: AuthShellProps) {
+/* Every row is enforced in this repository; nothing here is aspirational. */
+const CONFORMANCE = [
+  ["Password storage", "Argon2id", "lib/auth/password.ts"],
+  ["Access tokens", "EdDSA (Ed25519) JWT", "lib/auth/jwt.ts"],
+  ["Refresh tokens", "Rotated, reuse detected and revoked", "lib/auth/refresh.ts"],
+  ["Form submission", "CSRF token, double submit", "lib/auth/csrf.ts"],
+  ["Socket handshake", "Single-use ticket, redeemed by delete", "lib/security/ws-ticket.ts"],
+  ["Room authorization", "Server-side RBAC on every event", "server/ws-server.mjs"],
+];
+
+export function AuthShell({
+  title,
+  description,
+  bearerName,
+  bearerSeed,
+  formTitle,
+  children,
+}: AuthShellProps) {
   return (
-    <main className="relative min-h-screen bg-background text-foreground selection:bg-(--accent) selection:text-(--accent-contrast)">
-      <div className="mx-auto grid min-h-screen w-full max-w-7xl items-center gap-10 px-4 py-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(400px,500px)] lg:px-8">
-        <section className="fade-up space-y-8">
-          <div className="space-y-5">
-            <div className="inline-flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-(--surface) ring-1 ring-(--panel-border)">
-                <img src="/brand/paircode-mark.svg" alt="" width={20} height={20} className="opacity-90" />
-              </div>
-              <span className="text-sm font-semibold tracking-tight text-foreground">PairCode</span>
+    <main className="min-h-screen">
+      <div className="flex items-center gap-3 border-b border-(--secure-deep) bg-(--secure) px-3 py-2 text-(--secure-ink) md:px-6">
+        <img src="/brand/paircode-mark.svg" alt="" width={26} height={26} />
+        <span className="text-[0.9375rem] font-[700] uppercase tracking-[0.2em] [font-stretch:78%]">
+          PairCode
+        </span>
+        <span className="legend ml-auto text-(--secure-ink)/85">Access control</span>
+      </div>
+
+      <div className="mx-auto grid w-full max-w-6xl items-start gap-8 px-3 py-8 md:px-6 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-12 lg:py-14">
+        {/* The door: what gets checked, and by what. */}
+        <section>
+          {/* The document's own title voice: the condensed grotesque the
+              legends are set in, at the one display size this world has. */}
+          <h1 className="max-w-[16ch] text-[2rem] font-[700] uppercase leading-[1.02] tracking-[0.01em] text-(--ink) [font-stretch:80%] sm:text-[2.875rem]">
+            {title}
+          </h1>
+          <p className="mt-4 max-w-[62ch] text-[0.9375rem] leading-[1.7] text-(--ink-2)">
+            {description}
+          </p>
+
+          <div className="mt-8 border border-(--rule) bg-(--stock-face)">
+            <div className="flex items-center gap-2 border-b border-(--secure-deep) bg-(--secure) px-3 py-1.5">
+              <span className="legend text-(--secure-ink)">What the door enforces</span>
+              <span className="legend ml-auto text-(--secure-ink)/85">In this repository</span>
             </div>
-            <h1 className="max-w-2xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
-              {title}
-            </h1>
-            <p className="max-w-xl text-base leading-7 text-(--muted)">{description}</p>
+            <dl className="divide-y divide-(--rule)">
+              {CONFORMANCE.map(([subject, mechanism, path]) => (
+                <div
+                  key={subject}
+                  className="grid grid-cols-1 gap-x-4 gap-y-1 px-3 py-2.5 sm:grid-cols-[11rem_minmax(0,1fr)]"
+                >
+                  <dt className="legend pt-px">{subject}</dt>
+                  <dd>
+                    <span className="block text-[0.875rem] leading-snug text-(--ink)">
+                      {mechanism}
+                    </span>
+                    <span className="value block text-[0.6875rem] text-(--ink-3)">{path}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="metric-tile">
-              <p className="mono-label text-[11px] text-(--accent)">Persistent context</p>
-              <p className="mt-2 text-sm leading-relaxed text-foreground">
-                Threaded room context and implementation history survive reconnects.
-              </p>
-            </div>
-            <div className="metric-tile">
-              <p className="mono-label text-[11px] text-(--accent)">Authenticated operators</p>
-              <p className="mt-2 text-sm leading-relaxed text-foreground">
-                Each collaborator enters the workspace with a verified engineering identity.
-              </p>
-            </div>
-            <div className="metric-tile">
-              <p className="mono-label text-[11px] text-(--accent)">Live facilitation</p>
-              <p className="mt-2 text-sm leading-relaxed text-foreground">
-                Presence, AI facilitation, and room state stay synchronized for the whole team.
-              </p>
-            </div>
-          </div>
-
-          <BrandConstellation />
+          <p className="note mt-3">No third-party auth service sits behind these rows.</p>
         </section>
 
-        <div className="hero-shell fade-up-delay mx-auto w-full max-w-md p-8">
-          <div className="mb-8 space-y-2 border-b border-(--panel-border) pb-7">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground">Enter PairCode</h2>
-            <p className="text-sm leading-relaxed text-(--muted)">
-              Authenticate to access collaborative engineering rooms with persistent context, live presence, and AI
-              facilitation.
-            </p>
+        {/* The application: a blank credential, filling in as you type. */}
+        <div className="credential overflow-hidden">
+          <div className="flex items-center justify-between gap-2 border-b border-(--secure-deep) bg-(--secure) px-3 py-1.5 text-(--secure-ink)">
+            <span className="legend text-(--secure-ink)">{formTitle}</span>
+            <span className="lamp" aria-hidden />
           </div>
-          {children}
+
+          <div className="flex items-center gap-3 border-b border-(--rule) bg-(--stock-sunk) px-3 py-3">
+            <IdentityPanel seed={bearerSeed || "unissued"} name={bearerName || "??"} />
+            <div className="min-w-0">
+              <span className="legend">Bearer</span>
+              <p className="truncate text-[0.9375rem] font-[600] leading-tight text-(--ink)">
+                {bearerName || "Unissued"}
+              </p>
+              <p className="value truncate text-[0.6875rem] text-(--ink-3)">
+                {bearerSeed || "no identity presented"}
+              </p>
+            </div>
+          </div>
+
+          <div className="px-3 py-4">{children}</div>
+
+          <div className="mrz" aria-hidden>
+            <div>{"PAIRCODE<<ACCESS<CONTROL<".padEnd(30, "<")}</div>
+            <div>{(bearerSeed ? "PENDING<VERIFICATION" : "NO<CREDENTIAL<PRESENTED").padEnd(30, "<")}</div>
+          </div>
         </div>
       </div>
     </main>

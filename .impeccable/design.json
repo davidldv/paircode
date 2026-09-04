@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-31T00:00:00.000Z",
+  "title": "Design System: PairCode",
+  "extensions": {
+    "colorMeta": {
+      "stock": {
+        "role": "neutral",
+        "displayName": "Safety Stock",
+        "canonical": "#e4e7df",
+        "darkValue": "#0d1310",
+        "tonalRamp": ["#1c211a", "#2e3529", "#454e3f", "#5d6856", "#7b8672", "#9aa392", "#bcc3b5", "#eff1eb"]
+      },
+      "stock-face": {
+        "role": "neutral",
+        "displayName": "Sheet Face",
+        "canonical": "#f5f7f2",
+        "darkValue": "#18201b",
+        "tonalRamp": ["#20241d", "#333a2e", "#4b5344", "#656e5c", "#828b78", "#a3ab99", "#c6ccbe", "#f5f7f2"]
+      },
+      "stock-rack": {
+        "role": "neutral",
+        "displayName": "Banded Course",
+        "canonical": "#dbdfd5",
+        "darkValue": "#131a16",
+        "tonalRamp": ["#1a1f17", "#2b3226", "#41493b", "#596252", "#767f6d", "#959d8c", "#b8bfae", "#e9ece3"]
+      },
+      "stock-sunk": {
+        "role": "neutral",
+        "displayName": "Sunk Well",
+        "canonical": "#d3d9cd",
+        "darkValue": "#0a0f0c",
+        "tonalRamp": ["#181d14", "#282f23", "#3e4737", "#555f4d", "#727c68", "#909a86", "#b2bba7", "#e4e8dd"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Committed Ink",
+        "canonical": "#0f1a15",
+        "darkValue": "#dee5db",
+        "tonalRamp": ["#0f1a15", "#1b2b23", "#2a4034", "#3b5748", "#4f705e", "#6a8b78", "#93ad9e", "#c8d6cd"]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Legend Ink",
+        "canonical": "#46504a",
+        "darkValue": "#9aa79e",
+        "tonalRamp": ["#161a17", "#242a26", "#353d38", "#46504a", "#5c6760", "#78847c", "#9aa79e", "#c9d1cc"]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Dimmed Ink",
+        "canonical": "#525b56",
+        "darkValue": "#8a958e",
+        "tonalRamp": ["#191c1a", "#282d2a", "#3a413d", "#525b56", "#6a736e", "#868f8a", "#a7afaa", "#d0d5d2"]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "#b3bbad",
+        "darkValue": "rgba(222, 229, 219, 0.15)",
+        "tonalRamp": ["#1b1f19", "#2c3229", "#42493d", "#5a6354", "#78826f", "#97a08d", "#b3bbad", "#dfe3da"]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Rule Strong",
+        "canonical": "#8b948660",
+        "note": "Six-digit hex with an appended alpha byte (0x60 ≈ 38%).",
+        "darkValue": "rgba(222, 229, 219, 0.28)",
+        "tonalRamp": ["#171a16", "#262a24", "#383d35", "#4d5449", "#666e61", "#82897c", "#8b9486", "#c3c9bf"]
+      },
+      "secure": {
+        "role": "primary",
+        "displayName": "Intaglio Green",
+        "canonical": "#0c4b33",
+        "darkValue": "#2e8c66",
+        "tonalRamp": ["#04160f", "#07281b", "#0a3a27", "#0c4b33", "#106a48", "#178c60", "#3cb388", "#c9ece0"]
+      },
+      "secure-deep": {
+        "role": "primary",
+        "displayName": "Intaglio Deep",
+        "canonical": "#073323",
+        "darkValue": "#256f51",
+        "tonalRamp": ["#020d09", "#041c13", "#062a1d", "#073323", "#0a4a33", "#0f6845", "#2c9169", "#bfe3d4"]
+      },
+      "secure-ink": {
+        "role": "primary",
+        "displayName": "Plate White",
+        "canonical": "#f5f7f2",
+        "darkValue": "#05100b",
+        "tonalRamp": ["#20241d", "#333a2e", "#4b5344", "#656e5c", "#828b78", "#a3ab99", "#c6ccbe", "#f5f7f2"]
+      },
+      "secure-tint": {
+        "role": "primary",
+        "displayName": "Plate Tint",
+        "canonical": "rgba(12, 75, 51, 0.1)",
+        "darkValue": "rgba(69, 192, 141, 0.14)"
+      },
+      "secure-wash": {
+        "role": "primary",
+        "displayName": "Plate Wash",
+        "canonical": "rgba(12, 75, 51, 0.04)",
+        "darkValue": "rgba(69, 192, 141, 0.06)"
+      },
+      "lamp": {
+        "role": "primary",
+        "displayName": "Reader Lamp",
+        "canonical": "#10774f",
+        "darkValue": "#45c08d",
+        "tonalRamp": ["#04170f", "#07291b", "#0a4630", "#10774f", "#159a67", "#2ab984", "#63d0a8", "#cdf0e1"]
+      },
+      "provisional": {
+        "role": "secondary",
+        "displayName": "Visitor Ochre",
+        "canonical": "#7d5205",
+        "darkValue": "#d9a03a",
+        "tonalRamp": ["#1c1201", "#331f02", "#4d2f03", "#7d5205", "#a76e07", "#cf9021", "#e0b45f", "#f6e5c3"]
+      },
+      "provisional-ink": {
+        "role": "secondary",
+        "displayName": "Visitor Ink",
+        "canonical": "#ffffff",
+        "darkValue": "#231700",
+        "note": "The text printed onto the ochre band, themed exactly as secure-ink is. 6.82:1 on provisional in light, 7.57:1 in dark; both pairs are asserted by lib/theme-contrast.test.ts.",
+        "tonalRamp": ["#231700", "#3d2800", "#5c3d00", "#7d5205", "#a97219", "#cf9a3f", "#e5c485", "#ffffff"]
+      },
+      "provisional-tint": {
+        "role": "secondary",
+        "displayName": "Visitor Ochre Tint",
+        "canonical": "rgba(125, 82, 5, 0.13)",
+        "darkValue": "rgba(217, 160, 58, 0.16)"
+      },
+      "cancel": {
+        "role": "tertiary",
+        "displayName": "Cancellation Vermilion",
+        "canonical": "#a52a1a",
+        "darkValue": "#e4614a",
+        "tonalRamp": ["#240905", "#3f110a", "#5d1a0f", "#a52a1a", "#c73d29", "#e05e48", "#ec8d7c", "#f8d5cd"]
+      },
+      "cancel-tint": {
+        "role": "tertiary",
+        "displayName": "Cancellation Tint",
+        "canonical": "rgba(165, 42, 26, 0.1)",
+        "darkValue": "rgba(228, 97, 74, 0.15)"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "One size, one place: the door headline on the auth surface. The world's only display setting."
+      },
+      "designation": {
+        "displayName": "Designation",
+        "purpose": "The room screen's one step of display scale and the only place the value voice is set large: the active room code in the header register, carrying the document's own identity. Deliberately the value voice rather than the Archivo display size, so enlarging a machine fact does not turn it into a headline."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "The name on a credential and the operator in the bearer strip. Sentence case, normal width — never tracked caps."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Message text in the access register, rendered from a whitespace-preserving pre in the sans voice."
+      },
+      "note": {
+        "displayName": "Note",
+        "purpose": "Running voice for asides, hints and status prose beside a legend. Where a sentence goes instead of a legend."
+      },
+      "label": {
+        "displayName": "Legend",
+        "purpose": "Every printed legend, column head, role band, badge and button face. Coloured via :where(.legend) at zero specificity."
+      },
+      "mark": {
+        "displayName": "Mark",
+        "purpose": "The smallest step, and a marking step rather than a reading step. Legal in exactly two places: a word stamped onto an object (the Owner only corner stamp on an overprinted field) and initials struck inside a credential mark (IdentityChip at 24px). Never legal on reading matter — anything a person reads starts at the 0.625rem legend."
+      },
+      "value": {
+        "displayName": "Value",
+        "purpose": "Anything a machine produced: ids, tokens, room codes, timestamps, counts, file paths. Tabular figures, zero-padded counts."
+      },
+      "mrz": {
+        "displayName": "MRZ",
+        "purpose": "The machine-readable strip only. Real payload characters, chevron-padded into 30-character courses, never case-normalised."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 1px 0 rgba(15, 26, 21, 0.06), 0 8px 18px -12px rgba(15, 26, 21, 0.45)",
+        "darkValue": "0 1px 0 rgba(0, 0, 0, 0.5), 0 8px 20px -12px rgba(0, 0, 0, 0.8)",
+        "purpose": "The resting shadow of an issued credential. Nothing else in the room carries it."
+      },
+      {
+        "name": "lift-high",
+        "value": "0 2px 0 rgba(15, 26, 21, 0.07), 0 22px 44px -22px rgba(15, 26, 21, 0.55)",
+        "darkValue": "0 2px 0 rgba(0, 0, 0, 0.6), 0 24px 48px -24px rgba(0, 0, 0, 0.9)",
+        "purpose": "Objects genuinely above the desk: toast slips and the mobile palette sheet."
+      }
+    ],
+    "motion": [
+      { "name": "print-in", "value": "260ms cubic-bezier(0.22, 1, 0.36, 1) — clip-path inset(0 100% 0 0) to inset(0)", "purpose": "A slip or pass that was just printed. Things print; they do not fade in." },
+      { "name": "rail-in", "value": "240ms cubic-bezier(0.22, 1, 0.36, 1) — 10px from the left, 35ms stagger capped at the 6th item", "purpose": "Credentials arriving on the rack rail." },
+      { "name": "stamp-down", "value": "220ms cubic-bezier(0.22, 1, 0.36, 1) — scale 1.5 → 0.94 → 1 at a fixed -9deg", "purpose": "The cancellation stamp landing on a revoked credential." },
+      { "name": "stamp-press", "value": "190ms cubic-bezier(0.22, 1, 0.36, 1) — press, overshoot, settle", "purpose": "The primary button under :active. Nothing scales up on hover." },
+      { "name": "lamp-read", "value": "900ms steps(1, end) infinite", "purpose": "The amber reading lamp. A hard blink, not a pulse — a reader LED does not breathe." },
+      { "name": "reader-sweep", "value": "900ms cubic-bezier(0.4, 0, 0.2, 1) infinite — a lamp-tinted gradient crossing the element", "purpose": "The one authored moment. Runs only while something is genuinely being read: the agent streaming, or the session credential verifying on load. Removed entirely under prefers-reduced-motion." },
+      { "name": "field-transition", "value": "120ms linear on border-color and background-color", "purpose": "A form field taking focus." },
+      { "name": "control-transition", "value": "100ms linear on background-color, border-color, color", "purpose": "Buttons and small controls." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px", "note": "Page gutter steps from 0.75rem to 1.25rem." },
+      { "name": "lg", "value": "1024px", "note": "The room becomes a fixed-height three-column desk with internally scrolling columns. Below this it is a single stacked column with the register first." }
+    ],
+    "verification": {
+      "contrast": "lib/theme-contrast.test.ts parses tokens out of app/globals.css and asserts 4.5:1 in both themes for every foreground/background pair that ships text, plus 3:1 for the lamp on the sheet. No shipped text pair is uncovered. Run: bun test.",
+      "capturedViewports": ["1366px desktop, light theme", "1366px desktop, dark theme", "stacked layout via a temporary --breakpoint-lg override"],
+      "unverified": [
+        "Mobile was verified structurally by temporarily raising --breakpoint-lg, which covers column order, overflow and control clearance. Anything depending on real viewport width — tap targets, wrapping at 390px, the sheet against a soft keyboard, safe-area insets — is still unconfirmed on a device.",
+        "The dark theme is a real authored rendition and passes the contrast suite, but was only spot-checked visually."
+      ],
+      "deadTokens": [
+        "--rule-heavy is declared in both themes and never referenced.",
+        "--focus is declared in both themes and never referenced; focus rings are drawn with a solid --secure outline instead."
+      ],
+      "cascadeLayers": "Tokens are unlayered on :root, element defaults are in @layer base, and the printed vocabulary is in @layer components so Tailwind utilities override it. This structure is load-bearing and must not be undone."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The committed action — join, send, issue a pass. A stamped legend, not a pill.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4\"/><polyline points=\"10 17 15 12 10 7\"/><line x1=\"15\" y1=\"12\" x2=\"3\" y2=\"12\"/></svg>Join</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; height: 2.25rem; padding: 0 0.875rem; border: 1px solid var(--secure-deep, #073323); border-radius: 2px; background: var(--secure, #0c4b33); color: var(--secure-ink, #f5f7f2); font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.11em; white-space: nowrap; outline: none; transition: background-color 100ms linear, border-color 100ms linear, color 100ms linear; } .ds-btn-primary:hover { background: var(--secure-deep, #073323); } .ds-btn-primary:focus-visible { outline: 2px solid var(--secure, #0c4b33); outline-offset: 2px; } .ds-btn-primary:active { animation: ds-stamp-press 190ms cubic-bezier(0.22, 1, 0.36, 1) both; } @keyframes ds-stamp-press { 0% { transform: none; } 35% { transform: scale(0.955) translateY(1px); } 72% { transform: scale(1.014); } 100% { transform: none; } }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "The reversible action — leave, copy, jump to latest. Same silhouette, uncommitted ink.",
+      "html": "<button class=\"ds-btn-secondary\">Leave</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; height: 2.25rem; padding: 0 0.875rem; border: 1px solid var(--rule-strong, #8b948660); border-radius: 2px; background: var(--stock-face, #f5f7f2); color: var(--ink, #0f1a15); font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.11em; outline: none; transition: background-color 100ms linear, transform 100ms linear; } .ds-btn-secondary:hover { background: var(--stock-rack, #dbdfd5); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--secure, #0c4b33); outline-offset: 2px; } .ds-btn-secondary:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Cancel Button",
+      "kind": "button",
+      "refersTo": "button-cancel",
+      "description": "Revocation only. Vermilion appears here because access is actually being struck.",
+      "html": "<button class=\"ds-btn-cancel\" aria-label=\"Revoke\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><line x1=\"9\" y1=\"12\" x2=\"15\" y2=\"12\"/></svg></button>",
+      "css": ".ds-btn-cancel { display: inline-flex; align-items: center; justify-content: center; height: 2rem; width: 2rem; border: 1px solid var(--cancel, #a52a1a); border-radius: 2px; background: transparent; color: var(--cancel, #a52a1a); outline: none; transition: background-color 100ms linear, transform 100ms linear; } .ds-btn-cancel:hover { background: var(--cancel-tint, rgba(165, 42, 26, 0.1)); } .ds-btn-cancel:focus-visible { outline: 2px solid var(--secure, #0c4b33); outline-offset: 2px; } .ds-btn-cancel:active { transform: translateY(1px); }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "A ruled blank on a form: recessed ground, heavier bottom edge, filled from the left. The underline turning green is the focus signal.",
+      "html": "<label class=\"ds-field-label\">Room designation<input class=\"ds-field\" value=\"SABLE-6031\" /></label>",
+      "css": ".ds-field-label { display: block; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.11em; color: var(--ink-2, #46504a); } .ds-field { display: block; width: 100%; margin-top: 0.25rem; height: 2.25rem; padding: 0.5rem 0.65rem; background: var(--stock-sunk, #d3d9cd); border: 1px solid var(--rule, #b3bbad); border-bottom-width: 2px; border-bottom-color: var(--rule-strong, #8b948660); border-radius: 2px; color: var(--ink, #0f1a15); font-family: 'Courier Prime', 'Courier New', monospace; font-size: 0.875rem; letter-spacing: 0.08em; text-transform: uppercase; outline: none; transition: border-color 120ms linear, background-color 120ms linear; } .ds-field::placeholder { color: var(--ink-3, #525b56); } .ds-field:hover { border-color: var(--rule-strong, #8b948660); } .ds-field:focus-visible { outline: none; background: var(--stock-face, #f5f7f2); border-bottom-color: var(--secure, #0c4b33); box-shadow: inset 0 -2px 0 var(--secure, #0c4b33); }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge-success",
+      "description": "A mark printed onto the document. Every variant carries a word, so state never rides on hue alone.",
+      "html": "<span class=\"ds-badge ds-badge-success\">Machine issued</span> <span class=\"ds-badge ds-badge-provisional\">Visitor</span> <span class=\"ds-badge ds-badge-danger\">Refused</span> <span class=\"ds-badge ds-badge-default\">Away</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.375rem; border: 1px solid transparent; border-radius: 2px; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.625rem; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.11em; } .ds-badge-default { border-color: var(--rule-strong, #8b948660); background: var(--stock-rack, #dbdfd5); color: var(--ink-2, #46504a); } .ds-badge-success { background: var(--secure, #0c4b33); color: var(--secure-ink, #f5f7f2); } .ds-badge-provisional { border-color: var(--provisional, #7d5205); background: var(--provisional-tint, rgba(125, 82, 5, 0.13)); color: var(--provisional, #7d5205); } .ds-badge-danger { border-color: var(--cancel, #a52a1a); background: var(--cancel-tint, rgba(165, 42, 26, 0.1)); color: var(--cancel, #a52a1a); }"
+    },
+    {
+      "name": "Sheet",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "A page of the room's paperwork: square, ruled, flat, with a solid intaglio head. Every panel on the desk is one of these. Not a card — cards are what the credentials themselves are.",
+      "html": "<section class=\"ds-sheet\"><div class=\"ds-sheet-head\"><span class=\"ds-sheet-title\">Access register</span><span class=\"ds-sheet-aside\">004 entries</span></div><div class=\"ds-sheet-body\"><p class=\"ds-note\">Entries are recorded to the room and persisted.</p></div></section>",
+      "css": ".ds-sheet { background: var(--stock-face, #f5f7f2); border: 1px solid var(--rule, #b3bbad); border-radius: 2px; } .ds-sheet-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; background: var(--secure, #0c4b33); color: var(--secure-ink, #f5f7f2); border-bottom: 1px solid var(--secure-deep, #073323); } .ds-sheet-title { font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; } .ds-sheet-aside { margin-left: auto; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.11em; opacity: 0.75; } .ds-sheet-body { padding: 0.75rem; } .ds-note { margin: 0; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-size: 0.75rem; line-height: 1.55; color: var(--ink-3, #525b56); }"
+    },
+    {
+      "name": "Credential",
+      "kind": "custom",
+      "refersTo": "credential",
+      "description": "An issued document. The only 12px corner in the system, the only resting lift, and the only place a role band appears. The band's bottom corners are computed inside the border radius.",
+      "html": "<article class=\"ds-credential\"><div class=\"ds-credential-body\"><span class=\"ds-portrait\"><svg class=\"ds-guilloche\" viewBox=\"-50 -50 100 100\" aria-hidden=\"true\"><path d=\"M35.33 0L28.98 15.16L15.63 25.02L-0.90 27.15L-16.53 21.10L-27.36 8.42L-30.60 -7.30L-25.45 -22.16L-13.44 -32.05L2.10 -34.86L17.16 -29.85L28.10 -17.98L32.11 -2.31Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"0.5\" stroke-linejoin=\"round\" opacity=\"0.9\" vector-effect=\"non-scaling-stroke\"/></svg><span class=\"ds-initials\">AL</span></span><div class=\"ds-credential-fields\"><p class=\"ds-name\">Ada Lovelace</p><dl class=\"ds-datarow\"><dt class=\"ds-legend\">Ser</dt><dd class=\"ds-value\">cmti4oesb000</dd></dl></div><span class=\"ds-lamp ds-lamp-live\"></span></div><div class=\"ds-band\"><span class=\"ds-legend ds-band-text\">Owner</span><span class=\"ds-legend ds-band-text\">Bearer</span></div></article>",
+      "css": ".ds-credential { position: relative; overflow: hidden; background: var(--stock-face, #f5f7f2); border: 1px solid var(--rule, #b3bbad); border-radius: 12px; box-shadow: 0 1px 0 rgba(15, 26, 21, 0.06), 0 8px 18px -12px rgba(15, 26, 21, 0.45); } .ds-credential-body { display: flex; align-items: flex-start; gap: 0.625rem; padding: 0.625rem; } .ds-portrait { position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; height: 3.5rem; width: 3rem; flex-shrink: 0; border: 1px solid var(--rule, #b3bbad); border-radius: 2px; background: var(--stock-sunk, #d3d9cd); color: var(--secure, #0c4b33); } .ds-guilloche { position: absolute; inset: 0; height: 100%; width: 100%; } .ds-initials { position: relative; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--ink, #0f1a15); } .ds-credential-fields { min-width: 0; flex: 1; } .ds-name { margin: 0; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-weight: 600; font-size: 0.9375rem; line-height: 1.2; color: var(--ink, #0f1a15); } .ds-datarow { display: flex; align-items: baseline; gap: 0.5rem; margin: 0.375rem 0 0; } .ds-legend { font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.625rem; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.11em; color: var(--ink-2, #46504a); } .ds-value { margin: 0; font-family: 'Courier Prime', 'Courier New', monospace; font-variant-numeric: tabular-nums; font-size: 0.6875rem; letter-spacing: 0.01em; color: var(--ink-2, #46504a); } .ds-band { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.25rem 0.6rem; background: var(--secure, #0c4b33); color: var(--secure-ink, #f5f7f2); border-radius: 0 0 11px 11px; } .ds-band-text { color: inherit; } .ds-lamp { display: inline-block; width: 0.5rem; height: 0.5rem; margin-top: 0.375rem; border-radius: 9999px; background: var(--ink-3, #525b56); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ink-3, #525b56) 22%, transparent); } .ds-lamp-live { background: var(--lamp, #10774f); box-shadow: 0 0 0 2px color-mix(in srgb, var(--lamp, #10774f) 26%, transparent); }"
+    },
+    {
+      "name": "MRZ Strip",
+      "kind": "custom",
+      "refersTo": "mrz",
+      "description": "The machine-readable zone at the foot of a credential. These are the real signed token characters, chevron-padded into 30-character courses. Case is never normalised: the strip has to stay the payload.",
+      "html": "<div class=\"ds-mrz\" aria-label=\"Signed invite token\"><div>eyJhbGciOiJFZERTQSIsInR5cCI6</div><div>IkpXVCJ9.eyJyb29tIjoic2FibGU&lt;</div><div>PAIRCODE&lt;&lt;ACCESS&lt;CONTROL&lt;&lt;&lt;&lt;&lt;&lt;</div></div>",
+      "css": ".ds-mrz { padding: 0.5rem 0.65rem; background: var(--stock-sunk, #d3d9cd); border-top: 1px solid var(--rule, #b3bbad); color: var(--ink, #0f1a15); font-family: 'Courier Prime', 'Courier New', monospace; font-size: 0.6875rem; line-height: 1.5; letter-spacing: 0.14em; word-break: break-all; }"
+    },
+    {
+      "name": "Cancellation Stamp",
+      "kind": "custom",
+      "refersTo": "stamp",
+      "description": "Struck, not deleted. Appears inline on an audit record, or centred and rotated over a credential whose access was actually revoked. It lands with a press-overshoot-settle rather than fading in.",
+      "html": "<span class=\"ds-stamp\">Revoked</span>",
+      "css": ".ds-stamp { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.1rem 0.35rem; border: 1.5px solid currentColor; border-radius: 2px; color: var(--cancel, #a52a1a); font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 700; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.14em; animation: ds-stamp-down 220ms cubic-bezier(0.22, 1, 0.36, 1) both; } @keyframes ds-stamp-down { 0% { opacity: 0; transform: rotate(-9deg) scale(1.5); } 60% { opacity: 1; transform: rotate(-9deg) scale(0.94); } 100% { opacity: 1; transform: rotate(-9deg) scale(1); } }"
+    },
+    {
+      "name": "Overprint",
+      "kind": "custom",
+      "refersTo": "field",
+      "description": "The system's answer to permission. A locked field is shown in its real state under a 45-degree hatch, with the reason printed in the bottom-right corner so it never lands across the copy it protects. Owner-only capabilities are never hidden.",
+      "html": "<div class=\"ds-overprint\" data-overprint=\"Owner only\"><textarea class=\"ds-overprint-field\" disabled>src/app/page.tsx\nsrc/lib/realtime.ts</textarea></div>",
+      "css": ".ds-overprint { position: relative; } .ds-overprint::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(-45deg, transparent 0 7px, color-mix(in srgb, var(--ink-3, #525b56) 9%, transparent) 7px 8px); } .ds-overprint::after { content: attr(data-overprint); position: absolute; right: 0.4rem; bottom: 0.4rem; pointer-events: none; padding: 0.1rem 0.35rem; background: var(--stock-face, #f5f7f2); border: 1px solid var(--ink-3, #525b56); border-radius: 2px; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 700; font-size: 0.5625rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-2, #46504a); } .ds-overprint-field { display: block; width: 100%; min-height: 4rem; resize: none; padding: 0.5rem 0.65rem; background: var(--stock-sunk, #d3d9cd); border: 1px solid var(--rule, #b3bbad); border-bottom-width: 2px; border-bottom-color: var(--rule-strong, #8b948660); border-radius: 2px; color: var(--ink-3, #525b56); font-family: 'Courier Prime', 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.55; cursor: not-allowed; }"
+    },
+    {
+      "name": "Register Course",
+      "kind": "custom",
+      "refersTo": "log-row",
+      "description": "One entry in the access register. Fixed Courier time column, identity chip, name, body. Even courses are washed with the plate tint, giving a printed ledger's alternating band. System and audit events print as their own compressed row on banded stock.",
+      "html": "<div class=\"ds-log\"><article class=\"ds-log-row\"><span class=\"ds-log-time\">10:49 PM</span><div class=\"ds-log-body\"><p class=\"ds-log-name\">Ada Lovelace</p><p class=\"ds-log-text\">Decision: keep RBAC checks per event on the socket server.</p></div></article><article class=\"ds-log-row\"><span class=\"ds-log-time\">10:51 PM</span><div class=\"ds-log-body\"><p class=\"ds-log-name\">Grace Hopper</p><p class=\"ds-log-text\">Ticket redemption is a hard delete, so a replayed handshake fails.</p></div></article><div class=\"ds-log-system\"><span class=\"ds-log-time\">10:52 PM</span><span class=\"ds-log-systext\"><span class=\"ds-legend\">Room audit</span> Ada Lovelace rotated the room invite link.</span></div></div>",
+      "css": ".ds-log { border: 1px solid var(--rule, #b3bbad); background: var(--stock-face, #f5f7f2); } .ds-log-row { position: relative; display: flex; gap: 0.75rem; padding: 0.6rem 0.75rem 0.7rem; border-bottom: 1px solid var(--rule, #b3bbad); } .ds-log-row:nth-of-type(even) { background: var(--secure-wash, rgba(12, 75, 51, 0.04)); } .ds-log-time { width: 4rem; flex-shrink: 0; white-space: nowrap; padding-top: 0.125rem; font-family: 'Courier Prime', 'Courier New', monospace; font-variant-numeric: tabular-nums; font-size: 0.6875rem; color: var(--ink-3, #525b56); } .ds-log-body { min-width: 0; flex: 1; } .ds-log-name { margin: 0; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-weight: 600; font-size: 0.8125rem; color: var(--ink, #0f1a15); } .ds-log-text { margin: 0.375rem 0 0; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-size: 0.875rem; line-height: 1.65; color: var(--ink, #0f1a15); } .ds-log-system { display: flex; align-items: center; gap: 0.75rem; padding: 0.375rem 0.75rem; background: var(--stock-rack, #dbdfd5); border-bottom: 1px solid var(--rule, #b3bbad); } .ds-log-systext { flex: 1; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-size: 0.75rem; line-height: 1.4; color: var(--ink-2, #46504a); } .ds-legend { font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.11em; color: var(--ink-2, #46504a); margin-right: 0.375rem; }"
+    },
+    {
+      "name": "Masthead",
+      "kind": "nav",
+      "refersTo": "sheet-head",
+      "description": "The only persistent chrome in the product. Full-bleed intaglio carrying the mark, the wordmark, the reader lamp with its status word, and the operator's controls. There is no nav bar.",
+      "html": "<div class=\"ds-masthead\"><svg class=\"ds-mark\" viewBox=\"0 0 64 64\" fill=\"none\" aria-hidden=\"true\"><rect x=\"1\" y=\"1\" width=\"62\" height=\"62\" rx=\"7.4\" fill=\"#F5F7F2\" stroke=\"#0C4B33\" stroke-width=\"2\"/><circle cx=\"32\" cy=\"32\" r=\"22\" fill=\"none\" stroke=\"#0C4B33\" stroke-width=\"1.5\"/><circle cx=\"32\" cy=\"32\" r=\"16\" fill=\"none\" stroke=\"#0C4B33\" stroke-width=\"1.1\" opacity=\"0.55\"/><g stroke=\"#0C4B33\" stroke-width=\"4.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" fill=\"none\"><path d=\"M25.5 24 L19 32 L25.5 40\"/><path d=\"M38.5 24 L45 32 L38.5 40\"/></g></svg><span class=\"ds-wordmark\">PairCode</span><span class=\"ds-divider\"></span><span class=\"ds-masthead-legend\">Collaborative engineering rooms</span><span class=\"ds-masthead-status\"><span class=\"ds-lamp-live\"></span><span class=\"ds-masthead-legend ds-bright\">Connected</span><span class=\"ds-masthead-value\">f1510c</span></span></div>",
+      "css": ".ds-masthead { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 1.25rem; background: var(--secure, #0c4b33); color: var(--secure-ink, #f5f7f2); border-bottom: 1px solid var(--secure-deep, #073323); } .ds-mark { width: 26px; height: 26px; flex-shrink: 0; } .ds-wordmark { font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 700; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.2em; } .ds-divider { height: 1.25rem; width: 1px; background: rgba(245, 247, 242, 0.25); } .ds-masthead-legend { font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-stretch: 78%; font-weight: 600; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.11em; color: rgba(245, 247, 242, 0.85); } .ds-bright { color: var(--secure-ink, #f5f7f2); } .ds-masthead-status { margin-left: auto; display: flex; align-items: center; gap: 0.375rem; } .ds-masthead-value { font-family: 'Courier Prime', 'Courier New', monospace; font-size: 0.6875rem; color: rgba(245, 247, 242, 0.85); } .ds-lamp-live { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: var(--lamp, #10774f); box-shadow: 0 0 0 2px color-mix(in srgb, var(--lamp, #10774f) 26%, transparent); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Credential",
+    "overview": "PairCode is an access-control system, so its interface is a credential and a reader — not a dashboard about security. The world is borrowed from secured document printing: safety-paper stock in a green-grey that no word processor produces by accident, one committed intaglio green for anything the server has actually decided, ruled hairlines instead of gaps, and issued cards carrying a portrait panel, a role band and a machine-readable strip. A reviewer landing cold should be able to tell within seconds that identity, permission and liveness are facts being printed onto an artifact, not decorations arranged around one.\n\nThe governing commitment is that every credential device on the surface encodes a real fact. A role band is the real role the server returned. An expiry is the real invite expiry. The MRZ strip is the real signed invite token, chevron-padded into fixed 30-character courses but never case-normalised, because the strip has to remain the payload. The guilloché rosette is a deterministic hypotrochoid derived from the identity's own id — a visual hash, so the same operator carries the same figure in every room on every device, and two operators cannot collide by accident. A cancellation stamp appears only where access has actually been revoked. Ornament that means nothing is out of system and should be deleted rather than restyled.\n\nThe density is high and deliberately clerical: a fixed-height three-column desk at desktop, columns that scroll inside themselves, near-zero decorative whitespace. What the world refuses is the elevated-card grid every collaboration tool ships — floating rounded panels on a neutral page, separated by shadow and air. Here separation is done with a 1px rule and a tonal shift in the stock, and lift is reserved for the two things that are physically loose objects. The build ships one authored moment of motion: the reader sweep that crosses a panel while the room agent is actually streaming.",
+    "keyCharacteristics": [
+      "Safety-paper green-grey stock, never cream and never pure white",
+      "One committed colour (intaglio green) plus two exception colours that appear only when their fact is true",
+      "Archivo condensed caps for printed legends, Courier Prime for machine-typed values — two voices, never blended",
+      "Hairline rules and banded stock in place of gaps and shadows",
+      "Square 2px corners everywhere; the 12px ID-1 corner belongs to issued credentials alone",
+      "Every device on the surface is decodable from a legend printed on the same page"
+    ],
+    "rules": [
+      { "name": "The One Green Rule", "body": "Intaglio green is the system's only committed colour. Ochre and vermilion are not accents available for emphasis — each is bound to one condition (a live guest session; an actual revocation or refusal). If a new panel wants a third colour to make something stand out, the answer is a rule, a band, or a legend, not a new hue.", "section": "colors" },
+      { "name": "The Never-By-Eye Rule", "body": "lib/theme-contrast.test.ts parses the token values straight out of app/globals.css and asserts 4.5:1 in both themes for every foreground/background pair that ships text — there is no shipped text pair the suite does not cover — plus 3:1 for the lamp against the sheet. Retuning a colour because it looked better on your monitor will fail the suite before it ships. Change a token, run bun test, and if a pair fails, move the token — do not relax the pair. A new coloured surface that carries text arrives with its own themed ink token and its own asserted pair; that is what keeps this rule true.", "section": "colors" },
+      { "name": "The Fact-Bound Ink Rule", "body": "A colour on this surface is a claim. Green means the server committed; ochre means provisional and short-lived; vermilion means refused or revoked. Never reach for one because a control needed to look important.", "section": "colors" },
+      { "name": "The Two-Voice Rule", "body": "If a human or a designer wrote it, it is Archivo. If a machine produced it — an id, a token, a code, a timestamp, a path, a count — it is Courier Prime via .value. There is no third voice, and no mixing inside one string.", "section": "typography" },
+      { "name": "The Sentence Is Never Tracked Rule", "body": "Tracked caps are for fixed printed legends of one to three words. A full sentence goes in .note or body, in sentence case. A legend that has grown into a sentence is a .note that was mislabelled.", "section": "typography" },
+      { "name": "The Mark Step Rule", "body": "0.5625rem is a mark, not a size. It is available only for a word stamped onto an object or an initial set inside a credential mark, where the reader decodes a symbol rather than reads a line. Anything a person actually reads — a label, a caption, a divider, a hint — starts at the 0.625rem legend and goes up. If you are reaching for the mark step to fit more text into a space, the answer is less text or a bigger space.", "section": "typography" },
+      { "name": "The Payload Is Not Copy Rule", "body": "Strings that are real payloads — the invite token in the MRZ, a socket id, a user id — are never case-normalised, prettified, or truncated for looks. Pad and wrap them; do not edit them.", "section": "typography" },
+      { "name": "The Ruled Course Rule", "body": "Regions are separated by a 1px rule and a tonal shift in the stock, not by a gap plus a shadow. A new panel joins the desk by adopting .sheet and a .sheet-head; it does not float beside the others.", "section": "layout" },
+      { "name": "The Internal Scroll Rule", "body": "At lg the shell owns the viewport height and every column scrolls in place. A new panel must survive min-h-0 inside a flex column — give it flex min-h-0 flex-col and put the scroll on its own content, never on the page.", "section": "layout" },
+      { "name": "The Only Credentials Lift Rule", "body": "If a surface is not an issued credential or a genuinely floating overlay, it gets a border and a tonal step, never a shadow. A new sheet carrying a box-shadow has left the world.", "section": "elevation" },
+      { "name": "The Contact Line Rule", "body": "Every shadow in this system opens with a 1px zero-blur line before its soft drop. A single soft blur alone reads as a web card, not as paper on paper.", "section": "elevation" },
+      { "name": "The ID-1 Corner Rule", "body": "12px belongs to issued credentials. Everything else on the surface is 2px. If you find yourself wanting a rounded panel, you are building a card in a world that has no cards — build a .sheet.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do make every credential device encode a real fact. A band is a real role; an expiry is the real expiry; an MRZ strip is a real signed token; a guilloché is a hash of a real id; a stamp means access was actually revoked. If you cannot bind a device to a fact, delete it.",
+      "Do build a new panel as a .sheet with a .sheet-head — square 2px, 1px rule border, stock-face ground, flat, intaglio head carrying a legend-lg title.",
+      "Do keep the vocabulary in @layer components and the tokens unlayered, so Tailwind utilities keep overriding the vocabulary. Do not restructure the layers in app/globals.css.",
+      "Do run bun test after touching any colour. lib/theme-contrast.test.ts reads the tokens straight out of the stylesheet and asserts 4.5:1 in both themes.",
+      "Do print a legend for any new mark you introduce. The rack's \"Key to the marks\" is held level with the rack it explains; a device the reader cannot decode from the same page does not ship.",
+      "Do carry state in a word as well as in a colour or a shape — Visitor, Away, Revoked, Machine issued, connected.",
+      "Do show owner-only controls in their real disabled state under .overprint with a reason, rather than hiding them.",
+      "Do set machine-produced strings in .value (Courier Prime, tabular figures), and zero-pad counts.",
+      "Do author both themes when you add a token. Dark is a real rendition of the same door, not a filter."
+    ],
+    "donts": [
+      "Don't put a 12px radius on anything that is not an issued credential, and don't introduce a third radius. 2px everywhere, 12px for .credential, 9999px for the lamp dot.",
+      "Don't add a box-shadow to a sheet, a row, a field, or a badge. Only credentials and genuinely floating overlays lift, and both shadows open with a 1px contact line.",
+      "Don't introduce a fourth colour. If something needs emphasis, use a rule, a band, a legend, or a tonal step in the stock. Ochre and vermilion are bound to guest sessions and to revocation or refusal respectively.",
+      "Don't set a sentence in tracked caps, or a person's name in the legend voice. .legend is for one-to-three-word printed labels.",
+      "Don't case-normalise, prettify, or truncate a real payload for the sake of the layout. Pad and wrap it.",
+      "Don't seed a guilloché with anything but a stable real identity. No random seeds, no list indices, no display names.",
+      "Don't separate panels with air and elevation. This world separates with a hairline and a tonal shift.",
+      "Don't print text onto a coloured field with a literal colour. A coloured field gets a themed ink token — secure-ink, provisional-ink — and an asserted contrast pair alongside it.",
+      "Don't claim the mobile layout works. It is authored but has never been captured; verify it before you rely on it."
+    ]
+  }
+}

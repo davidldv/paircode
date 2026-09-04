@@ -16,7 +16,7 @@ function ScrollArea({ className, children, viewportRef, viewportClassName, onVie
     <ScrollAreaPrimitive.Root className={cn("relative", className)} {...props}>
       <ScrollAreaPrimitive.Viewport
         ref={viewportRef}
-        className={cn("h-full w-full rounded-[inherit]", viewportClassName)}
+        className={cn("h-full w-full", viewportClassName)}
         onScroll={onViewportScroll}
       >
         {children}
@@ -32,13 +32,13 @@ function ScrollBar({ className, orientation = "vertical", ...props }: React.Comp
     <ScrollAreaPrimitive.ScrollAreaScrollbar
       orientation={orientation}
       className={cn(
-        "flex touch-none select-none p-px transition-colors",
-        orientation === "vertical" ? "h-full w-2.5 border-l border-l-transparent" : "h-2.5 flex-col border-t border-t-transparent",
+        "flex touch-none select-none bg-transparent p-px transition-colors",
+        orientation === "vertical" ? "h-full w-2.5 border-l border-l-(--rule)" : "h-2.5 flex-col border-t border-t-(--rule)",
         className
       )}
       {...props}
     >
-      <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-(--panel-border-strong) transition-colors hover:bg-(--muted)" />
+      <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-[2px] bg-(--rule-strong) transition-colors hover:bg-(--ink-3)" />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>
   );
 }

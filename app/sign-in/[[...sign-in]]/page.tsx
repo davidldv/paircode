@@ -72,18 +72,21 @@ export default function SignInPage() {
 
   return (
     <AuthShell
-      title="Sign in to the engineering workspace"
-      description="Access collaborative rooms with a verified operator identity, persistent threaded context, and room-level implementation history."
+      title="Present your credential"
+      description="PairCode issues every operator a verified identity before they reach a room. Sign in and the server — not this page — decides what you may read, write, and administer inside it."
+      bearerName={email ? email.split("@")[0].replace(/[._-]+/g, " ") : ""}
+      bearerSeed={email}
+      formTitle="Present credential"
     >
       <form
         onSubmit={(event) => {
           event.preventDefault();
           void submit();
         }}
-        className="flex w-full flex-col gap-4 animate-fade-in"
+        className="flex w-full flex-col gap-3.5"
       >
-        <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
-          Email
+        <label className="block">
+          <span className="legend mb-1 block">Email</span>
           <Input
             type="email"
             autoComplete="email"
@@ -91,63 +94,70 @@ export default function SignInPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            className="h-11"
+            className="h-10"
           />
         </label>
-        <label className="flex flex-col gap-1.5 text-sm font-medium text-foreground">
-          Password
-          <div className="relative">
+
+        <label className="block">
+          <span className="legend mb-1 block">Password</span>
+          <span className="relative block">
             <Input
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="h-11 w-full pr-11"
+              className="h-10 w-full pr-10"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[10px] text-(--muted) transition-colors hover:text-foreground"
+              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-(--ink-3) transition-colors hover:text-(--ink)"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
-          </div>
+          </span>
         </label>
+
         {error ? (
-          <p className="rounded-[10px] border border-(--danger)/30 bg-(--danger-tint) px-3.5 py-2.5 text-sm text-(--danger) animate-slide-up">
+          <p className="print-in border border-(--cancel) bg-(--cancel-tint) px-2.5 py-2 text-[0.8125rem] leading-relaxed text-(--cancel)">
+            <span className="legend mr-1.5 text-(--cancel)">Refused</span>
             {error}
           </p>
         ) : null}
 
-        <div className="mt-2 flex flex-col gap-2.5">
-          <Button type="submit" size="lg" disabled={submitting || guestSubmitting} className="text-[15px]">
-            {submitting ? "Signing in…" : "Sign in"}
-          </Button>
+        <Button type="submit" size="lg" disabled={submitting || guestSubmitting}>
+          {submitting ? "Reading credential…" : "Sign in"}
+        </Button>
 
-          <Button
-            type="button"
-            onClick={submitGuest}
-            variant="secondary"
-            size="lg"
-            disabled={submitting || guestSubmitting}
-            className="text-[15px]"
-          >
-            {guestSubmitting ? (
-              "Creating guest session…"
-            ) : (
-              <>
-                <UserCircle2 className="h-4 w-4" /> Try as guest
-              </>
-            )}
-          </Button>
+        <div className="flex items-center gap-2.5">
+          <span className="h-px flex-1 bg-(--rule)" />
+          <span className="legend">or</span>
+          <span className="h-px flex-1 bg-(--rule)" />
         </div>
 
-        <p className="mt-2 text-center text-sm text-(--muted)">
+        <Button
+          type="button"
+          onClick={submitGuest}
+          variant="secondary"
+          size="lg"
+          disabled={submitting || guestSubmitting}
+        >
+          <UserCircle2 className="h-3.5 w-3.5" />
+          {guestSubmitting ? "Issuing visitor pass…" : "Issue a visitor pass"}
+        </Button>
+        <p className="note">
+          A visitor pass is a real, short-lived guest session. It opens rooms you create; it is not a demo mode.
+        </p>
+
+        <p className="mt-1 border-t border-(--rule) pt-3 text-center text-[0.8125rem] text-(--ink-2)">
           No account yet?{" "}
-          <Link href="/sign-up" className="font-medium text-(--accent) transition-colors hover:text-(--accent-soft)">
-            Create one
+          <Link
+            href="/sign-up"
+            className="font-[600] text-(--secure) underline decoration-(--secure)/40 transition-colors hover:decoration-(--secure)"
+          >
+            Apply for one
           </Link>
         </p>
       </form>

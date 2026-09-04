@@ -1,7 +1,18 @@
 import type { ReactNode } from "react";
-import { Hash, Keyboard, LoaderCircle, LogOut, Moon, Sun, Users, Wifi, WifiOff, X } from "lucide-react";
+import {
+  Hash,
+  Keyboard,
+  LoaderCircle,
+  LogIn,
+  LogOut,
+  Moon,
+  SquareMenu,
+  Sun,
+  X,
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import { IdentityChip } from "@/components/paircode/identity";
+import { isGuestOperator } from "@/lib/paircode";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -12,6 +23,8 @@ type HeaderCardProps = {
   statusBadgeVariant: "default" | "success" | "danger";
   theme: "light" | "dark";
   mySocketId: string;
+  /** The stable identity every guilloché on this surface is engraved from. */
+  operatorId: string;
   roomId: string;
   operatorName: string;
   operatorEmail: string;
@@ -22,6 +35,8 @@ type HeaderCardProps = {
   modeLabel: string;
   showHints: boolean;
   canLeave: boolean;
+  /** Opens the quick-actions sheet. Small screens only. */
+  onOpenActions: () => void;
   onRoomIdChange: (value: string) => void;
   onJoin: () => void;
   onLeave: () => void;
@@ -29,11 +44,18 @@ type HeaderCardProps = {
   onDismissHints: () => void;
 };
 
+const LAMP: Record<HeaderCardProps["status"], string> = {
+  connected: "lamp lamp-live",
+  connecting: "lamp lamp-reading",
+  disconnected: "lamp lamp-denied",
+  idle: "lamp",
+};
+
 export function HeaderCard({
   status,
-  statusBadgeVariant,
   theme,
   mySocketId,
+  operatorId,
   roomId,
   operatorName,
   operatorEmail,
@@ -44,6 +66,7 @@ export function HeaderCard({
   modeLabel,
   showHints,
   canLeave,
+  onOpenActions,
   onRoomIdChange,
   onJoin,
   onLeave,
@@ -51,124 +74,154 @@ export function HeaderCard({
   onDismissHints,
 }: HeaderCardProps) {
   return (
-    <header className="app-bar fade-up sticky top-3 z-30 px-4 py-3.5 md:px-5">
-      {/* Top tier — identity and account controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--surface-strong) ring-1 ring-(--panel-border)">
-            <img src="/brand/paircode-mark.svg" alt="PairCode" width={22} height={22} className="opacity-90" />
-          </div>
-          <div className="leading-tight">
-            <p className="text-[15px] font-semibold tracking-tight text-foreground">PairCode</p>
-            <p className="truncate text-xs text-(--muted)">
-              <span className="text-foreground/80">{operatorName}</span>
-              <span className="mx-1.5 text-(--panel-border-strong)">·</span>
-              <span className="truncate">{operatorEmail}</span>
-            </p>
-          </div>
-        </div>
+    <header className="sticky top-0 z-30">
+      {/* Masthead — the issuing authority, printed across the full sheet. */}
+      <div className="flex items-center gap-3 border-b border-(--secure-deep) bg-(--secure) px-3 py-2 text-(--secure-ink) md:px-5">
+        <img src="/brand/paircode-mark.svg" alt="" width={26} height={26} className="shrink-0" />
+        <span className="text-[0.9375rem] font-[700] uppercase tracking-[0.2em] [font-stretch:78%]">
+          PairCode
+        </span>
 
-        <div className="flex items-center gap-2">
-          <Badge variant={statusBadgeVariant} className="h-7 gap-1.5 px-2.5">
-            {status === "connected" ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}
-            <span className="capitalize">{status}</span>
-            {mySocketId ? <span className="mono-label ml-0.5 opacity-60">{mySocketId.slice(0, 4)}</span> : null}
-          </Badge>
+        <span className="ml-1 hidden h-5 w-px bg-(--secure-ink)/25 sm:block" />
 
-          <div className="h-5 w-px bg-(--panel-border)" />
+        <span className="legend hidden text-(--secure-ink)/85 sm:inline">
+          Collaborative engineering rooms
+        </span>
 
-          <Button
+        <div className="ml-auto flex items-center gap-2.5">
+          <span className="flex items-center gap-1.5" title={`Connection ${status}`}>
+            <span className={LAMP[status]} />
+            <span className="legend text-(--secure-ink)">{status}</span>
+            {mySocketId ? (
+              <span className="value hidden text-[0.6875rem] text-(--secure-ink)/85 sm:inline">
+                {mySocketId.slice(0, 6)}
+              </span>
+            ) : null}
+          </span>
+
+          <span className="h-5 w-px bg-(--secure-ink)/25" />
+
+          <button
             type="button"
-            variant="ghost"
-            size="icon"
+            onClick={onOpenActions}
+            aria-label="Open quick actions"
+            className="flex h-8 items-center gap-1.5 rounded-[2px] border border-transparent px-2 text-(--secure-ink) transition-colors duration-100 hover:bg-(--secure-ink)/12 active:translate-y-px lg:hidden"
+          >
+            <SquareMenu className="h-4 w-4" />
+            <span className="legend text-(--secure-ink)">Actions</span>
+          </button>
+
+          <button
+            type="button"
             onClick={onToggleTheme}
-            aria-label="Toggle theme"
+            aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+            className="flex h-8 w-8 items-center justify-center rounded-[2px] border border-transparent text-(--secure-ink) transition-colors duration-100 hover:bg-(--secure-ink)/12 active:translate-y-px"
           >
             {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-          </Button>
+          </button>
           {authControl}
         </div>
       </div>
 
-      {/* Bottom tier — room switcher and live stats */}
-      <div className="mt-3.5 flex flex-wrap items-center gap-3 border-t border-(--panel-border) pt-3.5">
-        <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-initial">
-          <div className="relative min-w-0 flex-1 sm:w-64 sm:flex-initial">
-            <Hash className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--muted)" />
-            <Input
-              value={roomId}
-              onChange={(event) => onRoomIdChange(formatRoomId(event.target.value))}
-              placeholder="room-code"
-              className="h-10 pl-9 font-mono"
-            />
+      {/* Bearer strip — whose credential is in the reader, and which door. */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 border-b border-(--rule) bg-(--stock-face) px-3 py-2.5 md:px-5">
+        <div className="flex min-w-0 items-center gap-2">
+          <IdentityChip seed={operatorId} name={operatorName} />
+          <div className="min-w-0 leading-tight">
+            <div className="flex items-center gap-1.5">
+              <p className="truncate text-[0.8125rem] font-[600] text-(--ink)">{operatorName}</p>
+              {isGuestOperator(operatorEmail) ? (
+                <span className="legend shrink-0 rounded-[2px] bg-(--provisional) px-1.5 py-px text-(--provisional-ink)">
+                  Visitor
+                </span>
+              ) : null}
+            </div>
+            <p className="value truncate text-[0.6875rem] text-(--ink-3)">{operatorEmail}</p>
           </div>
-          <Button onClick={onJoin} className="h-10 shrink-0">
-            {status === "connecting" ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <Users className="h-4 w-4" />
-            )}
-            <span className="hidden sm:inline">
-              {status === "connecting" ? "Connecting" : activeRoom ? "Switch" : "Join"}
+        </div>
+
+        <div className="flex min-w-0 flex-1 items-end gap-2">
+          <label className="min-w-0 flex-1 sm:w-56 sm:flex-initial">
+            <span className="legend mb-1 block">Room designation</span>
+            <span className="relative block">
+              <Hash className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-(--ink-3)" />
+              <Input
+                value={roomId}
+                onChange={(event) => onRoomIdChange(formatRoomId(event.target.value))}
+                placeholder="room-code"
+                className="value pl-9 uppercase tracking-[0.08em]"
+              />
             </span>
+          </label>
+          <Button onClick={onJoin} disabled={status === "connecting"}>
+            {status === "connecting" ? (
+              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <LogIn className="h-3.5 w-3.5" />
+            )}
+            {status === "connecting" ? "Reading" : activeRoom ? "Switch" : "Join"}
           </Button>
-          <Button
-            onClick={onLeave}
-            variant="secondary"
-            disabled={!canLeave}
-            className="h-10 shrink-0"
-          >
-            <LogOut className="h-4 w-4" />
+          <Button onClick={onLeave} variant="secondary" disabled={!canLeave}>
+            <LogOut className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Leave</span>
           </Button>
         </div>
 
-        <div className="ml-auto flex items-center gap-3">
-          {activeRoom ? (
-            <div className="flex items-center gap-2.5 rounded-full border border-(--panel-border) bg-(--surface-strong) py-1 pl-2.5 pr-3.5">
-              <span className="live-dot" />
-              <span className="text-sm font-medium text-foreground">{activeRoom}</span>
-              <span className="hidden text-xs text-(--muted) sm:inline">
-                {usersCount} online · {messagesCount} events · AI {modeLabel}
+        {/* Register — the facts the door currently holds. */}
+        <dl className="ml-auto flex items-stretch divide-x divide-(--rule) border border-(--rule) bg-(--stock-sunk)">
+          <RegisterCell label="Room">
+            {activeRoom ? (
+              <span className="value text-[1.0625rem] uppercase tracking-[0.04em] text-(--ink)">
+                {activeRoom}
               </span>
-            </div>
-          ) : (
-            <span className="rounded-full border border-(--panel-border) bg-(--surface-strong) px-3.5 py-1.5 text-xs font-medium text-(--muted)">
-              Not in a room
-            </span>
-          )}
-        </div>
+            ) : (
+              <span className="note">none</span>
+            )}
+          </RegisterCell>
+          <RegisterCell label="Present">{usersCount}</RegisterCell>
+          <RegisterCell label="Entries">{messagesCount}</RegisterCell>
+          <RegisterCell label="Agent">
+            <span className="value uppercase text-(--ink)">{modeLabel}</span>
+          </RegisterCell>
+        </dl>
       </div>
 
       {showHints ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-(--panel-border) pt-3">
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-(--muted)">
-            <Keyboard className="h-3.5 w-3.5" /> Shortcuts
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-(--rule) bg-(--stock-rack) px-3 py-1.5 md:px-5">
+          <span className="legend flex items-center gap-1.5">
+            <Keyboard className="h-3 w-3" /> Keys
           </span>
           <Kbd>Shift + M</Kbd>
-          <span className="text-xs text-(--muted)">focus message</span>
+          <span className="note">focus entry</span>
           <Kbd>Shift + J</Kbd>
-          <span className="text-xs text-(--muted)">join room</span>
+          <span className="note">join room</span>
           <Kbd>⌘ / Ctrl + ↵</Kbd>
-          <span className="text-xs text-(--muted)">send / run</span>
-          <Button
+          <span className="note">send or run</span>
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
             onClick={onDismissHints}
-            className="ml-auto h-7 px-2 text-xs"
+            className="legend ml-auto flex items-center gap-1 text-(--ink-3) transition-colors hover:text-(--ink)"
           >
-            <X className="h-3.5 w-3.5" /> Dismiss
-          </Button>
+            <X className="h-3 w-3" /> Dismiss
+          </button>
         </div>
       ) : null}
     </header>
   );
 }
 
+function RegisterCell({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="px-2.5 py-1">
+      <dt className="legend">{label}</dt>
+      <dd className="value text-[0.8125rem] leading-tight text-(--ink)">{children}</dd>
+    </div>
+  );
+}
+
 function Kbd({ children }: { children: ReactNode }) {
   return (
-    <kbd className="rounded-md border border-(--panel-border) bg-(--surface-strong) px-1.5 py-0.5 font-mono text-[11px] font-medium text-foreground">
+    <kbd className="value rounded-[2px] border border-(--rule-strong) bg-(--stock-face) px-1.5 py-px text-[0.6875rem] text-(--ink)">
       {children}
     </kbd>
   );

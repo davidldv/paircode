@@ -46,3 +46,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# impeccable: keep the design system, drop the session artifacts
+/.impeccable/review/
+/.impeccable/questions/
+/.impeccable/direction-payload.json

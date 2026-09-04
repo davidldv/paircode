@@ -1,4 +1,4 @@
-import { Command, LogIn, LogOut, MessageSquareText, Moon, Sparkles, Sun, X } from "lucide-react";
+import { LogIn, LogOut, MessageSquareText, Moon, Sparkles, Sun, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -6,7 +6,6 @@ type MobileCommandPaletteProps = {
   open: boolean;
   theme: "light" | "dark";
   canLeave: boolean;
-  onOpen: () => void;
   onClose: () => void;
   onFocusMessage: () => void;
   onJoin: () => void;
@@ -19,7 +18,6 @@ export function MobileCommandPalette({
   open,
   theme,
   canLeave,
-  onOpen,
   onClose,
   onFocusMessage,
   onJoin,
@@ -29,51 +27,95 @@ export function MobileCommandPalette({
 }: MobileCommandPaletteProps) {
   return (
     <>
-      <button
-        type="button"
-        onClick={onOpen}
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--accent) text-(--accent-contrast) shadow-[var(--panel-shadow-lg)] transition-transform duration-150 hover:-translate-y-0.5 active:scale-95 lg:hidden"
-        aria-label="Open command palette"
-      >
-        <Command className="h-5 w-5" />
-      </button>
-
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-(--ink)/55"
             onClick={onClose}
-            aria-label="Close command palette"
+            aria-label="Close quick actions"
           />
-          <div className="toast-in absolute inset-x-0 bottom-0 rounded-t-2xl border-t border-(--panel-border) bg-(--surface) p-5 shadow-[var(--panel-shadow-lg)]">
-            <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-(--panel-border-strong)" />
-            <div className="mb-5 flex items-center justify-between">
-              <p className="text-sm font-semibold text-foreground">Quick actions</p>
-              <Button type="button" size="icon" variant="ghost" className="h-8 w-8" onClick={onClose}>
+          <div className="print-in absolute inset-x-0 bottom-0 border-t-2 border-(--secure) bg-(--stock-face) shadow-[var(--lift-high)]">
+            <div className="flex items-center justify-between border-b border-(--secure-deep) bg-(--secure) px-3 py-2">
+              <span className="legend text-(--secure-ink)">Quick actions</span>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close quick actions"
+                className="flex h-7 w-7 items-center justify-center rounded-[2px] text-(--secure-ink) transition-colors hover:bg-(--secure-ink)/12"
+              >
                 <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-px bg-(--rule)">
+              <PaletteAction
+                icon={<MessageSquareText className="h-4 w-4" />}
+                label="Focus entry"
+                onClick={() => {
+                  onFocusMessage();
+                  onClose();
+                }}
+              />
+              <PaletteAction
+                icon={<LogIn className="h-4 w-4" />}
+                label="Join room"
+                onClick={() => {
+                  onJoin();
+                  onClose();
+                }}
+              />
+              <PaletteAction
+                icon={<LogOut className="h-4 w-4" />}
+                label="Leave room"
+                disabled={!canLeave}
+                onClick={() => {
+                  onLeave();
+                  onClose();
+                }}
+              />
+              <PaletteAction
+                icon={<Sparkles className="h-4 w-4" />}
+                label="Run agent"
+                onClick={() => {
+                  onRunAgent();
+                  onClose();
+                }}
+              />
+            </div>
+
+            <div className="p-3">
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={() => {
+                  onToggleTheme();
+                  onClose();
+                }}
+              >
+                {theme === "light" ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
+                {theme === "light" ? "Dark theme" : "Light theme"}
               </Button>
-            </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
-              <PaletteAction icon={<MessageSquareText className="h-4 w-4" />} label="Focus message" onClick={() => { onFocusMessage(); onClose(); }} />
-              <PaletteAction icon={<LogIn className="h-4 w-4" />} label="Join room" onClick={() => { onJoin(); onClose(); }} />
-              <PaletteAction icon={<LogOut className="h-4 w-4" />} label="Leave room" disabled={!canLeave} onClick={() => { onLeave(); onClose(); }} />
-              <PaletteAction icon={<Sparkles className="h-4 w-4" />} label="Run agent" onClick={() => { onRunAgent(); onClose(); }} />
-            </div>
-
-            <Button type="button" className="mt-2.5 w-full" onClick={() => { onToggleTheme(); onClose(); }}>
-              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-              {theme === "light" ? "Dark theme" : "Light theme"}
-            </Button>
-
-            <div className="surface-inset mt-5 p-4 text-xs text-(--muted)">
-              <p className="mb-2 font-medium text-foreground">Keyboard shortcuts</p>
-              <ul className="space-y-1.5">
-                <li className="flex items-center gap-2"><Kbd>Shift + M</Kbd> Focus message</li>
-                <li className="flex items-center gap-2"><Kbd>Shift + J</Kbd> Join room</li>
-                <li className="flex items-center gap-2"><Kbd>⌘ + ↵</Kbd> Send or run</li>
-              </ul>
+              <dl className="mt-3 border border-(--rule) bg-(--stock-sunk)">
+                <div className="border-b border-(--rule) px-2.5 py-1">
+                  <span className="legend">Keys</span>
+                </div>
+                {[
+                  ["Shift + M", "Focus entry"],
+                  ["Shift + J", "Join room"],
+                  ["⌘ / Ctrl + ↵", "Send or run"],
+                ].map(([key, action]) => (
+                  <div
+                    key={key}
+                    className="flex items-center gap-2.5 border-b border-(--rule) px-2.5 py-1.5 last:border-b-0"
+                  >
+                    <dt className="value w-28 shrink-0 text-[0.6875rem] text-(--ink)">{key}</dt>
+                    <dd className="note">{action}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </div>
         </div>
@@ -98,20 +140,10 @@ function PaletteAction({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex flex-col items-start gap-2 rounded-xl border border-(--panel-border) bg-(--surface-strong) p-3.5 text-left transition-colors hover:border-(--panel-border-strong) hover:bg-(--surface) disabled:opacity-50"
+      className="flex items-center gap-2.5 bg-(--stock-face) px-3 py-3.5 text-left transition-colors duration-100 hover:bg-(--secure-tint) disabled:opacity-45 disabled:hover:bg-(--stock-face)"
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-tint) text-(--accent)">
-        {icon}
-      </span>
-      <span className="text-sm font-medium text-foreground">{label}</span>
+      <span className="text-(--secure)">{icon}</span>
+      <span className="text-[0.8125rem] font-[600] text-(--ink)">{label}</span>
     </button>
-  );
-}
-
-function Kbd({ children }: { children: React.ReactNode }) {
-  return (
-    <kbd className="rounded-md border border-(--panel-border) bg-(--surface) px-1.5 py-0.5 font-mono text-[11px] font-medium text-foreground">
-      {children}
-    </kbd>
   );
 }

@@ -156,17 +156,25 @@ export default function Home() {
 
   if (!isLoaded || !user) {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 text-foreground">
-        <div className="hero-shell w-full max-w-md p-10 text-center animate-fade-in">
-          <div className="mx-auto mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-(--surface-strong) ring-1 ring-(--panel-border) animate-pulse-slow">
-            <img src="/brand/paircode-mark.svg" alt="" width={36} height={36} className="opacity-90" />
-          </div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">Connecting to workspace</h1>
-          <p className="mx-auto mt-2.5 max-w-xs text-sm leading-relaxed text-(--muted)">
-            Verifying your session and establishing a secure connection.
-          </p>
-          <div className="mx-auto mt-6 h-1 w-40 overflow-hidden rounded-full bg-(--surface-strong)">
-            <div className="h-full w-1/2 animate-pulse rounded-full bg-(--accent)" />
+      <main className="flex min-h-screen items-center justify-center px-4">
+        {/* The reader, mid-read. */}
+        <div className="w-full max-w-sm">
+          <div className="credential reader-sweep relative overflow-hidden">
+            <div className="flex items-center gap-2 border-b border-(--secure-deep) bg-(--secure) px-3 py-1.5 text-(--secure-ink)">
+              <img src="/brand/paircode-mark.svg" alt="" width={18} height={18} />
+              <span className="legend text-(--secure-ink)">PairCode</span>
+              <span className="lamp lamp-reading ml-auto" />
+            </div>
+            <div className="px-4 py-6 text-center">
+              <h1 className="text-base font-[600] text-(--ink)">Reading your credential</h1>
+              <p className="mx-auto mt-2 max-w-xs text-[0.8125rem] leading-relaxed text-(--ink-2)">
+                Verifying your session and opening a secure connection to the room server.
+              </p>
+            </div>
+            <div className="mrz" aria-hidden>
+              <div>{"<".repeat(30)}</div>
+              <div>{"<".repeat(30)}</div>
+            </div>
           </div>
         </div>
       </main>
@@ -174,14 +182,13 @@ export default function Home() {
   }
 
   return (
-    <main className="relative min-h-screen bg-background pb-10 text-foreground selection:bg-(--accent) selection:text-(--accent-contrast)">
-
-      <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 pt-4 lg:px-6 lg:pt-5">
-        <HeaderCard
+    <main className="min-h-screen lg:flex lg:h-[100dvh] lg:min-h-0 lg:flex-col lg:overflow-hidden lg:pb-0">
+      <HeaderCard
           status={status}
           statusBadgeVariant={statusBadgeVariant}
           theme={theme}
           mySocketId={mySocketId}
+          operatorId={user.id}
           roomId={roomId}
           operatorName={name}
           operatorEmail={operatorEmail}
@@ -191,7 +198,7 @@ export default function Home() {
               variant="ghost"
               size="sm"
               onClick={() => void signOut()}
-              className="text-xs font-medium text-(--muted) hover:text-foreground hover:bg-(--surface-strong) transition-colors rounded-lg px-3"
+              className="border-transparent text-(--secure-ink) hover:bg-(--secure-ink)/12 hover:text-(--secure-ink)"
             >
               Sign out
             </Button>
@@ -201,6 +208,7 @@ export default function Home() {
           messagesCount={sortedMessages.length}
           modeLabel={modeLabel}
           showHints={showHints}
+          onOpenActions={openMobilePalette}
           canLeave={Boolean(activeRoom) || status === "connected" || status === "connecting"}
           onRoomIdChange={setRoomId}
           onJoin={handleJoin}
@@ -209,17 +217,21 @@ export default function Home() {
           onDismissHints={dismissHints}
         />
 
-        <section className="fade-up-delay grid gap-5 lg:grid-cols-[290px_minmax(0,1fr)_370px]">
+      <section className="mx-auto grid w-full max-w-[1560px] gap-3 px-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[19rem_minmax(0,1fr)_22rem] lg:overflow-hidden lg:px-5 lg:py-4">
+          <div className="order-2 lg:order-none lg:contents">
           <PresenceSidebar
             users={users}
             roomMembers={roomMembers}
             mySocketId={mySocketId}
             currentUserId={user.id}
+            currentUserEmail={user.email}
             roomOwner={roomOwner}
             canManageRoom={canManageRoom}
             onRemoveMember={removeMember}
           />
+          </div>
 
+          <div className="order-1 lg:order-none lg:contents">
           <MessagePanel
             messages={sortedMessages}
             typingIndicator={typingIndicator}
@@ -236,7 +248,9 @@ export default function Home() {
             onInsertStarter={insertStarterMessage}
             onFocusInput={focusMessageInput}
           />
+          </div>
 
+          <div className="order-3 lg:order-none lg:contents">
           <ContextSidebar
             context={context}
             activeRoom={activeRoom}
@@ -257,14 +271,13 @@ export default function Home() {
             onSelectMode={setAgentMode}
             onRunAgent={askAgent}
           />
-        </section>
-      </div>
+          </div>
+      </section>
 
       <MobileCommandPalette
         open={mobilePaletteOpen}
         theme={theme}
         canLeave={Boolean(activeRoom) || status === "connected" || status === "connecting"}
-        onOpen={openMobilePalette}
         onClose={closeMobilePalette}
         onFocusMessage={focusMessageInput}
         onJoin={handleJoin}

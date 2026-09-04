@@ -81,8 +81,24 @@ export function initialsFromName(name: string) {
   return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
+/**
+ * A guest session is a real, provisional credential and the interface bands it
+ * as one. The shape below mirrors exactly what app/api/auth/guest/route.ts
+ * mints; if that route ever changes its address format, change this with it.
+ * A dedicated column or token claim would be sturdier than a pattern match.
+ */
+const GUEST_EMAIL = /^guest-[0-9a-f]+@example\.com$/i;
+
+export function isGuestOperator(email: string | undefined | null) {
+  return Boolean(email && GUEST_EMAIL.test(email.trim()));
+}
+
+/** The machine credential's identity. Every guilloché of the agent is
+ *  engraved from this, exactly as a person's is engraved from their user id. */
+export const ROOM_AGENT_ID = "room-agent";
+
 export function isAgentMessage(message: ChatMessage) {
-  return message.userId === "room-agent" || message.type === "ai";
+  return message.userId === ROOM_AGENT_ID || message.type === "ai";
 }
 
 export function isSystemMessage(message: ChatMessage) {

@@ -4,23 +4,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/* A control on an issued document is a stamped legend, not a pill: square,
+   ruled, and pressed down rather than scaled. */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-sm font-medium transition-all duration-150 ease-out outline-none disabled:pointer-events-none disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:ring-offset-0 active:scale-[0.98] [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-[2px] border font-[600] uppercase tracking-[0.11em] [font-stretch:78%] outline-none transition-[background-color,border-color,color] duration-100 ease-linear disabled:pointer-events-none disabled:opacity-45 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-(--accent) text-(--accent-contrast) shadow-sm hover:bg-(--accent-soft)",
+          "stamp-press border-(--secure-deep) bg-(--secure) text-(--secure-ink) hover:bg-(--secure-deep)",
         secondary:
-          "border border-(--panel-border) bg-(--surface) text-foreground hover:bg-(--surface-strong) hover:border-(--panel-border-strong)",
+          "border-(--rule-strong) bg-(--stock-face) text-(--ink) transition-transform hover:bg-(--stock-rack) active:translate-y-px",
         ghost:
-          "text-(--muted) hover:bg-(--surface-strong) hover:text-foreground",
+          "border-transparent bg-transparent text-(--ink-2) transition-transform hover:bg-(--secure-tint) hover:text-(--ink) active:translate-y-px",
+        cancel:
+          "border-(--cancel) bg-transparent text-(--cancel) transition-transform hover:bg-(--cancel-tint) active:translate-y-px",
       },
       size: {
-        default: "h-10 px-4",
-        sm: "h-8 px-3 text-[13px]",
-        lg: "h-11 px-6",
-        icon: "h-9 w-9",
+        default: "h-9 px-3.5 text-xs",
+        sm: "h-7 px-2.5 text-[0.6875rem]",
+        lg: "h-11 px-5 text-[0.8125rem]",
+        icon: "h-8 w-8 px-0",
       },
     },
     defaultVariants: {
